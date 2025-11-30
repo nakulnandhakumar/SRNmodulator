@@ -7,6 +7,7 @@ df_COMSOL_HfO2_ALDshield = pd.read_csv("modulator_data/COMSOL_HfO2_ALDshield.csv
 df_COMSOL_HfO2_ALDshield_etched = pd.read_csv("modulator_data/COMSOL_HfO2_ALDshield_etched.csv")
 df_COMSOL_SiO2_ALDshield = pd.read_csv("modulator_data/COMSOL_SiO2_ALDshield.csv")
 df_Lum_HfO2_ALDshield_etched = pd.read_csv("modulator_data/Lum_HfO2_ALDshield_etched.csv")
+df_Lum_HfO2_ALDshield_etched_fine = pd.read_csv("modulator_data/Lum_HfO2_ALDshield_etched_fine.csv")
 df_Lum_HfO2_BOX_ALDshield_etched = pd.read_csv("modulator_data/Lum_HfO2_BOX_ALDshield_etched.csv")
 
 # Convert gap from meters to nanometers for better readability (Lum HfO2 already in nm)
@@ -28,6 +29,9 @@ for index, row in df_COMSOL_SiO2_ALDshield.iterrows():
     print(f"Gap: {row['Gap']:.1f} nm, Loss: {row['Loss']:.4f} dB/cm")
 print("\nLumeical HfO2 ALD Shield with Top Layer Etched Loss values (dB/cm) and Gap (nm):")
 for index, row in df_Lum_HfO2_ALDshield_etched.iterrows():
+    print(f"Gap: {row['gap']:.1f} nm, Loss (TE): {row['loss(TE)']:.4f} dB/cm, Loss (TM): {row['loss(TM)']:.4f} dB/cm")
+print("\nLumeical HfO2 ALD Shield with Top Layer Etched (Fine) Loss values (dB/cm) and Gap (nm):")
+for index, row in df_Lum_HfO2_ALDshield_etched_fine.iterrows():
     print(f"Gap: {row['gap']:.1f} nm, Loss (TE): {row['loss(TE)']:.4f} dB/cm, Loss (TM): {row['loss(TM)']:.4f} dB/cm")
 print("\nLumeical HfO2 BOX + ALD Shield with Top Layer Etched Loss values (dB/cm) and Gap (nm):")
 for index, row in df_Lum_HfO2_BOX_ALDshield_etched.iterrows():
@@ -68,6 +72,18 @@ plt.plot(df_Lum_HfO2_BOX_ALDshield_etched['gap'], df_Lum_HfO2_BOX_ALDshield_etch
 plt.xlabel('Gap (nm)')
 plt.ylabel('Loss (dB/cm)')
 plt.title('Loss vs Gap (Lumerical TE modes)')
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+# Plot the loss vs gap for the fine sweep of the HfO2 shield top layer etched data (TE and TM)
+plt.figure(figsize=(8, 6))
+plt.plot(df_Lum_HfO2_ALDshield_etched_fine['gap'], df_Lum_HfO2_ALDshield_etched_fine['loss(TE)'], marker='o', label='Lumerical HfO2 ALD Shield (TE)', color='blue')
+plt.plot(df_Lum_HfO2_ALDshield_etched_fine['gap'], df_Lum_HfO2_ALDshield_etched_fine['loss(TM)'], marker='s', label='Lumerical HfO2 ALD Shield (TM)', color='green')
+plt.xlabel('Gap (nm)')
+plt.ylabel('Loss (dB/cm)')
+plt.title('Loss vs Gap')
 plt.legend()
 plt.grid(True)
 plt.tight_layout()

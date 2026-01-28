@@ -3,20 +3,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Import the data from the CSV files
-df_COMSOL_HfO2_ALDshield = pd.read_csv("modulator_data/COMSOL_HfO2_ALDshield.csv")
-df_COMSOL_HfO2_ALDshield_etched = pd.read_csv("modulator_data/COMSOL_HfO2_ALDshield_etched.csv")
-df_COMSOL_SiO2_ALDshield = pd.read_csv("modulator_data/COMSOL_SiO2_ALDshield.csv")
 df_COMSOL_HfO2_ALDshield_reducedAu = pd.read_csv("modulator_data/COMSOL_HfO2_ALDshield_reducedAu.csv")
-df_Lum_HfO2_ALDshield_etched = pd.read_csv("modulator_data/Lum_HfO2_ALDshield_etched.csv")
-df_Lum_HfO2_ALDshield_etched_fine = pd.read_csv("modulator_data/Lum_HfO2_ALDshield_etched_fine.csv")
-df_Lum_HfO2_BOX_ALDshield_etched = pd.read_csv("modulator_data/Lum_HfO2_BOX_ALDshield_etched.csv")
-df_Lum_HfO2_ALDshield = pd.read_csv("modulator_data/Lum_HfO2_ALDshield.csv")
 df_Lum_HfO2_ALDshield_reducedAu = pd.read_csv("modulator_data/Lum_HfO2_ALDshield_reducedAu.csv")
 
 # Convert gap from meters to nanometers for better readability (Lum HfO2 already in nm)
-df_COMSOL_HfO2_ALDshield['Gap'] = df_COMSOL_HfO2_ALDshield['Gap'] * 1e9
-df_COMSOL_HfO2_ALDshield_etched['Gap'] = df_COMSOL_HfO2_ALDshield_etched['Gap'] * 1e9
-df_COMSOL_SiO2_ALDshield['Gap'] = df_COMSOL_SiO2_ALDshield['Gap'] * 1e9
 df_COMSOL_HfO2_ALDshield_reducedAu['Gap'] = df_COMSOL_HfO2_ALDshield_reducedAu['Gap'] * 1e9
 # ---------- Lum HfO2 data is already in nm ----------------------
 

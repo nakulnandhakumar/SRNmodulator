@@ -6,7 +6,7 @@ from scipy.interpolate import griddata
 # FILE PATHS
 # ============================================================
 
-COMSOL_PATH = r"modulator_data/COMSOL_ACDC_field_dist/COMSOL_HfO2_ALDShield_reducedAu_acdc_field_dist.csv"
+COMSOL_PATH = r"modulator_data/COMSOL_HfO2_ALDShield_reducedAu_acdc_field_dist.csv"
 LUM_PATH    = r"modulator_data/Lumerical_mode_dist/csv/mode_field_g_300nm.csv"
 
 # ============================================================
@@ -119,19 +119,29 @@ top_core_hf02_mask = (
 
 hf02_mask = gap_hf02_mask | top_core_hf02_mask
 
-print("Core frac:", core_mask.mean())
-print("HfO2 frac:", hf02_mask.mean())
-
 # ============================================================
 # DELTA EPSILON MAP (KERR)
 # ============================================================
 
-E_nl = 2*lum["EDCdotEAC"] + lum["EAC2"]
+E_nl = 2*lum["EDCdotEAC"]
 
 lum["Deps"] = 0.0
 lum.loc[core_mask, "Deps"] += (3/4) * eps0 * chi3_SRN * E_nl[core_mask]
 
-print("Δε stats:\n", lum["Deps"].describe())
+# ============================================================
+# EFFECTIVE chi^(2) MAP (EFISH)
+# ============================================================
+
+# DC field magnitude
+lum["EDC_mag"] = np.sqrt(lum["EDC2"])
+
+# allocate chi2 map
+lum["chi2_eff"] = 0.0
+
+# EFISH chi2: (3/2) * chi3 * E_DC
+lum.loc[core_mask, "chi2_eff"] = (
+    1.5 * chi3_SRN * lum.loc[core_mask, "EDC_mag"]
+)
 
 # ============================================================
 # OPTICAL PERMITTIVITY MAP
@@ -150,7 +160,7 @@ lum.loc[hf02_mask, "epsr_opt"] = epsr_HfO2
 lum.loc[core_mask, "epsr_opt"] = epsr_SRN
 
 # ============================================================
-# OVERLAP INTEGRALS
+# Delta neff OVERLAP INTEGRALS
 # ============================================================
 
 w    = lum["E2"].to_numpy(float)
@@ -172,6 +182,21 @@ den = 2 * np.sum(eps0 * epsr * w) * dA
 dneff_per_V = num / den
 
 print("Δn_eff / V =", dneff_per_V)
+
+# ============================================================
+# MODE-WEIGHTED AVERAGE chi^(2)_eff
+# ============================================================
+
+Eopt2 = lum["E2"].to_numpy(float)
+chi2  = lum["chi2_eff"].to_numpy(float)
+
+num_chi2 = np.sum(chi2 * Eopt2) * dA
+den_chi2 = np.sum(Eopt2) * dA
+
+chi2_eff_avg = num_chi2 / den_chi2
+
+print("Mode-weighted χ²_eff =", chi2_eff_avg, "m/V")
+print("χ²_eff =", chi2_eff_avg * 1e12, "pm/V")
 
 # ============================================================
 # Vpi L

@@ -160,7 +160,7 @@ lum.loc[hf02_mask, "epsr_opt"] = epsr_HfO2
 lum.loc[core_mask, "epsr_opt"] = epsr_SRN
 
 # ============================================================
-# Delta neff OVERLAP INTEGRALS
+# DELTA Neff OVERLAP 
 # ============================================================
 
 w    = lum["E2"].to_numpy(float)
@@ -184,7 +184,7 @@ dneff_per_V = num / den
 print("Δn_eff / V =", dneff_per_V)
 
 # ============================================================
-# MODE-WEIGHTED AVERAGE chi^(2)_eff
+# MODE-WEIGHTED AVERAGE chi^(2)_eff OVERLAP
 # ============================================================
 
 Eopt2 = lum["E2"].to_numpy(float)

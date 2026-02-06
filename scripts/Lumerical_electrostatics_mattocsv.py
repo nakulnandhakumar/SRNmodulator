@@ -1,19 +1,55 @@
-import h5py
+import os
+import glob
 import numpy as np
+import pandas as pd
+import h5py
 
-with h5py.File("./modulator_data/Lumerical_electrostatics/mat/SRN_modulator_electrostatics.mat", "r") as f:
-    print("Keys:", list(f.keys()))
+# ============================================================
+# PATHS
+# ============================================================
 
-    E = np.array(f["E"])
-    verts = np.array(f["vertices"])
+MAT_DIR = r"./modulator_data/Lumerical_electrostatics/mat"
+OUT_DIR = r"./modulator_data/Lumerical_electrostatics/csv"
+os.makedirs(OUT_DIR, exist_ok=True)
 
-Ex = E[0, :]
-Ey = E[1, :]
-Ez = E[2, :]
+mat_files = sorted(glob.glob(os.path.join(MAT_DIR, "*.mat")))
+if not mat_files:
+    raise FileNotFoundError("No electrostatics MAT files found.")
 
-x = verts[0, :]
-y = verts[1, :]
-z = verts[2, :]
+# ============================================================
+# CONVERSION
+# ============================================================
 
-print(np.max(np.sqrt(Ex**2 + Ey**2)))
-print(np.max(y))
+for fpath in mat_files:
+    with h5py.File(fpath, "r") as f:
+        print("\nReading:", os.path.basename(fpath))
+        print("Keys:", list(f.keys()))
+
+        E     = np.array(f["E"])         # shape (3, N)
+        verts = np.array(f["vertices"])  # shape (3, N)
+
+    # --- unpack ---
+    Ex = E[0, :]
+    Ey = E[1, :]
+
+    x = verts[0, :]
+    y = verts[1, :]
+
+    Enorm = np.sqrt(Ex**2 + Ey**2)
+
+    # --- dataframe ---
+    df = pd.DataFrame({
+        "x_m": x,
+        "y_m": y,
+        "Ex": Ex,
+        "Ey": Ey,
+        "E_norm": Enorm,
+    })
+
+    out_name = os.path.splitext(os.path.basename(fpath))[0] + ".csv"
+    out_path = os.path.join(OUT_DIR, out_name)
+    df.to_csv(out_path, index=False)
+
+    print("Saved:", out_path)
+
+print("\nAll electrostatics files converted to CSV.")

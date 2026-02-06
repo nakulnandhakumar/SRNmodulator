@@ -1,1 +1,2 @@
-mode_field_g_*.csv
+modulator_data/Lumerical_electrostatics/csv/*
+modulator_data/Lumerical_mode/csv/*

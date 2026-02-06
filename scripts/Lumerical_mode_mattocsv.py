@@ -6,7 +6,7 @@ import h5py
 
 # === CHANGE IF NEEDED ===
 MAT_DIR = r"./modulator_data/Lumerical_mode/mat"
-OUT_DIR = os.path.join("./modulator_data/Lumerical_mode_dist", "csv")
+OUT_DIR = r"./modulator_data/Lumerical_mode/csv"
 os.makedirs(OUT_DIR, exist_ok=True)
 
 mat_files = sorted(glob.glob(os.path.join(MAT_DIR, "mode_field_g_*nm.mat")))

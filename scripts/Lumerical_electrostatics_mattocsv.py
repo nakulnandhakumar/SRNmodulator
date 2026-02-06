@@ -5,6 +5,12 @@ import pandas as pd
 import h5py
 
 # ============================================================
+# USER SETTINGS
+# ============================================================
+
+V_DC = 100.0   # volts used in Lumerical electrostatics solve
+
+# ============================================================
 # PATHS
 # ============================================================
 
@@ -28,22 +34,36 @@ for fpath in mat_files:
         E     = np.array(f["E"])         # shape (3, N)
         verts = np.array(f["vertices"])  # shape (3, N)
 
-    # --- unpack ---
-    Ex = E[0, :]
-    Ey = E[1, :]
+    # --------------------------------------------------------
+    # Unpack fields (2D electrostatics → Ex, Ey only)
+    # --------------------------------------------------------
 
+    Ex_DC = E[0, :]   # V/m
+    Ey_DC = E[1, :]   # V/m
+
+    # AC shape field per 1 V
+    Ex_AC_1V = Ex_DC / V_DC
+    Ey_AC_1V = Ey_DC / V_DC
+
+    # Coordinates
     x = verts[0, :]
     y = verts[1, :]
 
-    Enorm = np.sqrt(Ex**2 + Ey**2)
+    # --------------------------------------------------------
+    # Build dataframe
+    # --------------------------------------------------------
 
-    # --- dataframe ---
     df = pd.DataFrame({
         "x_m": x,
         "y_m": y,
-        "Ex": Ex,
-        "Ey": Ey,
-        "E_norm": Enorm,
+
+        # DC bias field
+        "EDCx": Ex_DC,
+        "EDCy": Ey_DC,
+
+        # AC field per volt
+        "EACx_1V": Ex_AC_1V,
+        "EACy_1V": Ey_AC_1V,
     })
 
     out_name = os.path.splitext(os.path.basename(fpath))[0] + ".csv"

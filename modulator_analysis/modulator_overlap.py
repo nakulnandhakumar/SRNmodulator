@@ -3,13 +3,6 @@ import pandas as pd
 from scipy.interpolate import griddata
 
 # ============================================================
-# FILE PATHS
-# ============================================================
-
-COMSOL_PATH = r"modulator_data/COMSOL_HfO2_ALDShield_reducedAu_acdc_field_dist.csv"
-LUM_PATH    = r"modulator_data/Lumerical_mode_dist/csv/mode_field_g_300nm.csv"
-
-# ============================================================
 # USER SETTINGS
 # ============================================================
 
@@ -20,6 +13,20 @@ lam0 = 1.55e-6
 eps0 = 8.854e-12
 
 chi3_SRN = 6e-19   # m^2 / V^2  (update if you refine this)
+
+# ============================================================
+# FILE PATHS
+# ============================================================
+
+LUM_ESTAT_PATH = (
+    f"modulator_data/Lumerical_electrostatics/csv/"
+    f"electrostatics_field_g_{g_nm}nm.csv"
+)
+
+LUM_MODE_PATH = (
+    f"modulator_data/Lumerical_mode/csv/"
+    f"mode_field_g_{g_nm}nm.csv"
+)
 
 # ============================================================
 # GEOMETRY PARAMETERS (meters)
@@ -37,53 +44,66 @@ y_core_bot = tBOX
 y_core_top = tBOX + H
 
 # ============================================================
-# LOAD COMSOL DATA
+# LOAD LUMERICAL ELECTROSTATICS
 # ============================================================
 
-comsol = pd.read_csv(COMSOL_PATH, comment="%", header=0)
-
-comsol = comsol.rename(columns={
-    "esAC.Ex (V/m)": "EACx",
-    "esAC.Ey (V/m)": "EACy",
-    "esDC.Ex (V/m)": "EDCx",
-    "esDC.Ey (V/m)": "EDCy",
-})
-
-comsol = comsol[["x", "y", "g", "EACx", "EACy", "EDCx", "EDCy"]]
-
-# electrostatic invariants
-comsol["EDC2"]       = comsol["EDCx"]**2 + comsol["EDCy"]**2
-comsol["EAC2"]       = comsol["EACx"]**2 + comsol["EACy"]**2
-comsol["EDCdotEAC"]  = comsol["EDCx"]*comsol["EACx"] + comsol["EDCy"]*comsol["EACy"]
-
-# select this gap
-com_g = comsol[np.isclose(comsol["g"], g_m)]
-print("COMSOL points for gap:", len(com_g))
+estat = pd.read_csv(LUM_ESTAT_PATH)
 
 # ============================================================
 # LOAD LUMERICAL MODE DATA
 # ============================================================
 
-lum = pd.read_csv(LUM_PATH)
+mode = pd.read_csv(LUM_MODE_PATH)
 
-if "E2" not in lum.columns:
+if "E2" not in mode.columns:
     raise ValueError("Expected column 'E2' in Lumerical CSV.")
 
 # ============================================================
-# INTERPOLATE COMSOL → LUMERICAL GRID
+# INTERPOLATE ELECTROSTATICS → OPTICAL (LUMERICAL GRID)
 # ============================================================
 
-pts = np.column_stack((com_g["x"].values, com_g["y"].values))
-tgt = np.column_stack((lum["x_m"].values, lum["y_m"].values))
+# Source points: electrostatics mesh
+pts = np.column_stack((
+    estat["x_m"].values,
+    estat["y_m"].values
+))
 
-lum["EDC2"]      = griddata(pts, com_g["EDC2"].values,      tgt, method="linear")
-lum["EAC2"]      = griddata(pts, com_g["EAC2"].values,      tgt, method="linear")
-lum["EDCdotEAC"] = griddata(pts, com_g["EDCdotEAC"].values, tgt, method="linear")
+# Target points: optical mode grid
+tgt = np.column_stack((
+    mode["x_m"].values,
+    mode["y_m"].values
+))
 
-print("NaN fraction:",
-      np.isnan(lum["EDC2"]).mean(),
-      np.isnan(lum["EAC2"]).mean(),
-      np.isnan(lum["EDCdotEAC"]).mean())
+lum = pd.DataFrame({
+    "x_m": mode["x_m"].values,
+    "y_m": mode["y_m"].values,
+})
+
+# --- DC fields ---
+lum["EDCx"] = griddata(
+    pts, estat["EDCx"].values, tgt, method="linear"
+)
+lum["EDCy"] = griddata(
+    pts, estat["EDCy"].values, tgt, method="linear"
+)
+
+# --- AC fields (per 1 V) ---
+lum["EACx_1V"] = griddata(
+    pts, estat["EACx_1V"].values, tgt, method="linear"
+)
+lum["EACy_1V"] = griddata(
+    pts, estat["EACy_1V"].values, tgt, method="linear"
+)
+
+# ------------------------------------------------------------
+# Diagnostics
+# ------------------------------------------------------------
+
+print("NaN fraction:")
+print("  EDCx:", np.isnan(lum["EDCx"]).mean())
+print("  EDCy:", np.isnan(lum["EDCy"]).mean())
+print("  EACx_1V:", np.isnan(lum["EACx_1V"]).mean())
+print("  EACy_1V:", np.isnan(lum ["EACy_1V"]).mean())
 
 # ============================================================
 # REGION MASKS
@@ -120,19 +140,21 @@ top_core_hf02_mask = (
 hf02_mask = gap_hf02_mask | top_core_hf02_mask
 
 # ============================================================
-# DELTA EPSILON MAP (KERR)
+# DELTA EPSILON MAP
 # ============================================================
 
-E_nl = 2*lum["EDCdotEAC"]
+lum["EDCdotEAC"] = lum["EDCx"]*lum["EACx_1V"] + lum["EDCy"]*lum["EACy_1V"]
+E_cross = 2*lum["EDCdotEAC"]
 
 lum["Deps"] = 0.0
-lum.loc[core_mask, "Deps"] += (3/4) * eps0 * chi3_SRN * E_nl[core_mask]
+lum.loc[core_mask, "Deps"] += (3/4) * eps0 * chi3_SRN * E_cross[core_mask]
 
 # ============================================================
 # EFFECTIVE chi^(2) MAP (EFISH)
 # ============================================================
 
 # DC field magnitude
+lum["EDC2"] = lum["EDCx"]**2 + lum["EDCy"]**2
 lum["EDC_mag"] = np.sqrt(lum["EDC2"])
 
 # allocate chi2 map
@@ -163,6 +185,7 @@ lum.loc[core_mask, "epsr_opt"] = epsr_SRN
 # DELTA Neff OVERLAP 
 # ============================================================
 
+lum["E2"] = mode["E2"]
 w    = lum["E2"].to_numpy(float)
 deps = lum["Deps"].to_numpy(float)
 epsr = lum["epsr_opt"].to_numpy(float)
@@ -195,8 +218,8 @@ den_chi2 = np.sum(Eopt2) * dA
 
 chi2_eff_avg = num_chi2 / den_chi2
 
-print("Mode-weighted χ²_eff =", chi2_eff_avg, "m/V")
-print("χ²_eff =", chi2_eff_avg * 1e12, "pm/V")
+print("Mode-weighted χ²_eff (m/V)=", chi2_eff_avg, "m/V")
+print("Mode-weighted χ²_eff (pm/V) =", chi2_eff_avg * 1e12, "pm/V")
 
 # ============================================================
 # Vpi L

@@ -2,231 +2,260 @@ import numpy as np
 import pandas as pd
 from scipy.interpolate import griddata
 
-# ============================================================
-# USER SETTINGS
-# ============================================================
 
-g_nm = 300
-g_m  = g_nm * 1e-9
+def compute_modulator_overlap(g_nm):
+    """
+    Compute Δn_eff, χ²_eff, and Vπ·L for a given gap g (nm).
 
-lam0 = 1.55e-6
-eps0 = 8.854e-12
+    Parameters
+    ----------
+    g_nm : float
+        Gap width in nanometers.
 
-chi3_SRN = 6e-19   # m^2 / V^2  (update if you refine this)
+    Returns
+    -------
+    results : dict
+        Dictionary containing:
+        - dneff_per_V
+        - chi2_eff_avg_mV
+        - chi2_eff_avg_pmV
+        - VpiL_Vm
+        - VpiL_Vcm
+        - lum (full dataframe)
+    """
+    # ============================================================
+    # USER SETTINGS
+    # ============================================================
+    g_m  = g_nm * 1e-9
 
-# ============================================================
-# FILE PATHS
-# ============================================================
+    lam0 = 1.55e-6
+    eps0 = 8.854e-12
 
-LUM_ESTAT_PATH = (
-    f"modulator_data/Lumerical_electrostatics/csv/"
-    f"electrostatics_field_g_{g_nm}nm.csv"
-)
+    chi3_SRN = 6e-19   # m^2 / V^2  (update if you refine this)
 
-LUM_MODE_PATH = (
-    f"modulator_data/Lumerical_mode/csv/"
-    f"mode_field_g_{g_nm}nm.csv"
-)
+    # ============================================================
+    # FILE PATHS
+    # ============================================================
 
-# ============================================================
-# GEOMETRY PARAMETERS (meters)
-# ============================================================
+    LUM_ESTAT_PATH = (
+        f"modulator_data/Lumerical_electrostatics/csv/"
+        f"electrostatics_field_g_{g_nm}nm.csv"
+    )
 
-W      = 0.450e-6
-H      = 0.350e-6
-tBOX   = 3e-6
-tCLAD  = 2e-6
-metal_t = 100e-9
+    LUM_MODE_PATH = (
+        f"modulator_data/Lumerical_mode/csv/"
+        f"mode_field_g_{g_nm}nm.csv"
+    )
 
-t_shield_top = 0.5 * g_m
+    # ============================================================
+    # GEOMETRY PARAMETERS (meters)
+    # ============================================================
 
-y_core_bot = tBOX
-y_core_top = tBOX + H
+    W      = 0.450e-6
+    H      = 0.350e-6
+    tBOX   = 3e-6
+    tCLAD  = 2e-6
+    metal_t = 100e-9
 
-# ============================================================
-# LOAD LUMERICAL ELECTROSTATICS
-# ============================================================
+    t_shield_top = 0.5 * g_m
 
-estat = pd.read_csv(LUM_ESTAT_PATH)
+    y_core_bot = tBOX
+    y_core_top = tBOX + H
 
-# ============================================================
-# LOAD LUMERICAL MODE DATA
-# ============================================================
+    # ============================================================
+    # LOAD LUMERICAL ELECTROSTATICS
+    # ============================================================
 
-mode = pd.read_csv(LUM_MODE_PATH)
+    estat = pd.read_csv(LUM_ESTAT_PATH)
 
-if "E2" not in mode.columns:
-    raise ValueError("Expected column 'E2' in Lumerical CSV.")
+    # ============================================================
+    # LOAD LUMERICAL MODE DATA
+    # ============================================================
 
-# ============================================================
-# INTERPOLATE ELECTROSTATICS → OPTICAL (LUMERICAL GRID)
-# ============================================================
+    mode = pd.read_csv(LUM_MODE_PATH)
 
-# Source points: electrostatics mesh
-pts = np.column_stack((
-    estat["x_m"].values,
-    estat["y_m"].values
-))
+    if "E2" not in mode.columns:
+        raise ValueError("Expected column 'E2' in Lumerical CSV.")
 
-# Target points: optical mode grid
-tgt = np.column_stack((
-    mode["x_m"].values,
-    mode["y_m"].values
-))
+    # ============================================================
+    # INTERPOLATE ELECTROSTATICS → OPTICAL (LUMERICAL GRID)
+    # ============================================================
 
-lum = pd.DataFrame({
-    "x_m": mode["x_m"].values,
-    "y_m": mode["y_m"].values,
-})
+    # Source points: electrostatics mesh
+    pts = np.column_stack((
+        estat["x_m"].values,
+        estat["y_m"].values
+    ))
 
-# --- DC fields ---
-lum["EDCx"] = griddata(
-    pts, estat["EDCx"].values, tgt, method="linear"
-)
-lum["EDCy"] = griddata(
-    pts, estat["EDCy"].values, tgt, method="linear"
-)
+    # Target points: optical mode grid
+    tgt = np.column_stack((
+        mode["x_m"].values,
+        mode["y_m"].values
+    ))
 
-# --- AC fields (per 1 V) ---
-lum["EACx_1V"] = griddata(
-    pts, estat["EACx_1V"].values, tgt, method="linear"
-)
-lum["EACy_1V"] = griddata(
-    pts, estat["EACy_1V"].values, tgt, method="linear"
-)
+    lum = pd.DataFrame({
+        "x_m": mode["x_m"].values,
+        "y_m": mode["y_m"].values,
+    })
 
-# ------------------------------------------------------------
-# Diagnostics
-# ------------------------------------------------------------
+    # --- DC fields ---
+    lum["EDCx"] = griddata(
+        pts, estat["EDCx"].values, tgt, method="linear"
+    )
+    lum["EDCy"] = griddata(
+        pts, estat["EDCy"].values, tgt, method="linear"
+    )
 
-print("NaN fraction:")
-print("  EDCx:", np.isnan(lum["EDCx"]).mean())
-print("  EDCy:", np.isnan(lum["EDCy"]).mean())
-print("  EACx_1V:", np.isnan(lum["EACx_1V"]).mean())
-print("  EACy_1V:", np.isnan(lum ["EACy_1V"]).mean())
+    # --- AC fields (per 1 V) ---
+    lum["EACx_1V"] = griddata(
+        pts, estat["EACx_1V"].values, tgt, method="linear"
+    )
+    lum["EACy_1V"] = griddata(
+        pts, estat["EACy_1V"].values, tgt, method="linear"
+    )
 
-# ============================================================
-# REGION MASKS
-# ============================================================
+    # ------------------------------------------------------------
+    # Diagnostics
+    # ------------------------------------------------------------
 
-core_mask = (
-    (np.abs(lum["x_m"]) <= W/2) &
-    (lum["y_m"] >= y_core_bot) &
-    (lum["y_m"] <= y_core_top)
-)
+    print("NaN fraction:")
+    print("  EDCx:", np.isnan(lum["EDCx"]).mean())
+    print("  EDCy:", np.isnan(lum["EDCy"]).mean())
+    print("  EACx_1V:", np.isnan(lum["EACx_1V"]).mean())
+    print("  EACy_1V:", np.isnan(lum ["EACy_1V"]).mean())
 
-left_gap_hf02 = (
-    (lum["x_m"] >= -(W/2 + g_m)) &
-    (lum["x_m"] <= -(W/2)) &
-    (lum["y_m"] >= y_core_bot) &
-    (lum["y_m"] <= y_core_top)
-)
+    # ============================================================
+    # REGION MASKS
+    # ============================================================
 
-right_gap_hf02 = (
-    (lum["x_m"] >=  (W/2)) &
-    (lum["x_m"] <=  (W/2 + g_m)) &
-    (lum["y_m"] >= y_core_bot) &
-    (lum["y_m"] <= y_core_top)
-)
+    core_mask = (
+        (np.abs(lum["x_m"]) <= W/2) &
+        (lum["y_m"] >= y_core_bot) &
+        (lum["y_m"] <= y_core_top)
+    )
 
-gap_hf02_mask = left_gap_hf02 | right_gap_hf02
+    left_gap_hf02 = (
+        (lum["x_m"] >= -(W/2 + g_m)) &
+        (lum["x_m"] <= -(W/2)) &
+        (lum["y_m"] >= y_core_bot) &
+        (lum["y_m"] <= y_core_top)
+    )
 
-top_core_hf02_mask = (
-    (np.abs(lum["x_m"]) <= W/2) &
-    (lum["y_m"] >= y_core_top) &
-    (lum["y_m"] <= y_core_top + t_shield_top)
-)
+    right_gap_hf02 = (
+        (lum["x_m"] >=  (W/2)) &
+        (lum["x_m"] <=  (W/2 + g_m)) &
+        (lum["y_m"] >= y_core_bot) &
+        (lum["y_m"] <= y_core_top)
+    )
 
-hf02_mask = gap_hf02_mask | top_core_hf02_mask
+    gap_hf02_mask = left_gap_hf02 | right_gap_hf02
 
-# ============================================================
-# DELTA EPSILON MAP
-# ============================================================
+    top_core_hf02_mask = (
+        (np.abs(lum["x_m"]) <= W/2) &
+        (lum["y_m"] >= y_core_top) &
+        (lum["y_m"] <= y_core_top + t_shield_top)
+    )
 
-lum["EDCdotEAC"] = lum["EDCx"]*lum["EACx_1V"] + lum["EDCy"]*lum["EACy_1V"]
-E_cross = 2*lum["EDCdotEAC"]
+    hf02_mask = gap_hf02_mask | top_core_hf02_mask
 
-lum["Deps"] = 0.0
-lum.loc[core_mask, "Deps"] += (3/4) * eps0 * chi3_SRN * E_cross[core_mask]
+    # ============================================================
+    # DELTA EPSILON MAP
+    # ============================================================
 
-# ============================================================
-# EFFECTIVE chi^(2) MAP (EFISH)
-# ============================================================
+    lum["EDCdotEAC"] = lum["EDCx"]*lum["EACx_1V"] + lum["EDCy"]*lum["EACy_1V"]
+    E_cross = 2*lum["EDCdotEAC"]
 
-# DC field magnitude
-lum["EDC2"] = lum["EDCx"]**2 + lum["EDCy"]**2
-lum["EDC_mag"] = np.sqrt(lum["EDC2"])
+    lum["Deps"] = 0.0
+    lum.loc[core_mask, "Deps"] += (3/4) * eps0 * chi3_SRN * E_cross[core_mask]
 
-# allocate chi2 map
-lum["chi2_eff"] = 0.0
+    # ============================================================
+    # EFFECTIVE chi^(2) MAP (EFISH)
+    # ============================================================
 
-# EFISH chi2: (3/2) * chi3 * E_DC
-lum.loc[core_mask, "chi2_eff"] = (
-    1.5 * chi3_SRN * lum.loc[core_mask, "EDC_mag"]
-)
+    # DC field magnitude
+    lum["EDC2"] = lum["EDCx"]**2 + lum["EDCy"]**2
+    lum["EDC_mag"] = np.sqrt(lum["EDC2"])
 
-# ============================================================
-# OPTICAL PERMITTIVITY MAP
-# ============================================================
+    # allocate chi2 map
+    lum["chi2_eff"] = 0.0
 
-n_SiO2 = 1.44
-n_HfO2 = 2.1
-n_SRN  = 3.1
+    # EFISH chi2: (3/2) * chi3 * E_DC
+    lum.loc[core_mask, "chi2_eff"] = (
+        1.5 * chi3_SRN * lum.loc[core_mask, "EDC_mag"]
+    )
 
-epsr_SiO2 = n_SiO2**2
-epsr_HfO2 = n_HfO2**2
-epsr_SRN  = n_SRN**2
+    # ============================================================
+    # OPTICAL PERMITTIVITY MAP
+    # ============================================================
 
-lum["epsr_opt"] = epsr_SiO2
-lum.loc[hf02_mask, "epsr_opt"] = epsr_HfO2
-lum.loc[core_mask, "epsr_opt"] = epsr_SRN
+    n_SiO2 = 1.44
+    n_HfO2 = 2.1
+    n_SRN  = 3.1
 
-# ============================================================
-# DELTA Neff OVERLAP 
-# ============================================================
+    epsr_SiO2 = n_SiO2**2
+    epsr_HfO2 = n_HfO2**2
+    epsr_SRN  = n_SRN**2
 
-lum["E2"] = mode["E2"]
-w    = lum["E2"].to_numpy(float)
-deps = lum["Deps"].to_numpy(float)
-epsr = lum["epsr_opt"].to_numpy(float)
+    lum["epsr_opt"] = epsr_SiO2
+    lum.loc[hf02_mask, "epsr_opt"] = epsr_HfO2
+    lum.loc[core_mask, "epsr_opt"] = epsr_SRN
 
-x_u = np.sort(lum["x_m"].unique())
-y_u = np.sort(lum["y_m"].unique())
+    # ============================================================
+    # DELTA Neff OVERLAP 
+    # ============================================================
 
-dx = np.median(np.diff(x_u))
-dy = np.median(np.diff(y_u))
-dA = dx * dy
+    lum["E2"] = mode["E2"]
+    w    = lum["E2"].to_numpy(float)
+    deps = lum["Deps"].to_numpy(float)
+    epsr = lum["epsr_opt"].to_numpy(float)
 
-print(f"dA = {dA:.3e} m^2")
+    x_u = np.sort(lum["x_m"].unique())
+    y_u = np.sort(lum["y_m"].unique())
 
-num = np.sum(deps * w) * dA
-den = 2 * np.sum(eps0 * epsr * w) * dA
+    dx = np.median(np.diff(x_u))
+    dy = np.median(np.diff(y_u))
+    dA = dx * dy
 
-dneff_per_V = num / den
+    print(f"dA = {dA:.3e} m^2")
 
-print("Δn_eff / V =", dneff_per_V)
+    num = np.sum(deps * w) * dA
+    den = 2 * np.sum(eps0 * epsr * w) * dA
 
-# ============================================================
-# MODE-WEIGHTED AVERAGE chi^(2)_eff OVERLAP
-# ============================================================
+    dneff_per_V = num / den
 
-Eopt2 = lum["E2"].to_numpy(float)
-chi2  = lum["chi2_eff"].to_numpy(float)
+    print("Δn_eff / V =", dneff_per_V)
 
-num_chi2 = np.sum(chi2 * Eopt2) * dA
-den_chi2 = np.sum(Eopt2) * dA
+    # ============================================================
+    # MODE-WEIGHTED AVERAGE chi^(2)_eff OVERLAP
+    # ============================================================
 
-chi2_eff_avg = num_chi2 / den_chi2
+    Eopt2 = lum["E2"].to_numpy(float)
+    chi2  = lum["chi2_eff"].to_numpy(float)
 
-print("Mode-weighted χ²_eff (m/V)=", chi2_eff_avg, "m/V")
-print("Mode-weighted χ²_eff (pm/V) =", chi2_eff_avg * 1e12, "pm/V")
+    num_chi2 = np.sum(chi2 * Eopt2) * dA
+    den_chi2 = np.sum(Eopt2) * dA
 
-# ============================================================
-# Vpi L
-# ============================================================
+    chi2_eff_avg = num_chi2 / den_chi2
 
-VpiL_SI  = lam0 / (2.0 * dneff_per_V)
-VpiL_Vcm = VpiL_SI * 100
+    print("Mode-weighted χ²_eff (m/V)=", chi2_eff_avg, "m/V")
+    print("Mode-weighted χ²_eff (pm/V) =", chi2_eff_avg * 1e12, "pm/V")
 
-print("Vπ·L (V·m) :", VpiL_SI)
-print("Vπ·L (V·cm):", VpiL_Vcm)
+    # ============================================================
+    # Vpi L
+    # ============================================================
+
+    VpiL_Vm  = lam0 / (2.0 * dneff_per_V)
+    VpiL_Vcm = VpiL_Vm * 100
+
+    print("Vπ·L (V·m) :", VpiL_Vm)
+    print("Vπ·L (V·cm):", VpiL_Vcm)
+    
+    return {
+        "g_nm": g_nm,
+        "dneff_per_V": dneff_per_V,
+        "chi2_eff_avg_mV": chi2_eff_avg,
+        "chi2_eff_avg_pmV": chi2_eff_avg * 1e12,
+        "VpiL_Vm": VpiL_Vm,
+        "VpiL_Vcm": VpiL_Vcm,
+        "lum": lum,
+    }

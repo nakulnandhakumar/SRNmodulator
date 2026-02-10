@@ -11,7 +11,7 @@ deleteall;
 # All units are in meters
 W            = 0.450e-6;    # SRN core width
 H            = 0.350e-6;    # SRN core height 
-g            = g_list(i);    # electrode–sidewall gap (sweep later)
+#g            = set from python script;    # electrode–sidewall gap (sweep later)
 tBOX         = 3e-6;      # BOX thickness below core
 tCLAD        = 2e-6;      # top cladding thickness
 metal_w      = 1e-6;      # metal electrode width

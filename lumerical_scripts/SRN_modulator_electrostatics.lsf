@@ -6,12 +6,13 @@
 switchtolayout;
 deleteall;
 
-# ---- Global parameters (geometry) ----
+# ---- Global parameters ----
+#Vdc          = set from python script;       
 
 # All units are in meters
 W            = 0.450e-6;    # SRN core width
 H            = 0.350e-6;    # SRN core height 
-g            = 0.700e-6;    # electrode–sidewall gap (sweep later)
+#g            = set from python script;    # electrode–sidewall gap (sweep later)
 tBOX         = 3e-6;      # BOX thickness below core
 tCLAD        = 2e-6;      # top cladding thickness
 metal_w      = 1e-6;      # metal electrode width
@@ -236,7 +237,7 @@ addelectricalcontact;
 set("name","electrode_left");
 set("bc mode","steady state");
 set("sweep type","single");
-set("voltage",1.0);          # 1 V bias (sweep later)
+set("voltage",Vdc);          # 1 V bias (sweep later)
 set("surface type","solid");
 set("solid","metal_left");
 

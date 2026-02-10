@@ -4,44 +4,65 @@ import numpy as np
 import pandas as pd
 import h5py
 
-# === CHANGE IF NEEDED ===
-MAT_DIR = r"./modulator_data/Lumerical_mode/mat"
-OUT_DIR = r"./modulator_data/Lumerical_mode/csv"
-os.makedirs(OUT_DIR, exist_ok=True)
+def convert_lumerical_mode_to_csv(
+    mat_dir="./modulator_data/Lumerical_mode/mat",
+    out_dir="./modulator_data/Lumerical_mode/csv",
+):
+    """
+    Convert Lumerical MODE solver MAT files to CSV.
 
-mat_files = sorted(glob.glob(os.path.join(MAT_DIR, "mode_field_g_*nm.mat")))
-if not mat_files:
-    raise FileNotFoundError("No MAT files found in folder.")
+    Parameters
+    ----------
+    mat_dir : str
+        Directory containing Lumerical mode .mat files.
+    out_dir : str
+        Output directory for CSV files.
+    file_pattern : str
+        Glob pattern for selecting mode MAT files.
 
-def read_var(f, name):
-    return np.array(f[name]).squeeze()
+    Outputs
+    -------
+    CSV files with columns:
+        x_m, y_m, E2
 
-for fpath in mat_files:
-    with h5py.File(fpath, "r") as f:
-        print("Reading:", os.path.basename(fpath))
-        print("Keys:", list(f.keys()))
+    Notes
+    -----
+    - Uses |E|^2 (E2) directly for overlap integrals
+    - Coordinates are flattened onto the optical grid
+    """
 
-        x  = read_var(f, "x")
-        y  = read_var(f, "y")
-        Ex = read_var(f, "Ex")   # may be void/struct → we will not touch
-        Ey = read_var(f, "Ey")
-        Ez = read_var(f, "Ez")
-        E2 = read_var(f, "E2")   # USE THIS
+    os.makedirs(out_dir, exist_ok=True)
 
-    # Lumerical grid is Ex[Nx,Ny]
-    Nx, Ny = E2.shape
-    X, Y = np.meshgrid(x, y, indexing="ij")
+    mat_files = sorted(glob.glob(os.path.join(mat_dir, "*.mat")))
+    if not mat_files:
+        raise FileNotFoundError(f"No mode MAT files found in {mat_dir}")
 
-    df = pd.DataFrame({
-        "x_m": X.ravel(),
-        "y_m": Y.ravel(),
-        "E2": E2.ravel(),
-    })
+    def read_var(f, name):
+        return np.array(f[name]).squeeze()
 
-    out_name = os.path.splitext(os.path.basename(fpath))[0] + ".csv"
-    out_path = os.path.join(OUT_DIR, out_name)
-    df.to_csv(out_path, index=False)
+    for fpath in mat_files:
+        with h5py.File(fpath, "r") as f:
+            print("\nReading:", os.path.basename(fpath))
+            print("Keys:", list(f.keys()))
 
-    print("Saved:", out_path)
+            x  = read_var(f, "x")
+            y  = read_var(f, "y")
+            E2 = read_var(f, "E2")   # |E|^2 on (Nx, Ny) grid
 
-print("\nAll files converted to CSV.")
+        # Build grid
+        X, Y = np.meshgrid(x, y, indexing="ij")
+
+        # Flatten into dataframe
+        df = pd.DataFrame({
+            "x_m": X.ravel(),
+            "y_m": Y.ravel(),
+            "E2":  E2.ravel(),
+        })
+
+        out_name = os.path.splitext(os.path.basename(fpath))[0] + ".csv"
+        out_path = os.path.join(out_dir, out_name)
+        df.to_csv(out_path, index=False)
+
+        print("Saved:", out_path)
+
+    print("\nAll mode-field files converted to CSV.")

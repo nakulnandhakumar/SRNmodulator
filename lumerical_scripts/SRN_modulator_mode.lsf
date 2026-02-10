@@ -1,0 +1,208 @@
+# ============================================
+#  Parametric SRN modulator cross-section
+# ============================================
+
+# ---- Clean start ----
+switchtolayout;
+deleteall;
+
+# ---- Global parameters (geometry) ----
+
+# All units are in meters
+W            = 0.450e-6;    # SRN core width
+H            = 0.350e-6;    # SRN core height 
+g            = 0.700e-6;    # electrode–sidewall gap (sweep later)
+tBOX         = 3e-6;      # BOX thickness below core
+tCLAD        = 2e-6;      # top cladding thickness
+metal_w      = 1e-6;      # metal electrode width
+metal_t      = 0.100e-6;    # metal electrode height
+Xext         = 4e-6;     # half-width of simulation window
+Ytop_margin  = 2e-6;     # extra margin above cladding
+Ybot_margin  = 2e-6;     # extra margin below BOX
+
+t_shield_top = 0.5*g;     # top shield thickness
+
+# ---- Derived positions ----
+y_core_center         = tBOX + H/2;
+y_topshield_center    = tBOX + H + t_shield_top/2;
+y_sideshield_center = tBOX + t_shield_top/2;
+
+y_span_SiO2 = tBOX + H + metal_t + t_shield_top + tCLAD + Ytop_margin + Ybot_margin;
+y_SiO2_center = -Ybot_margin + y_span_SiO2/2;
+
+x_shield_L = -(W/2 + g/2);
+x_shield_R = (W/2 + g/2);
+
+x_metal_L  = -(W/2 + g + metal_w/2);
+x_metal_R  = (W/2 + g + metal_w/2);
+
+y_core_bottom      = tBOX;
+y_metal_center     = y_core_bottom + metal_t/2;
+y_metal_top        = y_core_bottom + metal_t;
+
+y_metshield_center = y_metal_top + t_shield_top/2;           # new shields above metals
+
+# --------------------------------------------
+# 1) Big SiO2 slab (BOX + cladding + margins)
+# --------------------------------------------
+addrect;
+set("name", "BOX/Cladding");
+set("material", "SiO2 (Glass) - Palik");
+#set("material", "HfO2");
+set("x", 0);
+set("x span", 2*Xext);
+set("y", y_SiO2_center);
+set("y span", y_span_SiO2);
+set("z", 0);
+set("z span", 1e-6);    # arbitrary thickness for 2D FDE
+
+# ----------------
+# 2) SRN core
+# ----------------
+addrect;
+set("name", "core_SRN");
+set("material", "SRN (Silicon Rich Nitride)");   # <-- change if your SRN material has a different name
+set("x", 0);
+set("x span", W);
+set("y", y_core_center);
+set("y span", H);
+set("z", 0);
+set("z span", 1e-6);
+
+# -----------------------------
+# 3) Side shields (left/right)
+# -----------------------------
+# Left shield
+addrect;
+set("name", "shield_left");
+set("material", "HfO2"); 
+set("x", x_shield_L);
+set("x span", g);
+set("y", y_sideshield_center);
+set("y span", t_shield_top);
+set("z", 0);
+set("z span", 1e-6);
+
+# Right shield
+addrect;
+set("name", "shield_right");
+set("material", "HfO2");
+set("x", x_shield_R);
+set("x span", g);
+set("y", y_sideshield_center);
+set("y span", t_shield_top);
+set("z", 0);
+set("z span", 1e-6);
+
+# ----------------------
+# 4) Top shield slab
+# ----------------------
+addrect;
+set("name", "shield_top");
+#set("material", "SiO2 (Glass) - Palik");
+set("material", "HfO2");
+set("x", 0);
+set("x span", W);          
+set("y", y_topshield_center);
+set("y span", t_shield_top);
+set("z", 0);
+set("z span", 1e-6);
+
+# -------------------------
+# 5) Metal electrodes
+# -------------------------
+# Left metal
+addrect;
+set("name", "metal_left");
+set("material", "Au (Gold) - Palik");
+set("x", x_metal_L);
+set("x span", metal_w);
+set("y", y_metal_center);
+set("y span", metal_t);
+set("z", 0);
+set("z span", 1e-6);
+
+# Right metal
+addrect;
+set("name", "metal_right");
+set("material", "Au (Gold) - Palik");
+set("x", x_metal_R);
+set("x span", metal_w);
+set("y", y_metal_center);
+set("y span", metal_t);
+set("z", 0);
+set("z span", 1e-6);
+
+# -------------------------
+# 5b) Shield slabs above metal electrodes
+# -------------------------
+# Left metal-top shield
+addrect;
+set("name", "shield_metal_left_top");
+set("material", "HfO2");     # match your shield material
+set("x", x_metal_L);
+set("x span", metal_w);
+set("y", y_metshield_center);   # bottom touches metal top
+set("y span", t_shield_top);
+set("z", 0);
+set("z span", 1e-6);
+
+# Right metal-top shield
+addrect;
+set("name", "shield_metal_right_top");
+set("material", "HfO2");
+set("x", x_metal_R);
+set("x span", metal_w);
+set("y", y_metshield_center);
+set("y span", t_shield_top);
+set("z", 0);
+set("z span", 1e-6);
+
+# -------------------------
+# 6) FDE mode solver region
+# -------------------------
+addfde;
+select("FDE");
+set("solver type", "2D Z normal");               # 2D cross-section
+set("x", 0);
+set("x span", 2*Xext);
+set("y", y_SiO2_center);
+set("y span", y_span_SiO2);
+set("z", 0);
+set("wavelength", 1.55e-6);
+set("number of trial modes", 1);
+set("search", "near n");    # searching near max n
+set("mesh cells x", 251);   # adjust for accuracy vs. time
+set("mesh cells y", 201);
+
+# --- user-tunable buffers (in µm) ---
+buffer_x = 0.20e-6;     # 0.20 µm = 200 nm on each side horizontally
+buffer_y = 0.20e-6;     # 0.20 µm = 200 nm above/below core
+
+# --- add mesh override object ---
+addmesh;
+set("name", "mesh_core");
+
+# --- position & size of override box ---
+# x: centered at 0, spanning core + gaps + metal + margins
+set("x", 0);
+set("x span", W + 2*g + 2*metal_w + 2*buffer_x);
+
+# y: centered on core, spanning core height + margins
+set("y", y_core_center);
+set("y span", H + t_shield_top + 2*buffer_y);
+
+# For 2D Z-normal FDE, z doesn’t matter but we can still set something small:
+set("z", 0);
+set("z span", 0.5e-6);      # any nonzero span is fine in 2D
+
+# 2 nm steps (0.002 µm). Go to 0.001µm if you want even finer near metals.
+set("dx", 0.002e-6);        # 2 nm
+set("dy", 0.002e-6);        # 2 nm
+
+# (optional) make sure it’s enabled
+set("enabled", 1);
+
+# solve for modes
+#select("FDE");
+#findmodes;

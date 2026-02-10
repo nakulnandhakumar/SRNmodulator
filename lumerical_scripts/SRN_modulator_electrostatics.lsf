@@ -1,0 +1,265 @@
+# ============================================
+#  Parametric SRN modulator cross-section
+# ============================================
+
+# ---- Clean start ----
+switchtolayout;
+deleteall;
+
+# ---- Global parameters (geometry) ----
+
+# All units are in meters
+W            = 0.450e-6;    # SRN core width
+H            = 0.350e-6;    # SRN core height 
+g            = 0.700e-6;    # electrode–sidewall gap (sweep later)
+tBOX         = 3e-6;      # BOX thickness below core
+tCLAD        = 2e-6;      # top cladding thickness
+metal_w      = 1e-6;      # metal electrode width
+metal_t      = 0.100e-6;    # metal electrode height
+Xext         = 4e-6;     # half-width of simulation window
+Ytop_margin  = 2e-6;     # extra margin above cladding
+Ybot_margin  = 2e-6;     # extra margin below BOX
+
+t_shield_top = 0.5*g;     # top shield thickness
+
+# ---- Derived positions ----
+y_core_center         = tBOX + H/2;
+y_topshield_center    = tBOX + H + t_shield_top/2;
+y_sideshield_center = tBOX + t_shield_top/2;
+
+y_span_SiO2 = tBOX + H + metal_t + t_shield_top + tCLAD + Ytop_margin + Ybot_margin;
+y_SiO2_center = -Ybot_margin + y_span_SiO2/2;
+
+x_shield_L = -(W/2 + g/2);
+x_shield_R = (W/2 + g/2);
+
+x_metal_L  = -(W/2 + g + metal_w/2);
+x_metal_R  = (W/2 + g + metal_w/2);
+
+y_core_bottom      = tBOX;
+y_metal_center     = y_core_bottom + metal_t/2;
+y_metal_top        = y_core_bottom + metal_t;
+
+y_metshield_center = y_metal_top + t_shield_top/2;           # new shields above metals
+
+# ---------------------------------------------
+# Add model materials
+# ---------------------------------------------
+addmodelmaterial;
+set("name", "SiO2");
+addmaterialproperties("CT", "SiO2 (Glass) - Sze");
+
+addmodelmaterial;
+set("name", "SRN");
+addmaterialproperties("CT", "SRN (Silicon Rich Nitride)");
+
+addmodelmaterial;
+set("name", "HfO2");
+addmaterialproperties("CT", "HfO2 (Hafnium oxide) - Robertson");
+
+addmodelmaterial;
+set("name", "Au");
+addmaterialproperties("CT", "Au (Gold) - CRC");
+
+addmodelmaterial;
+set("name", "Si");
+addmaterialproperties("CT", "Si (Silicon)");
+
+# --------------------------------------------
+# 1) Big SiO2 slab (BOX + cladding + margins)
+# --------------------------------------------
+addrect;
+set("name", "BOX/Cladding");
+set("material", "SiO2");
+set("x", 0);
+set("x span", 2*Xext);
+set("y", y_SiO2_center);
+set("y span", y_span_SiO2);
+set("z", 0);
+set("z span", 1e-6);    # arbitrary thickness for 2D FDE
+
+# ----------------
+# 2) SRN core
+# ----------------
+addrect;
+set("name", "core_SRN");
+set("material", "SRN");
+set("x", 0);
+set("x span", W);
+set("y", y_core_center);
+set("y span", H);
+set("z", 0);
+set("z span", 1e-6);
+
+# -----------------------------
+# 3) Side shields (left/right)
+# -----------------------------
+# Left shield
+addrect;
+set("name", "shield_left");
+set("material", "HfO2");
+set("x", x_shield_L);
+set("x span", g);
+set("y", y_sideshield_center);
+set("y span", t_shield_top);
+set("z", 0);
+set("z span", 1e-6);
+
+# Right shield
+addrect;
+set("name", "shield_right");
+set("material", "HfO2");
+set("x", x_shield_R);
+set("x span", g);
+set("y", y_sideshield_center);
+set("y span", t_shield_top);
+set("z", 0);
+set("z span", 1e-6);
+
+# ----------------------
+# 4) Top shield slab
+# ----------------------
+addrect;
+set("name", "shield_top");
+set("material", "HfO2");
+set("x", 0);
+set("x span", W);          
+set("y", y_topshield_center);
+set("y span", t_shield_top);
+set("z", 0);
+set("z span", 1e-6);
+
+# -------------------------
+# 5) Metal electrodes
+# -------------------------
+# Left metal
+addrect;
+set("name", "metal_left");
+set("material", "Au");
+set("x", x_metal_L);
+set("x span", metal_w);
+set("y", y_metal_center);
+set("y span", metal_t);
+set("z", 0);
+set("z span", 1e-6);
+
+# Right metal
+addrect;
+set("name", "metal_right");
+set("material", "Au");
+set("x", x_metal_R);
+set("x span", metal_w);
+set("y", y_metal_center);
+set("y span", metal_t);
+set("z", 0);
+set("z span", 1e-6);
+
+# -------------------------
+# 5b) Shield slabs above metal electrodes
+# -------------------------
+# Left metal-top shield
+addrect;
+set("name", "shield_metal_left_top");
+set("material", "HfO2");
+set("x", x_metal_L);
+set("x span", metal_w);
+set("y", y_metshield_center);   # bottom touches metal top
+set("y span", t_shield_top);
+set("z", 0);
+set("z span", 1e-6);
+
+# Right metal-top shield
+addrect;
+set("name", "shield_metal_right_top");
+set("material", "HfO2");
+set("x", x_metal_R);
+set("x span", metal_w);
+set("y", y_metshield_center);
+set("y span", t_shield_top);
+set("z", 0);
+set("z span", 1e-6);
+
+# Dummy semiconductor
+addrect;
+set("name","dummy_semiconductor");
+set("material","Si"); 
+set("x", 0);
+set("x span", 0.1e-6);
+set("y", -(Ybot_margin - 0.5e-6));  
+set("y span", 0.1e-6);
+set("z", 0);
+set("z span", 1e-6);
+
+# -------------------------
+# 6) Electrostatics solver region
+# -------------------------
+addchargesolver; 
+set("norm length", 1e-6);   # 1 micron is standard
+set("max edge length", 0.02e-6);
+
+select("simulation region");
+
+# Geometry
+set("dimension","2D Z-normal");
+
+set("x", 0);
+set("x span", 2*Xext);
+
+set("y", y_SiO2_center);
+set("y span", y_span_SiO2);
+
+# Boundaries (electrostatics → closed is fine)
+set("x min boundary","closed");
+set("x max boundary","closed");
+set("y min boundary","closed");
+set("y max boundary","closed");
+
+addmesh;
+set("name","mesh_electrostatic");
+
+set("x", 0);
+set("x span", W + 2*g + 2*metal_w);
+
+set("y", y_core_center);
+set("y span", H + 2*t_shield_top);
+
+set("z", 0);
+set("z span", 0.6e-6);
+
+# FEM mesh control
+set("max edge length", 0.02e-6);   # µm = 10 nm
+
+# ----------------------------------------
+# Add electrical contacts (gold electrodes)
+# ----------------------------------------
+addelectricalcontact;
+set("name","electrode_left");
+set("bc mode","steady state");
+set("sweep type","single");
+set("voltage",1.0);          # 1 V bias (sweep later)
+set("surface type","solid");
+set("solid","metal_left");
+
+addelectricalcontact;
+set("name","electrode_right");
+set("bc mode","steady state");
+set("sweep type","single");
+set("voltage",0.0);          # 1 V bias (sweep later)
+set("surface type","solid");
+set("solid","metal_right");
+
+# ---------------------------
+# Run the solver
+# ---------------------------
+select("CHARGE");
+run;
+
+# -------------------------------------------
+# Export the data
+# ------------------------------------------
+select("CHARGE");
+E = getdata("CHARGE","electrostatics","E");
+vertices = getdata("CHARGE","electrostatics","vertices");
+
+fname = "SRN_modulator_electrostatics.mat";
+matlabsave(fname, E, vertices);

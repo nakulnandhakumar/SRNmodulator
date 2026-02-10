@@ -11,7 +11,7 @@ deleteall;
 # All units are in meters
 W            = 0.450e-6;    # SRN core width
 H            = 0.350e-6;    # SRN core height 
-g            = 0.700e-6;    # electrode–sidewall gap (sweep later)
+g            = g_list(i);    # electrode–sidewall gap (sweep later)
 tBOX         = 3e-6;      # BOX thickness below core
 tCLAD        = 2e-6;      # top cladding thickness
 metal_w      = 1e-6;      # metal electrode width
@@ -170,7 +170,7 @@ set("y", y_SiO2_center);
 set("y span", y_span_SiO2);
 set("z", 0);
 set("wavelength", 1.55e-6);
-set("number of trial modes", 1);
+set("number of trial modes", 2);
 set("search", "near n");    # searching near max n
 set("mesh cells x", 251);   # adjust for accuracy vs. time
 set("mesh cells y", 201);
@@ -204,5 +204,28 @@ set("dy", 0.002e-6);        # 2 nm
 set("enabled", 1);
 
 # solve for modes
-#select("FDE");
-#findmodes;
+select("FDE");
+findmodes;
+
+# ----- EXPORT OPTICAL MODE FIELD -----
+
+mode = 1;   # fundamental TE mode
+
+x = getdata("FDE::data::mode"+num2str(mode),"x");
+y = getdata("FDE::data::mode"+num2str(mode),"y");
+
+Ex = getdata("FDE::data::mode"+num2str(mode),"Ex");
+Ey = getdata("FDE::data::mode"+num2str(mode),"Ey");
+Ez = getdata("FDE::data::mode"+num2str(mode),"Ez");
+
+E2 = abs(Ex)^2 + abs(Ey)^2 + abs(Ez)^2;
+
+gval = g;   # current sweep value
+
+fname = "./modulator_data/Lumerical_mode/mat/SRN_modulator_mode.mat";
+
+matlabsave(fname, x, y, Ex, Ey, Ez, E2);
+
+?("Saved: "+fname);
+
+

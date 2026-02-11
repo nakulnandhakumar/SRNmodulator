@@ -6,8 +6,8 @@ import h5py
 
 def convert_lumerical_electrostatics_to_csv(
     Vdc,
-    mat_dir="./modulator_data/Lumerical_electrostatics/mat",
-    out_dir="./modulator_data/Lumerical_electrostatics/csv",
+    mat_dir="./modulator_data/lumerical_electrostatics/mat",
+    out_dir="./modulator_data/lumerical_electrostatics/csv",
 ):
     """
     Convert Lumerical electrostatics MAT files to CSV.

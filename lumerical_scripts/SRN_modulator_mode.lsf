@@ -205,6 +205,8 @@ set("enabled", 1);
 
 # solve for modes
 select("FDE");
+set("multithreading", 1);
+set("thread count", 0);
 findmodes;
 
 # ----- EXPORT OPTICAL MODE FIELD -----
@@ -222,7 +224,7 @@ E2 = abs(Ex)^2 + abs(Ey)^2 + abs(Ez)^2;
 
 gval = g;   # current sweep value
 
-fname = "./modulator_data/Lumerical_mode/mat/SRN_modulator_mode.mat";
+fname = "SRN_modulator_mode.mat";
 
 matlabsave(fname, x, y, Ex, Ey, Ez, E2);
 

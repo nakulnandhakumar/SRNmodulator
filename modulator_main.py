@@ -1,4 +1,4 @@
-
+from modulator_analysis.modulator_lumapi import run_lumerical
 
 # Main
 if __name__ == "__main__":

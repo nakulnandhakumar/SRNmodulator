@@ -114,15 +114,20 @@ def compute_modulator_overlap(g_nm):
         pts, estat["EACy_1V"].values, tgt, method="linear"
     )
 
-    # ------------------------------------------------------------
-    # Diagnostics
-    # ------------------------------------------------------------
+    # ============================================================
+    # NaN HANDLING (safe zero-fill for fields)
+    # ============================================================
 
-    print("NaN fraction:")
-    print("  EDCx:", np.isnan(lum["EDCx"]).mean())
-    print("  EDCy:", np.isnan(lum["EDCy"]).mean())
-    print("  EACx_1V:", np.isnan(lum["EACx_1V"]).mean())
-    print("  EACy_1V:", np.isnan(lum ["EACy_1V"]).mean())
+    field_cols = [
+        "EDCx", "EDCy",
+        "EACx_1V", "EACy_1V",
+    ]
+
+    for col in field_cols:
+        n_nan = lum[col].isna().sum()
+        if n_nan > 0:
+            print(f"Warning: {n_nan} NaNs in {col}, replacing with 0")
+            lum[col] = lum[col].fillna(0.0)
 
     # ============================================================
     # REGION MASKS

@@ -5,8 +5,8 @@ import pandas as pd
 import h5py
 
 def convert_lumerical_mode_to_csv(
-    mat_dir="./modulator_data/lumerical_mode/mat",
-    out_dir="./modulator_data/lumerical_mode/csv",
+    mat_dir="./lumerical/mode",
+    out_dir="./modulator_data/lumerical_mode",
 ):
     """
     Convert Lumerical MODE solver MAT files to CSV.

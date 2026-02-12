@@ -1,4 +1,3 @@
-modulator_data/lumerical_electrostatics/*
-modulator_data/lumerical_mode/*
 *.data
 *.log
+*.csv

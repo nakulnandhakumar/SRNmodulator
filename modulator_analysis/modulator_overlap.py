@@ -38,12 +38,12 @@ def compute_modulator_overlap(g_nm):
     # ============================================================
 
     LUM_ESTAT_PATH = (
-        f"modulator_data/Lumerical_electrostatics/csv/"
+        f"modulator_data/lumerical_electrostatics/csv/"
         f"electrostatics_field_g_{g_nm}nm.csv"
     )
 
     LUM_MODE_PATH = (
-        f"modulator_data/Lumerical_mode/csv/"
+        f"modulator_data/lumerical_mode/csv/"
         f"mode_field_g_{g_nm}nm.csv"
     )
 

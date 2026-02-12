@@ -264,5 +264,5 @@ select("CHARGE");
 E = getdata("CHARGE","electrostatics","E");
 vertices = getdata("CHARGE","electrostatics","vertices");
 
-fname = "SRN_modulator_electrostatics.mat";
+fname = "modulator_electrostatics.mat";
 matlabsave(fname, E, vertices);

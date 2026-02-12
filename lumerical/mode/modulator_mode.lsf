@@ -224,7 +224,7 @@ E2 = abs(Ex)^2 + abs(Ey)^2 + abs(Ez)^2;
 
 gval = g;   # current sweep value
 
-fname = "SRN_modulator_mode.mat";
+fname = "modulator_mode.mat";
 
 matlabsave(fname, x, y, Ex, Ey, Ez, E2);
 

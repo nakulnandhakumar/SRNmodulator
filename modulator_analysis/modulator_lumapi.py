@@ -7,13 +7,13 @@ def run_lumerical(g_nm, Vdc):
     g = g_nm * 1e-9
 
     # ---------- CHARGE ----------
-    project_path_electrostatics = r"./lumerical_projects/electrostatics/modulator_electrostatics.ldev"
+    project_path_electrostatics = r"./lumerical/electrostatics/modulator_electrostatics.ldev"
     charge = lumapi.DEVICE(hide=False, project=project_path_electrostatics)
     
     try:
         charge.putv("g", g)
         charge.putv("Vdc", Vdc)
-        lsf_path_electrostatics = r"./lumerical_scripts/SRN_modulator_electrostatics.lsf"
+        lsf_path_electrostatics = r"./lumerical/electrostatics/modulator_electrostatics.lsf"
         with open(lsf_path_electrostatics, "r") as f:
             code = f.read()
         charge.eval(code)
@@ -28,12 +28,12 @@ def run_lumerical(g_nm, Vdc):
     charge.close()
 
     # ---------- MODE ----------
-    project_path_mode = r"./lumerical_projects/mode/modulator_mode.ldev"
+    project_path_mode = r"./lumerical/mode/modulator_mode.ldev"
     mode = lumapi.MODE(hide=False, project=project_path_mode)
 
     try:
         mode.putv("g", g)
-        lsf_path_mode = r"./lumerical_scripts/SRN_modulator_mode.lsf"
+        lsf_path_mode = r"./lumerical/mode/modulator_mode.lsf"
         with open(lsf_path_mode, "r") as f:
             code = f.read()
         mode.eval(code)

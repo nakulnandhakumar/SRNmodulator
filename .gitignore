@@ -1,3 +1,7 @@
 *.data
 *.log
 *.csv
+
+# Python bytecode (ignore pycache and .pyc files)
+__pycache__/
+*.pyc[cod]

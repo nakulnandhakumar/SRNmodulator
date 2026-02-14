@@ -26,7 +26,6 @@ def compute_modulator_overlap(g_nm):
     # ============================================================
     # USER SETTINGS
     # ============================================================
-    g_m  = g_nm * 1e-9
 
     lam0 = 1.55e-6
     eps0 = 8.854e-12
@@ -51,16 +50,59 @@ def compute_modulator_overlap(g_nm):
     # GEOMETRY PARAMETERS (meters)
     # ============================================================
 
-    W      = 0.450e-6
-    H      = 0.350e-6
-    tBOX   = 3e-6
-    tCLAD  = 2e-6
-    metal_t = 100e-9
+    # All units are in meters
+    W            = 0.450e-6;    # SRN core width
+    H            = 0.350e-6;    # SRN core height 
+    g            = g_nm * 1e-9;    # electrode–sidewall gap 
+    tBOX         = 3e-6;      # BOX thickness below core
+    tCLAD        = 2e-6;      # top cladding thickness
+    metal_w      = 1e-6;      # metal electrode width
+    metal_t      = 0.100e-6;    # metal electrode height
+    Xext         = 4e-6;     # half-width of simulation window
+    Ytop_margin  = 2e-6;     # extra margin above cladding
+    Ybot_margin  = 2e-6;     # extra margin below BOX
 
-    t_shield_top = 0.5 * g_m
+    t_shield_top = 0.5*g;     # top shield thickness
 
-    y_core_bot = tBOX
-    y_core_top = tBOX + H
+    # ---- Derived positions ----
+    y_core_center         = tBOX + H/2
+    y_topshield_center    = tBOX + H + t_shield_top/2
+    y_sideshield_center = tBOX + t_shield_top/2
+
+    y_span_SiO2 = tBOX + H + metal_t + t_shield_top + tCLAD + Ytop_margin + Ybot_margin
+    y_SiO2_center = -Ybot_margin + y_span_SiO2/2
+
+    x_shield_L = -(W/2 + g/2)
+    x_shield_R = (W/2 + g/2)
+
+    x_metal_L  = -(W/2 + g + metal_w/2)
+    x_metal_R  = (W/2 + g + metal_w/2)
+
+    y_core_bottom      = tBOX
+    y_core_top         = tBOX + H
+    y_metal_center     = y_core_bottom + metal_t/2
+    y_metal_top        = y_core_bottom + metal_t
+
+    y_metshield_center = y_metal_top + t_shield_top/2
+    
+    # ---- Core/Shield Taper parameters ----
+    g_bottom = g        # width at bottom of shield
+    g_top_thickness    = 0.3*g    # width at top from the electrode
+
+    ftaper = 0.5
+    y0 = y_sideshield_center - t_shield_top/2
+    y1 = y_sideshield_center + t_shield_top/2
+    y_taper = y0 + ftaper*(y1 - y0)
+    
+    # Left shield (core-facing taper)
+    xL_outer = -(W/2 + g)        # fixed outer edge
+    xL_inner_bot = -W/2          # inner edge at bottom
+    xL_inner_top = -(W/2 + (g_bottom - g_top_thickness))  # inner edge moves toward core
+    
+    # Right shield (core-facing taper)
+    xR_outer =  (W/2 + g)        # fixed outer edge
+    xR_inner_bot =  W/2          # inner edge at bottom
+    xR_inner_top =  W/2 + (g_bottom - g_top_thickness)  # inner edge moves toward core
 
     # ============================================================
     # LOAD LUMERICAL ELECTROSTATICS
@@ -133,28 +175,56 @@ def compute_modulator_overlap(g_nm):
     # REGION MASKS
     # ============================================================
 
+    # -----------------------------------------------------------
+    # SRN Core mask
+    # -----------------------------------------------------------
     core_mask = (
         (np.abs(lum["x_m"]) <= W/2) &
-        (lum["y_m"] >= y_core_bot) &
+        (lum["y_m"] >= y_core_bottom) &
         (lum["y_m"] <= y_core_top)
     )
 
-    left_gap_hf02 = (
-        (lum["x_m"] >= -(W/2 + g_m)) &
-        (lum["x_m"] <= -(W/2)) &
-        (lum["y_m"] >= y_core_bot) &
-        (lum["y_m"] <= y_core_top)
+    # -----------------------------------------------------------
+    # Side shield masks (tapered poly, matches LSF)
+    # -----------------------------------------------------------
+    x = lum["x_m"].values
+    y = lum["y_m"].values
+
+    # side shield vertical extent (matches LSF, NOT core height)
+    yside = (y >= y0) & (y <= y1)
+
+    # piecewise inner wall x-position vs y
+    # Left
+    x_inner_left = np.where(
+        y <= y_taper,
+        xL_inner_bot,
+        xL_inner_bot + (xL_inner_top - xL_inner_bot) * (y - y_taper) / (y1 - y_taper)
     )
 
-    right_gap_hf02 = (
-        (lum["x_m"] >=  (W/2)) &
-        (lum["x_m"] <=  (W/2 + g_m)) &
-        (lum["y_m"] >= y_core_bot) &
-        (lum["y_m"] <= y_core_top)
+    # Right
+    x_inner_right = np.where(
+        y <= y_taper,
+        xR_inner_bot,
+        xR_inner_bot + (xR_inner_top - xR_inner_bot) * (y - y_taper) / (y1 - y_taper)
     )
 
-    gap_hf02_mask = left_gap_hf02 | right_gap_hf02
+    left_shield_mask = (
+        yside &
+        (x >= xL_outer) &
+        (x <= x_inner_left)
+    )
 
+    right_shield_mask = (
+        yside &
+        (x <= xR_outer) &
+        (x >= x_inner_right)
+    )
+
+    gap_hf02_mask = left_shield_mask | right_shield_mask
+
+    # -----------------------------------------------------------
+    # Top shield slab above core mask
+    # -----------------------------------------------------------
     top_core_hf02_mask = (
         (np.abs(lum["x_m"]) <= W/2) &
         (lum["y_m"] >= y_core_top) &

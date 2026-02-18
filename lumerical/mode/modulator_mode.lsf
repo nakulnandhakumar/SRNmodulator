@@ -72,7 +72,6 @@ set("z span", 1e-6);
 # -----------------------------
 # 3) Side shields (left/right)
 # -----------------------------
-
 # ---- Taper parameters ----
 g_bottom = g;        # width at bottom of shield
 g_top_thickness    = 0.3*g;    # width at top (parametrize later)
@@ -96,10 +95,13 @@ vtx_left = [
 ];
 
 addpoly;
+set("x", 0);
+set("y", 0);
+set("z", 0);
+set("z span", 1e-6);
 set("name","shield_left");
 set("material","HfO2");
 set("vertices",vtx_left);
-set("z span",1e-6);
 
 # Right shield (core-facing taper)
 xR_outer =  (W/2 + g);        # fixed outer edge
@@ -115,10 +117,13 @@ vtx_right = [
 ];
 
 addpoly;
+set("x", 0);
+set("y", 0);
+set("z", 0);
+set("z span", 1e-6);
 set("name","shield_right");
 set("material","HfO2");
 set("vertices",vtx_right);
-set("z span",1e-6);
 
 # ----------------------
 # 4) Top shield slab
@@ -231,8 +236,6 @@ set("enabled", 1);
 
 # solve for modes
 select("FDE");
-set("multithreading", 1);
-set("thread count", 0);
 findmodes;
 
 # ----- EXPORT OPTICAL MODE FIELD -----

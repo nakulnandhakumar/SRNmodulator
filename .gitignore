@@ -1,6 +1,7 @@
 *.data
 *.log
 *.csv
+test/
 
 # Python bytecode (ignore pycache and .pyc files)
 __pycache__/

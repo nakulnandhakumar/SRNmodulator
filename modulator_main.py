@@ -3,15 +3,40 @@ from modulator_analysis.file_parsing_scripts.lumerical_electrostatics_mattocsv i
 from modulator_analysis.file_parsing_scripts.lumerical_mode_mattocsv import convert_lumerical_mode_to_csv
 from modulator_analysis.modulator_overlap import compute_modulator_overlap
 
+# ------------------- Parameters to set from Python script --------------
+# g            = set from python script;    # electrode–sidewall gap
+# Vdc          = 100.0V;                    # applied voltage for electrostatics (keep fixed)
+# ftaper        = set from python script;    # fraction of shield height where taper starts
+# g_top_thickness = set from python script;  # width of shield at top (tapered from g at bottom)
+# W            = 450nm;                     # SRN core width (keep fixed for now)
+# H            = 350nm;                     # SRN core height (keep fixed for now)
+# metal_t      = 100nm;                     # metal electrode thickness (height) (keep fixed for now)
+# -----------------------------------------------------------------------
+g = 700e-9            # electrode–sidewall gap in meters
+Vdc = 100.0              # DC voltage applied to electrode in V
+ftaper = 0.5              # fraction of shield height where taper starts
+g_top_thickness = 0.3*g  # width of shield at top (tapered from g at bottom)
+W = 450e-9               # SRN core width in meters
+H = 350e-9               # SRN core height in meters
+metal_t = 100e-9         # metal electrode thickness (height) in meters
+
+params = {
+    "g": g,
+    "Vdc": Vdc,
+    "ftaper": ftaper,
+    "g_top_thickness": g_top_thickness,
+    "W": W,
+    "H": H,
+    "metal_t": metal_t,
+}
+
 # Main
 if __name__ == "__main__":
     # Example usage: run with g = 700 nm and Vdc = 100 V
-    g_nm = 700
-    Vdc = 100.0
-    run_lumerical(g_nm, Vdc)
+    run_lumerical(params)
     convert_lumerical_electrostatics_to_csv(Vdc)
     convert_lumerical_mode_to_csv()
-    results = compute_modulator_overlap(g_nm)
+    results = compute_modulator_overlap(params)
     print("\n=== Modulator Overlap Results ===")
     print(f"Δn_eff per V: {results['dneff_per_V']:.3e}")
     print(f"χ²_eff_avg (mV): {results['chi2_eff_avg_mV']:.3e}")

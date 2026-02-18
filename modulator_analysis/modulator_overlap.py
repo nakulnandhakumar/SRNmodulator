@@ -3,14 +3,14 @@ import pandas as pd
 from scipy.interpolate import griddata
 
 
-def compute_modulator_overlap(g_nm):
+def compute_modulator_overlap(params):
     """
     Compute Δn_eff, χ²_eff, and Vπ·L for a given gap g (nm).
 
     Parameters
     ----------
-    g_nm : float
-        Gap width in nanometers.
+    params : dict
+        Dictionary containing the modulator parameters.
 
     Returns
     -------
@@ -51,13 +51,13 @@ def compute_modulator_overlap(g_nm):
     # ============================================================
 
     # All units are in meters
-    W            = 0.450e-6;    # SRN core width
-    H            = 0.350e-6;    # SRN core height 
-    g            = g_nm * 1e-9;    # electrode–sidewall gap 
+    W            = params["W"];    # SRN core width
+    H            = params["H"];    # SRN core height 
+    g            = params["g"];    # electrode–sidewall gap 
     tBOX         = 3e-6;      # BOX thickness below core
     tCLAD        = 2e-6;      # top cladding thickness
     metal_w      = 1e-6;      # metal electrode width
-    metal_t      = 0.100e-6;    # metal electrode height
+    metal_t      = params["metal_t"];    # metal electrode height
     Xext         = 4e-6;     # half-width of simulation window
     Ytop_margin  = 2e-6;     # extra margin above cladding
     Ybot_margin  = 2e-6;     # extra margin below BOX
@@ -87,9 +87,9 @@ def compute_modulator_overlap(g_nm):
     
     # ---- Core/Shield Taper parameters ----
     g_bottom = g        # width at bottom of shield
-    g_top_thickness    = 0.3*g    # width at top from the electrode
+    g_top_thickness    = params["g_top_thickness"]    # width at top from the electrode
 
-    ftaper = 0.5
+    ftaper = params["ftaper"]
     y0 = y_sideshield_center - t_shield_top/2
     y1 = y_sideshield_center + t_shield_top/2
     y_taper = y0 + ftaper*(y1 - y0)
@@ -326,7 +326,7 @@ def compute_modulator_overlap(g_nm):
     print("Vπ·L (V·cm):", VpiL_Vcm)
     
     return {
-        "g_nm": g_nm,
+        "g_nm": g * 1e9,
         "dneff_per_V": dneff_per_V,
         "chi2_eff_avg_mV": chi2_eff_avg,
         "chi2_eff_avg_pmV": chi2_eff_avg * 1e12,

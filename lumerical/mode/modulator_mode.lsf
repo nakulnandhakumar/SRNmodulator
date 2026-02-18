@@ -2,20 +2,37 @@
 #  Parametric SRN modulator cross-section
 # ============================================
 
+# ------------------- Parameters to set from Python script --------------
+# g            = set from python script;    # electrode–sidewall gap
+# ftaper        = set from python script;    # fraction of shield height where taper starts
+# g_top_thickness = set from python script;  # width of shield at top (tapered from g at bottom)
+# W            = 450nm;                     # SRN core width (keep fixed for now)
+# H            = 350nm;                     # SRN core height (keep fixed for now)
+# metal_t      = 100nm;                     # metal electrode thickness (height) (keep fixed for now)
+# -----------------------------------------------------------------------
+
 # ---- Clean start ----
 switchtolayout;
 deleteall;
 
+# Check if parameters are set (in case someone runs this .lsf directly without going through the Python script)
+?g;
+?ftaper;
+?g_top_thickness;
+?W;
+?H;
+?metal_t;
+
 # ---- Global parameters (geometry) ----
 
 # All units are in meters
-W            = 0.450e-6;    # SRN core width
-H            = 0.350e-6;    # SRN core height 
+#W            = set from python script;    # SRN core width
+#H            = set from python script;    # SRN core height 
 #g            = set from python script;    # electrode–sidewall gap (sweep later)
 tBOX         = 3e-6;      # BOX thickness below core
 tCLAD        = 2e-6;      # top cladding thickness
 metal_w      = 1e-6;      # metal electrode width
-metal_t      = 0.100e-6;    # metal electrode height
+#metal_t      = set from python script;    # metal electrode height
 Xext         = 4e-6;     # half-width of simulation window
 Ytop_margin  = 2e-6;     # extra margin above cladding
 Ybot_margin  = 2e-6;     # extra margin below BOX
@@ -48,7 +65,6 @@ y_metshield_center = y_metal_top + t_shield_top/2;           # new shields above
 addrect;
 set("name", "BOX/Cladding");
 set("material", "SiO2 (Glass) - Palik");
-#set("material", "HfO2");
 set("x", 0);
 set("x span", 2*Xext);
 set("y", y_SiO2_center);
@@ -74,9 +90,9 @@ set("z span", 1e-6);
 # -----------------------------
 # ---- Taper parameters ----
 g_bottom = g;        # width at bottom of shield
-g_top_thickness    = 0.3*g;    # width at top (parametrize later)
+#g_top_thickness    = set from python script;    # width at top (parametrize later)
 
-ftaper = 0.5;
+#ftaper = set from python script;    # fraction of shield height where taper starts (0 = no taper, 1 = full taper to g_top_thickness)
 y0 = y_sideshield_center - t_shield_top/2;
 y1 = y_sideshield_center + t_shield_top/2;
 y_taper = y0 + ftaper*(y1 - y0);

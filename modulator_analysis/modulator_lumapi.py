@@ -3,16 +3,15 @@ import os
 sys.path.append(r"C:\Program Files\Lumerical\v202\api\python")
 import lumapi # pyright: ignore[reportMissingImports]
 
-def run_lumerical(g_nm, Vdc):
-    g = g_nm * 1e-9
+def run_lumerical(params):
 
     # ---------- CHARGE ----------
     project_path_electrostatics = r"./lumerical/electrostatics/modulator_electrostatics.ldev"
     charge = lumapi.DEVICE(hide=False, project=project_path_electrostatics)
     
     try:
-        charge.putv("g", g)
-        charge.putv("Vdc", Vdc)
+        for k,v in params.items():
+            charge.putv(k, v)
         lsf_path_electrostatics = r"./lumerical/electrostatics/modulator_electrostatics.lsf"
         with open(lsf_path_electrostatics, "r") as f:
             code = f.read()
@@ -32,7 +31,8 @@ def run_lumerical(g_nm, Vdc):
     mode = lumapi.MODE(hide=False, project=project_path_mode)
 
     try:
-        mode.putv("g", g)
+        for k,v in params.items():
+            mode.putv(k, v)
         lsf_path_mode = r"./lumerical/mode/modulator_mode.lsf"
         with open(lsf_path_mode, "r") as f:
             code = f.read()

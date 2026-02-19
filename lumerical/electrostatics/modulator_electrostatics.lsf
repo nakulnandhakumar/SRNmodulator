@@ -8,6 +8,10 @@
 # W            = 450nm;                     # SRN core width (keep fixed for now)
 # H            = 350nm;                     # SRN core height (keep fixed for now)
 # metal_t      = 100nm;                     # metal electrode thickness (height) (keep fixed for now)
+# t_shield_gapR = set from python script;    # thickness of the shield within the right gap
+# t_shield_gapL = set from python script;    # thickness of the shield within
+# t_shield_core = set from python script;   # thickness of the shield above the core
+# t_shield_metal = set from python script;  # thickness of the shield above the metal electrodes
 # -----------------------------------------------------------------------
 
 # ---- Clean start ----
@@ -19,6 +23,10 @@ deleteall;
 ?W;
 ?H;
 ?metal_t;
+?t_shield_gapR;
+?t_shield_gapL;
+?t_shield_core;
+?t_shield_metal;
 
 # ---- Global parameters ----
 #Vdc          = set from python script;       
@@ -35,14 +43,22 @@ Xext         = 4e-6;     # half-width of simulation window
 Ytop_margin  = 2e-6;     # extra margin above cladding
 Ybot_margin  = 2e-6;     # extra margin below BOX
 
-t_shield_top = 0.5*g;     # top shield thickness
+#t_shield_gapR = set from python script;    # thickness of the shield within the right gap
+#t_shield_gapL = set from python script;    # thickness of the shield within the left gap
+#t_shield_core = set from python script;   # thickness of the shield above the core
+#t_shield_metal = set from python script;  # thickness of the shield above the metal electrodes
 
 # ---- Derived positions ----
-y_core_center         = tBOX + H/2;
-y_topshield_center    = tBOX + H + t_shield_top/2;
-y_sideshield_center = tBOX + t_shield_top/2;
+y_core_center = tBOX + H/2;
+y_core_bottom = tBOX;
+y_core_top = tBOX + H;
 
-y_span_SiO2 = tBOX + H + metal_t + t_shield_top + tCLAD + Ytop_margin + Ybot_margin;
+y_topshield_center = tBOX + H + t_shield_core/2;
+y_sideshield_centerR = tBOX + t_shield_gapR/2;
+y_sideshield_centerL = tBOX + t_shield_gapL/2;
+y_metshield_center = y_metal_top + t_shield_metal/2;
+
+y_span_SiO2 = tBOX + H + metal_t + t_shield_core + tCLAD + Ytop_margin + Ybot_margin;
 y_SiO2_center = -Ybot_margin + y_span_SiO2/2;
 
 x_shield_L = -(W/2 + g/2);
@@ -51,11 +67,8 @@ x_shield_R = (W/2 + g/2);
 x_metal_L  = -(W/2 + g + metal_w/2);
 x_metal_R  = (W/2 + g + metal_w/2);
 
-y_core_bottom      = tBOX;
 y_metal_center     = y_core_bottom + metal_t/2;
 y_metal_top        = y_core_bottom + metal_t;
-
-y_metshield_center = y_metal_top + t_shield_top/2;           # new shields above metals
 
 # ---------------------------------------------
 # Add model materials
@@ -85,7 +98,7 @@ addmaterialproperties("CT", "Si (Silicon)");
 # --------------------------------------------
 addrect;
 set("name", "BOX/Cladding");
-set("material", "SiO2");
+set("material", "SiO2 (Glass) - Palik");
 set("x", 0);
 set("x span", 2*Xext);
 set("y", y_SiO2_center);
@@ -98,7 +111,7 @@ set("z span", 1e-6);    # arbitrary thickness for 2D FDE
 # ----------------
 addrect;
 set("name", "core_SRN");
-set("material", "SRN");
+set("material", "SRN (Silicon Rich Nitride)");
 set("x", 0);
 set("x span", W);
 set("y", y_core_center);
@@ -115,8 +128,8 @@ set("name", "shield_left");
 set("material", "HfO2"); 
 set("x", x_shield_L);
 set("x span", g);
-set("y", y_sideshield_center);
-set("y span", t_shield_top);
+set("y", y_sideshield_centerL);
+set("y span", t_shield_gapL);
 set("z", 0);
 set("z span", 1e-6);
 
@@ -126,8 +139,8 @@ set("name", "shield_right");
 set("material", "HfO2");
 set("x", x_shield_R);
 set("x span", g);
-set("y", y_sideshield_center);
-set("y span", t_shield_top);
+set("y", y_sideshield_centerR);
+set("y span", t_shield_gapR);
 set("z", 0);
 set("z span", 1e-6);
 
@@ -140,7 +153,7 @@ set("material", "HfO2");
 set("x", 0);
 set("x span", W);          
 set("y", y_topshield_center);
-set("y span", t_shield_top);
+set("y span", t_shield_core);
 set("z", 0);
 set("z span", 1e-6);
 
@@ -150,7 +163,7 @@ set("z span", 1e-6);
 # Left metal
 addrect;
 set("name", "metal_left");
-set("material", "Au");
+set("material", "Au (Gold) - Palik");
 set("x", x_metal_L);
 set("x span", metal_w);
 set("y", y_metal_center);
@@ -161,7 +174,7 @@ set("z span", 1e-6);
 # Right metal
 addrect;
 set("name", "metal_right");
-set("material", "Au");
+set("material", "Au (Gold) - Palik");
 set("x", x_metal_R);
 set("x span", metal_w);
 set("y", y_metal_center);
@@ -175,11 +188,11 @@ set("z span", 1e-6);
 # Left metal-top shield
 addrect;
 set("name", "shield_metal_left_top");
-set("material", "HfO2");
+set("material", "HfO2");     # match your shield material
 set("x", x_metal_L);
 set("x span", metal_w);
 set("y", y_metshield_center);   # bottom touches metal top
-set("y span", t_shield_top);
+set("y span", t_shield_metal);
 set("z", 0);
 set("z span", 1e-6);
 
@@ -190,18 +203,7 @@ set("material", "HfO2");
 set("x", x_metal_R);
 set("x span", metal_w);
 set("y", y_metshield_center);
-set("y span", t_shield_top);
-set("z", 0);
-set("z span", 1e-6);
-
-# Dummy semiconductor
-addrect;
-set("name","dummy_semiconductor");
-set("material","Si"); 
-set("x", 0);
-set("x span", 0.1e-6);
-set("y", -(Ybot_margin - 0.5e-6));  
-set("y span", 0.1e-6);
+set("y span", t_shield_metal);
 set("z", 0);
 set("z span", 1e-6);
 
@@ -236,7 +238,7 @@ set("x", 0);
 set("x span", W + 2*g + 2*metal_w);
 
 set("y", y_core_center);
-set("y span", H + 2*t_shield_top);
+set("y span", H + 2*t_shield_core);
 
 set("z", 0);
 set("z span", 0.6e-6);

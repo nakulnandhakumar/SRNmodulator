@@ -14,8 +14,6 @@ from modulator_analysis.modulator_overlap import compute_modulator_overlap
 # -----------------------------------------------------------------------
 g = 700e-9            # electrode–sidewall gap in meters
 Vdc = 100.0              # DC voltage applied to electrode in V
-ftaper = 0.5              # fraction of shield height where taper starts
-g_top_thickness = 0.3*g  # width of shield at top (tapered from g at bottom)
 W = 450e-9               # SRN core width in meters
 H = 350e-9               # SRN core height in meters
 metal_t = 100e-9         # metal electrode thickness (height) in meters
@@ -23,8 +21,6 @@ metal_t = 100e-9         # metal electrode thickness (height) in meters
 params = {
     "g": g,
     "Vdc": Vdc,
-    "ftaper": ftaper,
-    "g_top_thickness": g_top_thickness,
     "W": W,
     "H": H,
     "metal_t": metal_t,

@@ -98,7 +98,7 @@ addmaterialproperties("CT", "Si (Silicon)");
 # --------------------------------------------
 addrect;
 set("name", "BOX/Cladding");
-set("material", "SiO2 (Glass) - Sze");
+set("material", "SiO2");
 set("x", 0);
 set("x span", 2*Xext);
 set("y", y_SiO2_center);
@@ -111,7 +111,7 @@ set("z span", 1e-6);    # arbitrary thickness for 2D FDE
 # ----------------
 addrect;
 set("name", "core_SRN");
-set("material", "SRN (Silicon Rich Nitride)");
+set("material", "SRN");
 set("x", 0);
 set("x span", W);
 set("y", y_core_center);
@@ -163,7 +163,7 @@ set("z span", 1e-6);
 # Left metal
 addrect;
 set("name", "metal_left");
-set("material", "Au (Gold) - CRC");
+set("material", "Au");
 set("x", x_metal_L);
 set("x span", metal_w);
 set("y", y_metal_center);
@@ -174,7 +174,7 @@ set("z span", 1e-6);
 # Right metal
 addrect;
 set("name", "metal_right");
-set("material", "Au (Gold) - CRC");
+set("material", "Au");
 set("x", x_metal_R);
 set("x span", metal_w);
 set("y", y_metal_center);

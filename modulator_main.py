@@ -6,17 +6,23 @@ from modulator_analysis.modulator_overlap import compute_modulator_overlap
 # ------------------- Parameters to set from Python script --------------
 # g            = set from python script;    # electrode–sidewall gap
 # Vdc          = 100.0V;                    # applied voltage for electrostatics (keep fixed)
-# ftaper        = set from python script;    # fraction of shield height where taper starts
-# g_top_thickness = set from python script;  # width of shield at top (tapered from g at bottom)
 # W            = 450nm;                     # SRN core width (keep fixed for now)
 # H            = 350nm;                     # SRN core height (keep fixed for now)
 # metal_t      = 100nm;                     # metal electrode thickness (height) (keep fixed for now)
+# t_shield_gapR = set from python script;    # thickness of the shield within the right gap
+# t_shield_gapL = set from python script;    # thickness of the shield within
+# t_shield_core = set from python script;   # thickness of the shield above the core
+# t_shield_metal = set from python script;  # thickness of the shield above the metal electrodes
 # -----------------------------------------------------------------------
 g = 700e-9            # electrode–sidewall gap in meters
 Vdc = 100.0              # DC voltage applied to electrode in V
 W = 450e-9               # SRN core width in meters
 H = 350e-9               # SRN core height in meters
 metal_t = 100e-9         # metal electrode thickness (height) in meters
+t_shield_gapR = 350e-9     # thickness of the shield within the right gap in meters
+t_shield_gapL = 350e-9    # thickness of the shield within the left gap in meters
+t_shield_core = 350e-9    # thickness of the shield above the core in meters
+t_shield_metal = 350e-9   # thickness of the shield above the metal electrodes in meters
 
 params = {
     "g": g,
@@ -24,6 +30,10 @@ params = {
     "W": W,
     "H": H,
     "metal_t": metal_t,
+    "t_shield_gapR": t_shield_gapR,
+    "t_shield_gapL": t_shield_gapL,
+    "t_shield_core": t_shield_core,
+    "t_shield_metal": t_shield_metal
 }
 
 # Main

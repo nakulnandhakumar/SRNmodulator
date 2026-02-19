@@ -5,8 +5,6 @@
 # ------------------- Parameters to set from Python script --------------
 # g            = set from python script;    # electrode–sidewall gap
 # Vdc          = 100.0V;                    # applied voltage for electrostatics (keep fixed)
-# ftaper        = set from python script;    # fraction of shield height where taper starts
-# g_top_thickness = set from python script;  # width of shield at top (tapered from g at bottom)
 # W            = 450nm;                     # SRN core width (keep fixed for now)
 # H            = 350nm;                     # SRN core height (keep fixed for now)
 # metal_t      = 100nm;                     # metal electrode thickness (height) (keep fixed for now)
@@ -18,8 +16,6 @@ deleteall;
 
 # Check if parameters are set (in case someone runs this .lsf directly without going through the Python script)
 ?g;
-?ftaper;
-?g_top_thickness;
 ?W;
 ?H;
 ?metal_t;
@@ -113,53 +109,27 @@ set("z span", 1e-6);
 # -----------------------------
 # 3) Side shields (left/right)
 # -----------------------------
+# Left shield
+addrect;
+set("name", "shield_left");
+set("material", "HfO2"); 
+set("x", x_shield_L);
+set("x span", g);
+set("y", y_sideshield_center);
+set("y span", t_shield_top);
+set("z", 0);
+set("z span", 1e-6);
 
-# ---- Taper parameters ----
-g_bottom = g;        # width at bottom of shield
-#g_top_thickness    = set from python script;    # width at top (parametrize later)
-
-#ftaper = set from python script;    # fraction of shield height where taper starts (0 = no taper, 1 = full taper to g_top_thickness);
-y0 = y_sideshield_center - t_shield_top/2;
-y1 = y_sideshield_center + t_shield_top/2;
-y_taper = y0 + ftaper*(y1 - y0);
-
-# Left shield (core-facing taper)
-xL_outer = -(W/2 + g);        # fixed outer edge
-xL_inner_bot = -W/2;          # inner edge at bottom
-xL_inner_top = -(W/2 + (g_bottom - g_top_thickness));  # inner edge moves toward core
-
-vtx_left = [
-    xL_inner_bot, y0;      # bottom inner
-    xL_outer,     y0;      # bottom outer
-    xL_outer,     y1;      # top outer
-    xL_inner_top, y1;      # top inner (tapered inward)
-    xL_inner_bot, y_taper  # taper start point on inner wall
-];
-
-addpoly;
-set("name","shield_left");
-set("material","HfO2");
-set("vertices",vtx_left);
-set("z span",1e-6);
-
-# Right shield (core-facing taper)
-xR_outer =  (W/2 + g);        # fixed outer edge
-xR_inner_bot =  W/2;          # inner edge at bottom
-xR_inner_top =  W/2 + (g_bottom - g_top_thickness);  # inner edge moves toward core
-
-vtx_right = [
-   xR_inner_bot, y0;      # bottom inner
-   xR_outer,     y0;      # bottom outer
-   xR_outer,     y1;      # top outer
-   xR_inner_top, y1;      # top inner (tapered inward)
-   xR_inner_bot, y_taper  # taper start point on inner wall
-];
-
-addpoly;
-set("name","shield_right");
-set("material","HfO2");
-set("vertices",vtx_right);
-set("z span",1e-6);
+# Right shield
+addrect;
+set("name", "shield_right");
+set("material", "HfO2");
+set("x", x_shield_R);
+set("x span", g);
+set("y", y_sideshield_center);
+set("y span", t_shield_top);
+set("z", 0);
+set("z span", 1e-6);
 
 # ----------------------
 # 4) Top shield slab

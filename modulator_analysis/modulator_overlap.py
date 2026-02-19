@@ -187,40 +187,21 @@ def compute_modulator_overlap(params):
     # -----------------------------------------------------------
     # Side shield masks (tapered poly, matches LSF)
     # -----------------------------------------------------------
-    x = lum["x_m"].values
-    y = lum["y_m"].values
-
-    # side shield vertical extent (matches LSF, NOT core height)
-    yside = (y >= y0) & (y <= y1)
-
-    # piecewise inner wall x-position vs y
-    # Left
-    x_inner_left = np.where(
-        y <= y_taper,
-        xL_inner_bot,
-        xL_inner_bot + (xL_inner_top - xL_inner_bot) * (y - y_taper) / (y1 - y_taper)
+    left_gap_hf02 = (
+        (lum["x_m"] >= -(W/2 + g)) &
+        (lum["x_m"] <= -(W/2)) &
+        (lum["y_m"] >= y_core_bottom) &
+        (lum["y_m"] <= y_core_top)
     )
 
-    # Right
-    x_inner_right = np.where(
-        y <= y_taper,
-        xR_inner_bot,
-        xR_inner_bot + (xR_inner_top - xR_inner_bot) * (y - y_taper) / (y1 - y_taper)
+    right_gap_hf02 = (
+        (lum["x_m"] >=  (W/2)) &
+        (lum["x_m"] <=  (W/2 + g)) &
+        (lum["y_m"] >= y_core_bottom) &
+        (lum["y_m"] <= y_core_top)
     )
 
-    left_shield_mask = (
-        yside &
-        (x >= xL_outer) &
-        (x <= x_inner_left)
-    )
-
-    right_shield_mask = (
-        yside &
-        (x <= xR_outer) &
-        (x >= x_inner_right)
-    )
-
-    gap_hf02_mask = left_shield_mask | right_shield_mask
+    gap_hf02_mask = left_gap_hf02 | right_gap_hf02
 
     # -----------------------------------------------------------
     # Top shield slab above core mask

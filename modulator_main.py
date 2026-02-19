@@ -19,10 +19,10 @@ Vdc = 100.0              # DC voltage applied to electrode in V
 W = 450e-9               # SRN core width in meters
 H = 350e-9               # SRN core height in meters
 metal_t = 100e-9         # metal electrode thickness (height) in meters
-t_shield_gapR = 350e-9     # thickness of the shield within the right gap in meters
-t_shield_gapL = 350e-9    # thickness of the shield within the left gap in meters
-t_shield_core = 350e-9    # thickness of the shield above the core in meters
-t_shield_metal = 350e-9   # thickness of the shield above the metal electrodes in meters
+t_shield_gapR = 0.5*g     # thickness of the shield within the right gap in meters
+t_shield_gapL = 0.5*g    # thickness of the shield within the left gap in meters
+t_shield_core = 0.5*g    # thickness of the shield above the core in meters
+t_shield_metal = 0.5*g   # thickness of the shield above the metal electrodes in meters
 
 params = {
     "g": g,

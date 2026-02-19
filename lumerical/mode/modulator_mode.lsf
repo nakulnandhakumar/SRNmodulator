@@ -51,6 +51,9 @@ y_core_center = tBOX + H/2;
 y_core_bottom = tBOX;
 y_core_top = tBOX + H;
 
+y_metal_center     = y_core_bottom + metal_t/2;
+y_metal_top        = y_core_bottom + metal_t;
+
 y_topshield_center = tBOX + H + t_shield_core/2;
 y_sideshield_centerR = tBOX + t_shield_gapR/2;
 y_sideshield_centerL = tBOX + t_shield_gapL/2;
@@ -64,9 +67,6 @@ x_shield_R = (W/2 + g/2);
 
 x_metal_L  = -(W/2 + g + metal_w/2);
 x_metal_R  = (W/2 + g + metal_w/2);
-
-y_metal_center     = y_core_bottom + metal_t/2;
-y_metal_top        = y_core_bottom + metal_t;
 
 # --------------------------------------------
 # 1) Big SiO2 slab (BOX + cladding + margins)

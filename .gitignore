@@ -1,6 +1,7 @@
 *.data
 *.log
 *.csv
+*.mat
 test/
 
 # Python bytecode (ignore pycache and .pyc files)

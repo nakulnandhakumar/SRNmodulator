@@ -61,15 +61,25 @@ def compute_modulator_overlap(params):
     Xext         = 4e-6;     # half-width of simulation window
     Ytop_margin  = 2e-6;     # extra margin above cladding
     Ybot_margin  = 2e-6;     # extra margin below BOX
-
-    t_shield_top = 0.5*g;     # top shield thickness
+    t_shield_gapR = params["t_shield_gapR"];  # thickness of the shield within the right gap
+    t_shield_gapL = params["t_shield_gapL"];  # thickness of the shield within the left gap
+    t_shield_core = params["t_shield_core"];  # thickness of the shield above the core
+    t_shield_metal = params["t_shield_metal"];  # thickness of the shield above the metal electrodes
 
     # ---- Derived positions ----
-    y_core_center         = tBOX + H/2
-    y_topshield_center    = tBOX + H + t_shield_top/2
-    y_sideshield_center = tBOX + t_shield_top/2
+    y_core_center = tBOX + H/2
+    y_core_bottom = tBOX
+    y_core_top = tBOX + H
 
-    y_span_SiO2 = tBOX + H + metal_t + t_shield_top + tCLAD + Ytop_margin + Ybot_margin
+    y_metal_center     = y_core_bottom + metal_t/2
+    y_metal_top        = y_core_bottom + metal_t
+
+    y_topshield_center = tBOX + H + t_shield_core/2
+    y_sideshield_centerR = tBOX + t_shield_gapR/2
+    y_sideshield_centerL = tBOX + t_shield_gapL/2
+    y_metshield_center = y_metal_top + t_shield_metal/2
+
+    y_span_SiO2 = tBOX + H + metal_t + t_shield_core + tCLAD + Ytop_margin + Ybot_margin
     y_SiO2_center = -Ybot_margin + y_span_SiO2/2
 
     x_shield_L = -(W/2 + g/2)
@@ -77,32 +87,6 @@ def compute_modulator_overlap(params):
 
     x_metal_L  = -(W/2 + g + metal_w/2)
     x_metal_R  = (W/2 + g + metal_w/2)
-
-    y_core_bottom      = tBOX
-    y_core_top         = tBOX + H
-    y_metal_center     = y_core_bottom + metal_t/2
-    y_metal_top        = y_core_bottom + metal_t
-
-    y_metshield_center = y_metal_top + t_shield_top/2
-    
-    # ---- Core/Shield Taper parameters ----
-    g_bottom = g        # width at bottom of shield
-    g_top_thickness    = params["g_top_thickness"]    # width at top from the electrode
-
-    ftaper = params["ftaper"]
-    y0 = y_sideshield_center - t_shield_top/2
-    y1 = y_sideshield_center + t_shield_top/2
-    y_taper = y0 + ftaper*(y1 - y0)
-    
-    # Left shield (core-facing taper)
-    xL_outer = -(W/2 + g)        # fixed outer edge
-    xL_inner_bot = -W/2          # inner edge at bottom
-    xL_inner_top = -(W/2 + (g_bottom - g_top_thickness))  # inner edge moves toward core
-    
-    # Right shield (core-facing taper)
-    xR_outer =  (W/2 + g)        # fixed outer edge
-    xR_inner_bot =  W/2          # inner edge at bottom
-    xR_inner_top =  W/2 + (g_bottom - g_top_thickness)  # inner edge moves toward core
 
     # ============================================================
     # LOAD LUMERICAL ELECTROSTATICS
@@ -188,17 +172,17 @@ def compute_modulator_overlap(params):
     # Side shield masks (tapered poly, matches LSF)
     # -----------------------------------------------------------
     left_gap_hf02 = (
-        (lum["x_m"] >= -(W/2 + g)) &
-        (lum["x_m"] <= -(W/2)) &
-        (lum["y_m"] >= y_core_bottom) &
-        (lum["y_m"] <= y_core_top)
-    )
+    (lum["x_m"] >= -(W/2 + g)) &
+    (lum["x_m"] <= -(W/2)) &
+    (lum["y_m"] >= tBOX) &
+    (lum["y_m"] <= tBOX + t_shield_gapL)
+)
 
     right_gap_hf02 = (
         (lum["x_m"] >=  (W/2)) &
         (lum["x_m"] <=  (W/2 + g)) &
-        (lum["y_m"] >= y_core_bottom) &
-        (lum["y_m"] <= y_core_top)
+        (lum["y_m"] >= tBOX) &
+        (lum["y_m"] <= tBOX + t_shield_gapR)
     )
 
     gap_hf02_mask = left_gap_hf02 | right_gap_hf02
@@ -206,13 +190,13 @@ def compute_modulator_overlap(params):
     # -----------------------------------------------------------
     # Top shield slab above core mask
     # -----------------------------------------------------------
-    top_core_hf02_mask = (
-        (np.abs(lum["x_m"]) <= W/2) &
-        (lum["y_m"] >= y_core_top) &
-        (lum["y_m"] <= y_core_top + t_shield_top)
-    )
+    top_core_hf02 = (
+    (np.abs(lum["x_m"]) <= W/2) &
+    (lum["y_m"] >= y_core_top) &
+    (lum["y_m"] <= y_core_top + t_shield_core)
+)
 
-    hf02_mask = gap_hf02_mask | top_core_hf02_mask
+    hf02_mask = gap_hf02_mask | top_core_hf02
 
     # ============================================================
     # DELTA EPSILON MAP

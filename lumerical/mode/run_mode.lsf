@@ -1,0 +1,41 @@
+# ============================================
+#  Parametric SRN modulator cross-section
+# ============================================
+
+# ------------------- Parameters to set from Python script --------------
+# g            = set from python script;    # electrode–sidewall gap
+# W            = 450nm;                     # SRN core width (keep fixed for now)
+# H            = 350nm;                     # SRN core height (keep fixed for now)
+# metal_t      = 100nm;                     # metal electrode thickness (height) (keep fixed for now)
+# t_shield_gapR = set from python script;    # thickness of the shield within the right gap
+# t_shield_gapL = set from python script;    # thickness of the shield within the left gap
+# t_shield_core = set from python script;   # thickness of the shield above the core
+# t_shield_metal = set from python script;  # thickness of the shield above the metal electrodes
+# -----------------------------------------------------------------------
+
+# solve for modes
+select("FDE");
+findmodes;
+
+# ----- EXPORT OPTICAL MODE FIELD -----
+
+mode = 1;   # fundamental TE mode
+
+x = getdata("FDE::data::mode"+num2str(mode),"x");
+y = getdata("FDE::data::mode"+num2str(mode),"y");
+
+Ex = getdata("FDE::data::mode"+num2str(mode),"Ex");
+Ey = getdata("FDE::data::mode"+num2str(mode),"Ey");
+Ez = getdata("FDE::data::mode"+num2str(mode),"Ez");
+
+E2 = abs(Ex)^2 + abs(Ey)^2 + abs(Ez)^2;
+
+gval = g;   # current sweep value
+
+fname = "modulator_mode.mat";
+
+matlabsave(fname, x, y, Ex, Ey, Ez, E2);
+
+?("Saved: "+fname);
+
+

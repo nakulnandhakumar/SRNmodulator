@@ -275,21 +275,3 @@ set("sweep type","single");
 set("voltage",0.0);          # 1 V bias (sweep later)
 set("surface type","solid");
 set("solid","metal_right");
-
-# ---------------------------
-# Run the solver
-# ---------------------------
-select("CHARGE");
-set("multithreading", 1);
-set("thread count", 0);
-run;
-
-# -------------------------------------------
-# Export the data
-# ------------------------------------------
-select("CHARGE");
-E = getdata("CHARGE","electrostatics","E");
-vertices = getdata("CHARGE","electrostatics","vertices");
-
-fname = "modulator_electrostatics.mat";
-matlabsave(fname, E, vertices);

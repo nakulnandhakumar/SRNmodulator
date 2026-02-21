@@ -227,29 +227,4 @@ set("dy", 0.002e-6);        # 2 nm
 # (optional) make sure it’s enabled
 set("enabled", 1);
 
-# solve for modes
-select("FDE");
-findmodes;
-
-# ----- EXPORT OPTICAL MODE FIELD -----
-
-mode = 1;   # fundamental TE mode
-
-x = getdata("FDE::data::mode"+num2str(mode),"x");
-y = getdata("FDE::data::mode"+num2str(mode),"y");
-
-Ex = getdata("FDE::data::mode"+num2str(mode),"Ex");
-Ey = getdata("FDE::data::mode"+num2str(mode),"Ey");
-Ez = getdata("FDE::data::mode"+num2str(mode),"Ez");
-
-E2 = abs(Ex)^2 + abs(Ey)^2 + abs(Ez)^2;
-
-gval = g;   # current sweep value
-
-fname = "modulator_mode.mat";
-
-matlabsave(fname, x, y, Ex, Ey, Ez, E2);
-
-?("Saved: "+fname);
-
 

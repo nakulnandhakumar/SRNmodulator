@@ -1,0 +1,33 @@
+# ============================================
+#  Parametric SRN modulator cross-section
+# ============================================
+
+# ------------------- Parameters to set from Python script --------------
+# g            = set from python script;    # electrode–sidewall gap
+# Vdc          = 100.0V;                    # applied voltage for electrostatics (keep fixed)
+# W            = 450nm;                     # SRN core width (keep fixed for now)
+# H            = 350nm;                     # SRN core height (keep fixed for now)
+# metal_t      = 100nm;                     # metal electrode thickness (height) (keep fixed for now)
+# t_shield_gapR = set from python script;    # thickness of the shield within the right gap
+# t_shield_gapL = set from python script;    # thickness of the shield within
+# t_shield_core = set from python script;   # thickness of the shield above the core
+# t_shield_metal = set from python script;  # thickness of the shield above the metal electrodes
+# -----------------------------------------------------------------------
+
+# ---------------------------
+# Run the solver
+# ---------------------------
+select("CHARGE");
+set("multithreading", 1);
+set("thread count", 0);
+run;
+
+# -------------------------------------------
+# Export the data
+# ------------------------------------------
+select("CHARGE");
+E = getdata("CHARGE","electrostatics","E");
+vertices = getdata("CHARGE","electrostatics","vertices");
+
+fname = "modulator_electrostatics.mat";
+matlabsave(fname, E, vertices);

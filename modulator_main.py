@@ -1,4 +1,4 @@
-from modulator_analysis.modulator_lumapi import run_lumerical
+from modulator_analysis.modulator_lumapi import LumericalSession
 from modulator_analysis.file_parsing_scripts.lumerical_electrostatics_mattocsv import convert_lumerical_electrostatics_to_csv
 from modulator_analysis.file_parsing_scripts.lumerical_mode_mattocsv import convert_lumerical_mode_to_csv
 from modulator_analysis.modulator_overlap import compute_modulator_overlap
@@ -36,16 +36,21 @@ params = {
     "t_shield_metal": t_shield_metal
 }
 
-# Main
-if __name__ == "__main__":
-    # Example usage: run with g = 700 nm and Vdc = 100 V
-    run_lumerical(params)
-    convert_lumerical_electrostatics_to_csv(Vdc)
+session = LumericalSession()
+session.open()
+session.setup_geometry()
+
+def evaluate(params):
+    session.run_simulation(params)
+    convert_lumerical_electrostatics_to_csv(params["Vdc"])
     convert_lumerical_mode_to_csv()
-    results = compute_modulator_overlap(params)
-    print("\n=== Modulator Overlap Results ===")
-    print(f"Δn_eff per V: {results['dneff_per_V']:.3e}")
-    print(f"χ²_eff_avg (mV): {results['chi2_eff_avg_mV']:.3e}")
-    print(f"χ²_eff_avg (pmV): {results['chi2_eff_avg_pmV']:.3e}")
-    print(f"Vπ·L (V·m): {results['VpiL_Vm']:.3e}")
-    print(f"Vπ·L (V·cm): {results['VpiL_Vcm']:.3e}")
+    return compute_modulator_overlap(params)
+
+results = evaluate(params)
+print("\n=== Modulator Overlap Results ===")
+print(f"Δn_eff per V: {results['dneff_per_V']:.3e}")
+print(f"χ²_eff_avg (mV): {results['chi2_eff_avg_mV']:.3e}")
+print(f"χ²_eff_avg (pmV): {results['chi2_eff_avg_pmV']:.3e}")
+print(f"Vπ·L (V·m): {results['VpiL_Vm']:.3e}")
+print(f"Vπ·L (V·cm): {results['VpiL_Vcm']:.3e}")
+session.close()

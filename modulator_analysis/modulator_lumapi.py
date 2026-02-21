@@ -1,47 +1,61 @@
 import sys
-import os
 sys.path.append(r"C:\Program Files\Lumerical\v202\api\python")
 import lumapi # pyright: ignore[reportMissingImports]
 
-def run_lumerical(params):
 
-    # ---------- CHARGE ----------
-    project_path_electrostatics = r"./lumerical/electrostatics/modulator_electrostatics.ldev"
-    charge = lumapi.DEVICE(hide=False, project=project_path_electrostatics)
-    
-    try:
-        for k,v in params.items():
-            charge.putv(k, v)
-        lsf_path_electrostatics = r"./lumerical/electrostatics/modulator_electrostatics.lsf"
-        with open(lsf_path_electrostatics, "r") as f:
-            code = f.read()
-        charge.eval(code)
+class LumericalSession:
 
-    except Exception as e:
-        print("\n=== LUMERICAL ERROR ===")
-        print(e)
-        print("Leaving Lumerical open for inspection.")
-        input("Press ENTER after you inspect the Lumerical Script Prompt...")
+    def __init__(self):
+        self.charge = None
+        self.mode = None
 
-    # only close if successful
-    charge.close()
+    def open(self):
+        self.charge = lumapi.DEVICE(
+            hide=False,
+            project=r"./lumerical/electrostatics/modulator_electrostatics.ldev"
+        )
 
-    # ---------- MODE ----------
-    project_path_mode = r"./lumerical/mode/modulator_mode.ldev"
-    mode = lumapi.MODE(hide=False, project=project_path_mode)
+        self.mode = lumapi.MODE(
+            hide=False,
+            project=r"./lumerical/mode/modulator_mode.ldev"
+        )
 
-    try:
-        for k,v in params.items():
-            mode.putv(k, v)
-        lsf_path_mode = r"./lumerical/mode/modulator_mode.lsf"
-        with open(lsf_path_mode, "r") as f:
-            code = f.read()
-        mode.eval(code)
-        
-    except Exception as e:
-        print("\n=== LUMERICAL ERROR ===")
-        print(e)
-        print("Leaving Lumerical open for inspection.")
-        input("Press ENTER after you inspect the Lumerical Script Prompt...")
-    
-    mode.close()
+    def close(self):
+        if self.charge:
+            self.charge.close()
+        if self.mode:
+            self.mode.close()
+
+    def setup_geometry(self):
+        """
+        Run once. Builds geometry.
+        """
+        with open(r"./lumerical/electrostatics/setup_geometry_electrostatics.lsf") as f:
+            self.charge.eval(f.read())
+
+        with open(r"./lumerical/mode/setup_geometry_mode.lsf") as f:
+            self.mode.eval(f.read())
+
+    def run_simulation(self, params):
+        """
+        Called every evaluation.
+        Updates parameters and runs.
+        """
+
+        # --- DEVICE ---
+        self.charge.eval("switchtolayout;")
+
+        for k, v in params.items():
+            self.charge.putv(k, v)
+
+        with open(r"./lumerical/electrostatics/run_electrostatics.lsf") as f:
+            self.charge.eval(f.read())
+
+        # --- MODE ---
+        self.mode.eval("switchtolayout;")
+
+        for k, v in params.items():
+            self.mode.putv(k, v)
+
+        with open(r"./lumerical/mode/run_mode.lsf") as f:
+            self.mode.eval(f.read())

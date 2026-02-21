@@ -30,11 +30,11 @@ Ez = getdata("FDE::data::mode"+num2str(mode),"Ez");
 
 E2 = abs(Ex)^2 + abs(Ey)^2 + abs(Ez)^2;
 
-gval = g;   # current sweep value
+loss = getdata("FDE::data::mode"+num2str(mode), "loss");   # dB/cm
 
 fname = "modulator_mode.mat";
 
-matlabsave(fname, x, y, Ex, Ey, Ez, E2);
+matlabsave(fname, x, y, Ex, Ey, Ez, E2, loss);
 
 ?("Saved: "+fname);
 

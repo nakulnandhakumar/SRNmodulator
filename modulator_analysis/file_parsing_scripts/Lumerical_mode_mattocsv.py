@@ -48,6 +48,11 @@ def convert_lumerical_mode_to_csv(
             x  = read_var(f, "x")
             y  = read_var(f, "y")
             E2 = read_var(f, "E2")   # |E|^2 on (Nx, Ny) grid
+            loss = read_var(f, "loss")  # dB/m
+            print(f"Mode loss (dB/cm): {loss:.3e}")
+            loss = float(loss)  # convert from array to scalar
+            loss_dB_per_cm = loss * 100  # convert to dB/cm
+            print(f"Mode loss (dB/cm): {loss_dB_per_cm:.3e}")
 
         # Build grid
         X, Y = np.meshgrid(x, y, indexing="ij")

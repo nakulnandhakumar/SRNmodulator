@@ -15,12 +15,12 @@ def evaluate_params(session, params, weights=None):
 
     # 2. Convert outputs
     convert_lumerical_electrostatics_to_csv(params["Vdc"])
-    convert_lumerical_mode_to_csv()
+    loss_dB_per_cm = convert_lumerical_mode_to_csv()
 
     # 3. Compute metrics
     results = compute_modulator_overlap(params)
 
     # 4. Compute objective
-    J = objective_function(results, weights)
+    J = objective_function(results, loss_dB_per_cm, weights)
 
     return J, results

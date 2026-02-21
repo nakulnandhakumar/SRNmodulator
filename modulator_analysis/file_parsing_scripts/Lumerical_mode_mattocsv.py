@@ -24,6 +24,7 @@ def convert_lumerical_mode_to_csv(
     -------
     CSV files with columns:
         x_m, y_m, E2
+    Returns loss_dB_per_cm
 
     Notes
     -----
@@ -48,11 +49,8 @@ def convert_lumerical_mode_to_csv(
             x  = read_var(f, "x")
             y  = read_var(f, "y")
             E2 = read_var(f, "E2")   # |E|^2 on (Nx, Ny) grid
-            loss = read_var(f, "loss")  # dB/m
-            print(f"Mode loss (dB/cm): {loss:.3e}")
-            loss = float(loss)  # convert from array to scalar
-            loss_dB_per_cm = loss * 100  # convert to dB/cm
-            print(f"Mode loss (dB/cm): {loss_dB_per_cm:.3e}")
+            loss_dB_per_m = float(read_var(f, "loss"))  # dB/m
+            loss_dB_per_cm = loss_dB_per_m / 100  # convert to dB/cm
 
         # Build grid
         X, Y = np.meshgrid(x, y, indexing="ij")
@@ -71,3 +69,4 @@ def convert_lumerical_mode_to_csv(
         print("Saved:", out_path)
 
     print("\nAll mode-field files converted to CSV.")
+    return loss_dB_per_cm

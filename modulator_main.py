@@ -2,6 +2,7 @@ from modulator_analysis.modulator_lumapi import LumericalSession
 from modulator_analysis.file_parsing_scripts.lumerical_electrostatics_mattocsv import convert_lumerical_electrostatics_to_csv
 from modulator_analysis.file_parsing_scripts.lumerical_mode_mattocsv import convert_lumerical_mode_to_csv
 from modulator_analysis.modulator_overlap import compute_modulator_overlap
+from modulator_analysis.modulator_evaluate import evaluate_params
 
 # ------------------- Parameters to set from Python script --------------
 # g            = set from python script;    # electrode–sidewall gap
@@ -37,16 +38,10 @@ params = {
 }
 
 
-def evaluate(params):
-    session.run_simulation(params)
-    convert_lumerical_electrostatics_to_csv(params["Vdc"])
-    convert_lumerical_mode_to_csv()
-    return compute_modulator_overlap(params)
-
 session = LumericalSession()
 session.open()
 session.setup_geometry(params)
-results = evaluate(params)
+J, results = evaluate_params(session, params)
 print("\n=== Modulator Overlap Results ===")
 print(f"Δn_eff per V: {results['dneff_per_V']:.3e}")
 print(f"χ²_eff_avg (mV): {results['chi2_eff_avg_mV']:.3e}")

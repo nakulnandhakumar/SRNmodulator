@@ -172,11 +172,11 @@ def compute_modulator_overlap(params):
     # Side shield masks (tapered poly, matches LSF)
     # -----------------------------------------------------------
     left_gap_hf02 = (
-    (lum["x_m"] >= -(W/2 + g)) &
-    (lum["x_m"] <= -(W/2)) &
-    (lum["y_m"] >= tBOX) &
-    (lum["y_m"] <= tBOX + t_shield_gapL)
-)
+        (lum["x_m"] >= -(W/2 + g)) &
+        (lum["x_m"] <= -(W/2)) &
+        (lum["y_m"] >= tBOX) &
+        (lum["y_m"] <= tBOX + t_shield_gapL)
+    )
 
     right_gap_hf02 = (
         (lum["x_m"] >=  (W/2)) &
@@ -191,10 +191,10 @@ def compute_modulator_overlap(params):
     # Top shield slab above core mask
     # -----------------------------------------------------------
     top_core_hf02 = (
-    (np.abs(lum["x_m"]) <= W/2) &
-    (lum["y_m"] >= y_core_top) &
-    (lum["y_m"] <= y_core_top + t_shield_core)
-)
+        (np.abs(lum["x_m"]) <= W/2) &
+        (lum["y_m"] >= y_core_top) &
+        (lum["y_m"] <= y_core_top + t_shield_core)
+    )
 
     hf02_mask = gap_hf02_mask | top_core_hf02
 

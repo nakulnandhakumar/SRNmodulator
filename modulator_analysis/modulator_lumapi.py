@@ -26,13 +26,17 @@ class LumericalSession:
         if self.mode:
             self.mode.close()
 
-    def setup_geometry(self):
+    def setup_geometry(self, params):
         """
         Run once. Builds geometry.
         """
+        for k, v in params.items():
+            self.charge.putv(k, v)
         with open(r"./lumerical/electrostatics/setup_geometry_electrostatics.lsf") as f:
             self.charge.eval(f.read())
 
+        for k, v in params.items():
+            self.mode.putv(k, v)
         with open(r"./lumerical/mode/setup_geometry_mode.lsf") as f:
             self.mode.eval(f.read())
 

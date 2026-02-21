@@ -36,9 +36,6 @@ params = {
     "t_shield_metal": t_shield_metal
 }
 
-session = LumericalSession()
-session.open()
-session.setup_geometry()
 
 def evaluate(params):
     session.run_simulation(params)
@@ -46,6 +43,9 @@ def evaluate(params):
     convert_lumerical_mode_to_csv()
     return compute_modulator_overlap(params)
 
+session = LumericalSession()
+session.open()
+session.setup_geometry(params)
 results = evaluate(params)
 print("\n=== Modulator Overlap Results ===")
 print(f"Δn_eff per V: {results['dneff_per_V']:.3e}")
@@ -53,4 +53,3 @@ print(f"χ²_eff_avg (mV): {results['chi2_eff_avg_mV']:.3e}")
 print(f"χ²_eff_avg (pmV): {results['chi2_eff_avg_pmV']:.3e}")
 print(f"Vπ·L (V·m): {results['VpiL_Vm']:.3e}")
 print(f"Vπ·L (V·cm): {results['VpiL_Vcm']:.3e}")
-session.close()

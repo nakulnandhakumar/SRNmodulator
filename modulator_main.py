@@ -65,7 +65,7 @@ print("VpiL_Vcm =", res0["VpiL_Vcm"])
 print("loss_dB_per_cm =", res0["loss_dB_per_cm"])
 
 print("\n=== FD GRADIENT ===")
-grads = compute_fd_gradient(session, params, OPT_KEYS, weights)
+grads = compute_fd_gradient(session, params, refs, OPT_KEYS, weights)
 
 print("\n=== PARAM UPDATE ===")
 new_params = update_params(params, grads)

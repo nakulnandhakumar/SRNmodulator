@@ -2,6 +2,7 @@
 import copy
 import numpy as np
 from modulator_analysis.modulator_evaluate import evaluate_params
+from modulator_analysis.modulator_objective import objective_function
 
 def fd_step(p, rel=0.03, abs_min=10e-9):
     """
@@ -9,12 +10,11 @@ def fd_step(p, rel=0.03, abs_min=10e-9):
     """
     return max(abs(p) * rel, abs_min)
 
-def compute_fd_gradient(session, params, opt_keys, weights=None):
+def compute_fd_gradient(session, params, refs, opt_keys, weights=None):
     """
     Central finite difference gradient dJ/dp.
     """
-
-    J0, _ = evaluate_params(session, params, weights)
+    
     grads = {}
 
     for key in opt_keys:
@@ -28,8 +28,10 @@ def compute_fd_gradient(session, params, opt_keys, weights=None):
         p_plus[key]  = p0 + h
         p_minus[key] = p0 - h
 
-        Jp, _ = evaluate_params(session, p_plus,  weights)
-        Jm, _ = evaluate_params(session, p_minus, weights)
+        results_plus = evaluate_params(session, p_plus)
+        Jp = objective_function(results_plus, refs, weights)
+        results_minus = evaluate_params(session, p_minus)
+        Jm = objective_function(results_minus, refs, weights)
 
         grads[key] = (Jp - Jm) / (2*h)
 

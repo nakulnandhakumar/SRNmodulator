@@ -223,7 +223,7 @@ set("z span", 1e-6);
 # -------------------------
 addchargesolver; 
 set("norm length", 1e-6);   # 1 micron is standard
-set("max edge length", 0.02e-6);
+set("max edge length", 0.08e-6); # = 80 nm
 
 select("simulation region");
 
@@ -255,7 +255,7 @@ set("z", 0);
 set("z span", 0.6e-6);
 
 # FEM mesh control
-set("max edge length", 0.02e-6);   # µm = 10 nm
+set("max edge length", 0.06e-6);   # = 60 nm
 
 # ----------------------------------------
 # Add electrical contacts (gold electrodes)

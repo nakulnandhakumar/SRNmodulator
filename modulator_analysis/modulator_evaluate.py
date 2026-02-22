@@ -5,7 +5,7 @@ from modulator_analysis.modulator_overlap import compute_modulator_overlap
 from modulator_analysis.modulator_objective import objective_function
 
 
-def evaluate_params(session, params, weights=None):
+def evaluate_params(session, params):
     """
     Full pipeline: params → Lumerical → metrics → objective
     """
@@ -19,8 +19,6 @@ def evaluate_params(session, params, weights=None):
 
     # 3. Compute metrics
     results = compute_modulator_overlap(params)
+    results["loss_dB_per_cm"] = loss_dB_per_cm
 
-    # 4. Compute objective
-    J = objective_function(results, loss_dB_per_cm, weights)
-
-    return J, results
+    return results

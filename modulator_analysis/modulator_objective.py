@@ -1,4 +1,4 @@
-def objective_function(results, loss_dB_per_cm, weights=None):
+def objective_function(results, refs, weights=None):
     """
     Scalar objective to minimize.
 
@@ -6,8 +6,8 @@ def objective_function(results, loss_dB_per_cm, weights=None):
     ----------
     results : dict
         Output of compute_modulator_overlap()
-    loss_dB_per_cm : float
-        Mode loss in dB/cm
+    refs : dict
+        Reference values for normalization
     weights : dict
         Optional weighting of terms
 
@@ -23,8 +23,11 @@ def objective_function(results, loss_dB_per_cm, weights=None):
             "loss": 0.0,   # add later
         }
 
-    VpiL = results["VpiL_Vcm"]
+    VpiL_Vcm = results["VpiL_Vcm"]
+    loss_dB_per_cm = results["loss_dB_per_cm"]  
+    V_term = VpiL_Vcm / refs["VpiL_Vcm"]
+    loss_term = loss_dB_per_cm / refs["loss_dB_per_cm"]
 
-    J = (weights["VpiL"] * VpiL) + (weights["loss"] * loss_dB_per_cm)
+    J = (weights["VpiL"] * V_term) + (weights["loss"] * loss_term)
 
     return J

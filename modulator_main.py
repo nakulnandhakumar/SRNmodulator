@@ -15,7 +15,7 @@ from modulator_analysis.modulator_objective import objective_function
 # t_shield_metal = set from python script;  # thickness of the shield above the metal electrodes
 # -----------------------------------------------------------------------
 
-g = 700e-9            # electrode–sidewall gap in meters
+g = 400e-9            # electrode–sidewall gap in meters
 Vdc = 100.0              # DC voltage applied to electrode in V
 W = 450e-9               # SRN core width in meters
 H = 350e-9               # SRN core height in meters

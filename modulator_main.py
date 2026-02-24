@@ -53,13 +53,14 @@ session = LumericalSession()
 session.open()
 session.setup_geometry(params)
 
-print("\n=== BASELINE ===")
 res0 = evaluate_params(session, params)
 refs = {
     "VpiL_Vcm": res0["VpiL_Vcm"],
     "loss_dB_per_cm": res0["loss_dB_per_cm"]
 }
 J0 = objective_function(res0, refs, weights)
+
+print("\n=== BASELINE ===")
 print("J0 =", J0)
 print("VpiL_Vcm =", res0["VpiL_Vcm"])
 print("loss_dB_per_cm =", res0["loss_dB_per_cm"])
@@ -76,9 +77,10 @@ optimizer = FDOptimizer(
 print("\n=== FD STEP ===")
 new_params, grads = optimizer.step(params)
 
-print("\n=== NEW EVALUATION ===")
 results_new = evaluate_params(session, new_params)
 J1 = objective_function(results_new, refs, weights)
+
+print("\n=== NEW EVALUATION ===")
 print("J1 =", J1)
 print("VpiL_Vcm =", results_new["VpiL_Vcm"])
 print("loss_dB_per_cm =", results_new["loss_dB_per_cm"])

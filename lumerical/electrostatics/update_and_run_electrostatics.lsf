@@ -70,6 +70,12 @@ x_metal_R  = (W/2 + g + metal_w/2);
 # Update the geometry
 # ---------------------------
 
+# BOX/Cladding
+select("BOX/Cladding");
+set("x span", 2*Xext);
+set("y", y_SiO2_center);
+set("y span", y_span_SiO2);
+
 # SRN core
 select("core_SRN");
 set("x span", W);
@@ -116,6 +122,10 @@ select("shield_metal_right_top");
 set("x", x_metal_R);
 set("y", y_metshield_center);
 set("y span", t_shield_metal);
+
+# Dummy semiconductor
+select("dummy_semiconductor");
+set("y", -(Ybot_margin - 0.5e-6));
 
 # Update the simulation region and electrode contacts
 select("simulation region");

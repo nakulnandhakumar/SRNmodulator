@@ -1,6 +1,6 @@
 from modulator_analysis.modulator_lumapi import LumericalSession
 from modulator_analysis.modulator_evaluate import evaluate_params
-from modulator_analysis.modulator_fd_optimization import compute_fd_gradient, update_params
+from modulator_analysis.modulator_fd_optimization import FDOptimizer
 from modulator_analysis.modulator_objective import objective_function
 
 # ------------------- Parameters to set from Python script --------------
@@ -64,17 +64,23 @@ print("J0 =", J0)
 print("VpiL_Vcm =", res0["VpiL_Vcm"])
 print("loss_dB_per_cm =", res0["loss_dB_per_cm"])
 
-print("\n=== FD GRADIENT ===")
-grads = compute_fd_gradient(session, params, refs, OPT_KEYS, weights)
+optimizer = FDOptimizer(
+    session=session,
+    refs=refs,
+    opt_keys=OPT_KEYS,
+    weights=weights,
+    rel=0.03,         # FD perturbation size (3%)
+    step_frac=0.05,   # descent step size (5%)
+)
 
-print("\n=== PARAM UPDATE ===")
-new_params = update_params(params, grads)
+print("\n=== FD STEP ===")
+new_params, grads = optimizer.step(params)
 
 print("\n=== NEW EVALUATION ===")
-res1 = evaluate_params(session, new_params)
-J1 = objective_function(res1, refs, weights)
+results_new = evaluate_params(session, new_params)
+J1 = objective_function(results_new, refs, weights)
 print("J1 =", J1)
-print("VpiL_Vcm =", res1["VpiL_Vcm"])
-print("loss_dB_per_cm =", res1["loss_dB_per_cm"])
+print("VpiL_Vcm =", results_new["VpiL_Vcm"])
+print("loss_dB_per_cm =", results_new["loss_dB_per_cm"])
 
 session.close()

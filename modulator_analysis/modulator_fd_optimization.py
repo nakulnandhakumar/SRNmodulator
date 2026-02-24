@@ -39,7 +39,7 @@ def compute_fd_gradient(session, params, refs, opt_keys, weights=None):
 
     return grads
 
-def update_params(params, grads, step_frac=0.25):
+def update_params(params, grads, step_frac=0.05):
     """
     Gradient-descent-style update using relative step size.
     """

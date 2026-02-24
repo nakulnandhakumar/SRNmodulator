@@ -1,0 +1,156 @@
+# ============================================
+#  Parametric SRN modulator cross-section
+# ============================================
+
+# ------------------- Parameters to set from Python script --------------
+# g            = set from python script;    # electrode–sidewall gap
+# W            = 450nm;                     # SRN core width (keep fixed for now)
+# H            = 350nm;                     # SRN core height (keep fixed for now)
+# metal_t      = 100nm;                     # metal electrode thickness (height) (keep fixed for now)
+# t_shield_gapR = set from python script;    # thickness of the shield within the right gap
+# t_shield_gapL = set from python script;    # thickness of the shield within the left gap
+# t_shield_core = set from python script;   # thickness of the shield above the core
+# t_shield_metal = set from python script;  # thickness of the shield above the metal electrodes
+# -----------------------------------------------------------------------
+
+# Check if parameters are set (in case someone runs this .lsf directly without going through the Python script)
+?g;
+?W;
+?H;
+?metal_t;
+?t_shield_gapR;
+?t_shield_gapL;
+?t_shield_core;
+?t_shield_metal;
+
+# ---- Global parameters ----
+#Vdc          = set from python script;       
+
+# All units are in meters
+#W            = set from python script;    # SRN core width
+#H            = set from python script;    # SRN core height 
+#g            = set from python script;    # electrode–sidewall gap (sweep later)
+tBOX         = 3e-6;      # BOX thickness below core
+tCLAD        = 2e-6;      # top cladding thickness
+metal_w      = 1e-6;      # metal electrode width
+#metal_t      = set from python script;    # metal electrode height
+Xext         = 4e-6;     # half-width of simulation window
+Ytop_margin  = 2e-6;     # extra margin above cladding
+Ybot_margin  = 2e-6;     # extra margin below BOX
+
+#t_shield_gapR = set from python script;    # thickness of the shield within the right gap
+#t_shield_gapL = set from python script;    # thickness of the shield within the left gap
+#t_shield_core = set from python script;   # thickness of the shield above the core
+#t_shield_metal = set from python script;  # thickness of the shield above the metal electrodes
+
+# ---- Derived positions ----
+y_core_center = tBOX + H/2;
+y_core_bottom = tBOX;
+y_core_top = tBOX + H;
+
+y_metal_center     = y_core_bottom + metal_t/2;
+y_metal_top        = y_core_bottom + metal_t;
+
+y_topshield_center = tBOX + H + t_shield_core/2;
+y_sideshield_centerR = tBOX + t_shield_gapR/2;
+y_sideshield_centerL = tBOX + t_shield_gapL/2;
+y_metshield_center = y_metal_top + t_shield_metal/2;
+
+y_span_SiO2 = tBOX + H + metal_t + t_shield_core + tCLAD + Ytop_margin + Ybot_margin;
+y_SiO2_center = -Ybot_margin + y_span_SiO2/2;
+
+x_shield_L = -(W/2 + g/2);
+x_shield_R = (W/2 + g/2);
+
+x_metal_L  = -(W/2 + g + metal_w/2);
+x_metal_R  = (W/2 + g + metal_w/2);
+
+# ---------------------------
+# Update the geometry
+# ---------------------------
+
+# SRN core
+select("core_SRN");
+set("x span", W);
+set("y", y_core_center);
+set("y span", H);
+
+# Side Shields
+select("shield_left");
+set("x", x_shield_L);
+set("x span", g);
+set("y", y_sideshield_centerL);
+set("y span", t_shield_gapL);
+
+select("shield_right");
+set("x", x_shield_R);
+set("x span", g);
+set("y", y_sideshield_centerR);
+set("y span", t_shield_gapR);
+
+# Top shield slab
+select("shield_top");
+set("x span", W);
+set("y", y_topshield_center);
+set("y span", t_shield_core);
+
+# Metal electrodes
+select("metal_left");
+set("x", x_metal_L);
+set("y", y_metal_center);
+set("y span", metal_t);
+
+select("metal_right");
+set("x", x_metal_R);
+set("y", y_metal_center);
+set("y span", metal_t);
+
+# Metal shield slabs
+select("shield_metal_left_top");
+set("x", x_metal_L);
+set("y", y_metshield_center);
+set("y span", t_shield_metal);
+
+select("shield_metal_right_top");
+set("x", x_metal_R);
+set("y", y_metshield_center);
+set("y span", t_shield_metal);
+
+# Update FDE solver region
+select("FDE");
+set("x span", 2*Xext);
+set("y", y_SiO2_center);
+set("y span", y_span_SiO2);
+
+# Update mesh override
+select("mesh_core");
+set("x span", W + 2*g + 2*metal_w + 2*buffer_x);
+set("y", y_core_center);
+set("y span", H + 2*t_shield_core + 2*buffer_y);
+
+# Solve for modes
+select("FDE");
+findmodes;
+
+# ----- EXPORT OPTICAL MODE FIELD -----
+
+mode = 1;   # fundamental TE mode
+
+x = getdata("FDE::data::mode"+num2str(mode),"x");
+y = getdata("FDE::data::mode"+num2str(mode),"y");
+
+Ex = getdata("FDE::data::mode"+num2str(mode),"Ex");
+Ey = getdata("FDE::data::mode"+num2str(mode),"Ey");
+Ez = getdata("FDE::data::mode"+num2str(mode),"Ez");
+
+E2 = abs(Ex)^2 + abs(Ey)^2 + abs(Ez)^2;
+
+loss = getdata("FDE::data::mode"+num2str(mode), "loss");   # dB/cm
+
+fname = "modulator_mode.mat";
+
+matlabsave(fname, x, y, Ex, Ey, Ez, E2, loss);
+
+?("Saved: "+fname);
+
+

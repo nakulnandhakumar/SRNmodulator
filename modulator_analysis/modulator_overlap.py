@@ -256,14 +256,10 @@ def compute_modulator_overlap(params):
     dy = np.median(np.diff(y_u))
     dA = dx * dy
 
-    print(f"dA = {dA:.3e} m^2")
-
     num = np.sum(deps * w) * dA
     den = 2 * np.sum(eps0 * epsr * w) * dA
 
     dneff_per_V = num / den
-
-    print("Δn_eff / V =", dneff_per_V)
 
     # ============================================================
     # MODE-WEIGHTED AVERAGE chi^(2)_eff OVERLAP
@@ -277,18 +273,12 @@ def compute_modulator_overlap(params):
 
     chi2_eff_avg = num_chi2 / den_chi2
 
-    print("Mode-weighted χ²_eff (m/V)=", chi2_eff_avg, "m/V")
-    print("Mode-weighted χ²_eff (pm/V) =", chi2_eff_avg * 1e12, "pm/V")
-
     # ============================================================
     # Vpi L
     # ============================================================
 
     VpiL_Vm  = lam0 / (2.0 * dneff_per_V)
     VpiL_Vcm = VpiL_Vm * 100
-
-    print("Vπ·L (V·m) :", VpiL_Vm)
-    print("Vπ·L (V·cm):", VpiL_Vcm)
     
     return {
         "g_nm": g * 1e9,

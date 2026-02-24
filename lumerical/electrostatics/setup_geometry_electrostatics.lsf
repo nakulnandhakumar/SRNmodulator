@@ -222,6 +222,7 @@ set("z span", 1e-6);
 # 6) Electrostatics solver region
 # -------------------------
 addchargesolver; 
+select("CHARGE");
 set("norm length", 1e-6);   # 1 micron is standard
 set("max edge length", 0.08e-6); # = 80 nm
 
@@ -252,7 +253,7 @@ set("y", y_core_center);
 set("y span", H + 2*t_shield_core);
 
 set("z", 0);
-set("z span", 0.6e-6);
+set("z span", 1e-6);
 
 # FEM mesh control
 set("max edge length", 0.06e-6);   # = 60 nm

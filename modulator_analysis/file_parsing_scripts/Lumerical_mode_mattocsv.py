@@ -43,9 +43,6 @@ def convert_lumerical_mode_to_csv(
 
     for fpath in mat_files:
         with h5py.File(fpath, "r") as f:
-            print("\nReading:", os.path.basename(fpath))
-            print("Keys:", list(f.keys()))
-
             x  = read_var(f, "x")
             y  = read_var(f, "y")
             E2 = read_var(f, "E2")   # |E|^2 on (Nx, Ny) grid

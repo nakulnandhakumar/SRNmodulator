@@ -37,9 +37,6 @@ def convert_lumerical_electrostatics_to_csv(
 
     for fpath in mat_files:
         with h5py.File(fpath, "r") as f:
-            print("\nReading:", os.path.basename(fpath))
-            print("Keys:", list(f.keys()))
-
             # Lumerical electrostatics outputs
             E = np.array(f["E"])          # shape (3, N)
             verts = np.array(f["vertices"])  # shape (3, N)

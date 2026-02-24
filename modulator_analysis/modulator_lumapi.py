@@ -52,7 +52,7 @@ class LumericalSession:
         for k, v in params.items():
             self.charge.putv(k, v)
 
-        with open(r"./lumerical/electrostatics/run_electrostatics.lsf") as f:
+        with open(r"./lumerical/electrostatics/update_and_run_electrostatics.lsf") as f:
             self.charge.eval(f.read())
 
         # --- MODE ---
@@ -61,5 +61,5 @@ class LumericalSession:
         for k, v in params.items():
             self.mode.putv(k, v)
 
-        with open(r"./lumerical/mode/run_mode.lsf") as f:
+        with open(r"./lumerical/mode/update_and_run_mode.lsf") as f:
             self.mode.eval(f.read())

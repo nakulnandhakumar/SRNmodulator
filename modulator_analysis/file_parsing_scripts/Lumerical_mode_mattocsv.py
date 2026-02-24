@@ -63,7 +63,4 @@ def convert_lumerical_mode_to_csv(
         out_path = os.path.join(out_dir, out_name)
         df.to_csv(out_path, index=False)
 
-        print("Saved:", out_path)
-
-    print("\nAll mode-field files converted to CSV.")
     return loss_dB_per_cm

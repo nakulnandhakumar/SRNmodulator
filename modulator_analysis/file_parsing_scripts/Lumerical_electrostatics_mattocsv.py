@@ -33,8 +33,6 @@ def convert_lumerical_electrostatics_to_csv(
     if not mat_files:
         raise FileNotFoundError(f"No electrostatics MAT files found in {mat_dir}")
 
-    print(f"Converting electrostatics fields using Vdc = {Vdc:.3f} V")
-
     for fpath in mat_files:
         with h5py.File(fpath, "r") as f:
             # Lumerical electrostatics outputs
@@ -76,7 +74,3 @@ def convert_lumerical_electrostatics_to_csv(
         out_name = os.path.splitext(os.path.basename(fpath))[0] + ".csv"
         out_path = os.path.join(out_dir, out_name)
         df.to_csv(out_path, index=False)
-
-        print("Saved:", out_path)
-
-    print("\nAll electrostatics files converted to CSV.")

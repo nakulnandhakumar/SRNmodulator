@@ -118,21 +118,19 @@ set("y", y_metshield_center);
 set("y span", t_shield_metal);
 
 # Update the simulation region and electrode contacts
-select("CHARGE");
 select("simulation region");
 set("x span", 2*Xext);
 set("y", y_SiO2_center);
 set("y span", y_span_SiO2);
 
 # Electrode contact
-select("electrode_left");
+select("CHARGE::boundary conditions::electrode_left");
 set("voltage", Vdc);
 
-select("mesh_electrostatic");
+select("CHARGE::mesh_electrostatic");
 set("x span", W + 2*g + 2*metal_w);
 set("y", y_core_center);
 set("y span", H + 2*t_shield_core);
-
 
 # ---------------------------
 # Run the solver

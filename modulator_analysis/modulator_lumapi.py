@@ -1,7 +1,26 @@
 import sys
 sys.path.append(r"C:\Program Files\Lumerical\v202\api\python")
 import lumapi # pyright: ignore[reportMissingImports]
+import numpy as np
 
+def clamp_params(p):
+    p = p.copy()
+    eps = 10e-9  # 10 nm minimum
+
+    # gap
+    p["g"] = float(np.clip(p["g"], 150e-9, 3e-6))
+    g = p["g"]
+
+    # shield thicknesses
+    for k in ["t_shield_gapR","t_shield_gapL","t_shield_core","t_shield_metal"]:
+        if k in p:
+            p[k] = float(np.clip(p[k], eps, 0.9*g))
+
+    # metal thickness
+    if "metal_t" in p:
+        p["metal_t"] = float(np.clip(p["metal_t"], 20e-9, 500e-9))
+
+    return p
 
 class LumericalSession:
 
@@ -45,7 +64,9 @@ class LumericalSession:
         Called every evaluation.
         Updates parameters and runs.
         """
-
+        
+        params = clamp_params(params)
+        
         # --- DEVICE ---
         self.charge.eval("switchtolayout;")
 

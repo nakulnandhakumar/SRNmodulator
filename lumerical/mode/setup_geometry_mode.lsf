@@ -240,8 +240,8 @@ set("z", 0);
 set("z span", 0.5e-6);      # any nonzero span is fine in 2D
 
 # 2 nm steps (0.002 µm). Go to 0.001µm if you want even finer near metals.
-set("dx", 0.002e-6);        # 2 nm
-set("dy", 0.002e-6);        # 2 nm
+set("dx", 0.005e-6);        # 5 nm
+set("dy", 0.005e-6);        # 5 nm
 
 # (optional) make sure it’s enabled
 set("enabled", 1);

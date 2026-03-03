@@ -45,17 +45,21 @@ class FDOptimizer:
         refs,
         opt_keys,
         weights=None,
-        rel=0.03,
-        step_frac=0.05,
-        abs_min=10e-9,
+        rel=0.02,         # relative FD step (2%)
+        abs_min=5e-9,   # minimum absolute FD step (5 nm)
+        alpha_init=0.05,     # initial step scale
+        beta=0.5,            # shrink factor
+        min_alpha=1e-3,
     ):
         self.session = session
         self.refs = refs
         self.opt_keys = opt_keys
         self.weights = weights if weights is not None else {}
         self.rel = rel                # relative FD step (for gradient)
-        self.step_frac = step_frac    # relative update step
         self.abs_min = abs_min        # minimum FD step (meters)
+        self.alpha_init = alpha_init
+        self.beta = beta
+        self.min_alpha = min_alpha
 
     # -------------------------------------------------
     # Finite difference step size
@@ -104,29 +108,55 @@ class FDOptimizer:
         return grads
 
     # -------------------------------------------------
-    # Gradient descent update
+    # Backtracking line search update
     # -------------------------------------------------
-    # Sign-based descent:
-    # Step magnitude proportional to parameter size.
-    # This avoids large jumps when parameters vary in scale.
-    def update(self, params, grads):
-        new_params = params.copy()
+    def line_search_update(self, params, grads):
 
-        for key, grad in grads.items():
-            if grad == 0:
-                continue
+        # Current objective
+        results_current = evaluate_params(self.session, params)
+        J_current = objective_function(results_current, self.refs, self.weights)
 
-            delta = self.step_frac * abs(params[key]) * np.sign(grad)
-            new_params[key] -= delta
+        alpha = self.alpha_init
+        
+        norm = np.sqrt(sum((grads[k] * abs(params[k]))**2 for k in self.opt_keys))
 
-            print(f"[UPDATE] {key}: Δ = {-delta*1e9:.2f} nm")
+        if norm < 1e-16:
+            print("[LS] Gradient norm ~0. No update.")
+            return params
 
-        return new_params
+        while alpha > self.min_alpha:
+
+            trial_params = params.copy()
+
+            for key in self.opt_keys:
+
+                # scaled gradient
+                g_scaled = grads[key] * abs(params[key])
+
+                # normalized direction
+                direction = g_scaled / norm
+
+                trial_params[key] -= alpha * direction
+
+            # Evaluate trial
+            results_trial = evaluate_params(self.session, trial_params)
+            J_trial = objective_function(results_trial, self.refs, self.weights)
+
+            print(f"[LS] alpha={alpha:.4f}, J_trial={J_trial:.6f}")
+
+            if J_trial < J_current:
+                print("[LS] Accepted step.")
+                return trial_params
+
+            alpha *= self.beta  # shrink step
+
+        print("[LS] Step rejected — returning original params.")
+        return params
 
     # -------------------------------------------------
     # Single optimization step
     # -------------------------------------------------
     def step(self, params):
         grads = self.compute_gradient(params)
-        new_params = self.update(params, grads)
+        new_params = self.line_search_update(params, grads)
         return new_params, grads

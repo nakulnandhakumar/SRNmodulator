@@ -218,10 +218,6 @@ set("search", "near n");    # searching near max n
 set("mesh cells x", 251);   # adjust for accuracy vs. time
 set("mesh cells y", 201);
 
-# --- user-tunable buffers (in µm) ---
-buffer_x = 0.20e-6;     # 0.20 µm = 200 nm on each side horizontally
-buffer_y = 0.20e-6;     # 0.20 µm = 200 nm above/below core
-
 # --- add mesh override object ---
 addmesh;
 set("name", "mesh_core");
@@ -229,11 +225,11 @@ set("name", "mesh_core");
 # --- position & size of override box ---
 # x: centered at 0, spanning core + gaps + metal + margins
 set("x", 0);
-set("x span", W + 2*g + 2*metal_w + 2*buffer_x);
+set("x span", W + 2*g + 2*metal_w);
 
 # y: centered on core, spanning core height + margins
 set("y", y_core_center);
-set("y span", H + 2*t_shield_core + 2*buffer_y);
+set("y span", H + 2*t_shield_core);
 
 # For 2D Z-normal FDE, z doesn’t matter but we can still set something small:
 set("z", 0);

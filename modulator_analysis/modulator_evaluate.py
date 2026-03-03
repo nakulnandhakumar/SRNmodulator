@@ -34,7 +34,6 @@ from modulator_analysis.modulator_lumapi import LumericalSession
 from modulator_analysis.file_parsing.lumerical_electrostatics_mattocsv import convert_lumerical_electrostatics_to_csv
 from modulator_analysis.file_parsing.lumerical_mode_mattocsv import convert_lumerical_mode_to_csv
 from modulator_analysis.modulator_overlap import compute_modulator_overlap
-from modulator_analysis.modulator_objective import objective_function
 
 
 def evaluate_params(session, params):

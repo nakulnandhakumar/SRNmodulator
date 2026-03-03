@@ -36,7 +36,7 @@ import numpy as np
 
 def clamp_params(p):
     p = p.copy()
-    eps = 10e-9  # 10 nm minimum
+    eps = 5e-9  # 5 nm minimum
 
     # gap
     p["g"] = float(np.clip(p["g"], 150e-9, 3e-6))

@@ -138,6 +138,10 @@ class FDOptimizer:
 
                 trial_params[key] -= alpha * direction
 
+            print("\n[TRIAL PARAMS]")
+            for k in self.opt_keys:
+                print(f"{k}: {trial_params[k]*1e9:.2f} nm")
+
             # Evaluate trial
             results_trial = evaluate_params(self.session, trial_params)
             J_trial = objective_function(results_trial, self.refs, self.weights)

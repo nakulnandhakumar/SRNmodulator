@@ -1,3 +1,41 @@
+"""
+modulator_main.py
+-----------------
+
+Entry point for SRN electro-optic modulator optimization.
+
+This script:
+
+1. Opens Lumerical DEVICE + MODE sessions
+2. Builds initial geometry
+3. Computes baseline performance
+4. Runs finite-difference gradient optimization
+5. Prints evolution of VpiL and loss
+
+This file does NOT:
+- Define physics
+- Compute overlap integrals
+- Handle interpolation
+- Define optimization math
+
+It only orchestrates the pipeline.
+
+Optimization strategy:
+- Central finite differences
+- Sign-based projected gradient descent
+- Fixed step size (percentage of parameter)
+
+Intended use:
+- Proof-of-concept inverse design
+- Small iteration counts (5–20)
+- Manual inspection of behavior
+
+Author notes:
+- No line search
+- No convergence criteria
+- No checkpoint saving
+"""
+
 from modulator_analysis.modulator_lumapi import LumericalSession
 from modulator_analysis.modulator_evaluate import evaluate_params
 from modulator_analysis.modulator_fd_optimization import FDOptimizer

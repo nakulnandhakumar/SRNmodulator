@@ -1,3 +1,47 @@
+"""
+modulator_overlap.py
+--------------------
+
+Core physics calculation.
+
+Computes:
+    - Δn_eff per volt
+    - Effective χ² via EFISH
+    - VpiL
+    - Mode-weighted χ² average
+
+Inputs:
+    - Electrostatics fields (DEVICE)
+    - Optical mode fields (MODE)
+    - Geometry parameters
+
+Major assumptions:
+
+1. EFISH model:
+       χ²_eff = (3/2) χ³ E_DC
+
+2. χ³ is constant in SRN
+3. Only SRN core contributes to nonlinearity
+4. HfO2 and SiO2 are linear dielectrics
+5. No carrier effects
+6. No free-carrier absorption
+7. No thermal effects
+8. Small-signal AC regime
+9. 2D cross-sectional approximation
+
+Numerical steps:
+    - Interpolate electrostatics onto optical grid
+    - Build material masks
+    - Compute Δε map
+    - Perform overlap integrals
+    - Extract VpiL
+
+All spatial integration is Riemann sum:
+    dA = dx * dy
+
+This is the physics core of the project.
+"""
+
 import numpy as np
 import pandas as pd
 from scipy.interpolate import griddata

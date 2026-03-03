@@ -1,3 +1,22 @@
+# ============================================================
+# SRN Electro-Optic Modulator Geometry
+# ============================================================
+#
+# 2D cross-section
+# Z-normal simulation
+#
+# Parameterization controlled from Python via lumapi
+#
+# All units: meters
+#
+# This script assumes:
+# - Parameters already exist in workspace
+# - Geometry names remain unchanged
+# - Material names match model database
+#
+# DO NOT rename objects without updating Python pipeline.
+# ============================================================
+
 # ============================================
 #  Parametric SRN modulator cross-section
 # ============================================

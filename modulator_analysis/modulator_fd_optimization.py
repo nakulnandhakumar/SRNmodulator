@@ -1,6 +1,35 @@
+"""
+modulator_fd_optimization.py
+----------------------------
+
+Finite-difference gradient-based optimizer.
+
+Method:
+- Central finite differences for each parameter
+- Scalar objective J
+- Sign-based descent update:
+      p_new = p - α |p| sign(dJ/dp)
+
+Key design decisions:
+- Relative perturbation size (rel)
+- Minimum absolute perturbation (abs_min)
+- Fixed update fraction (step_frac)
+- No line search
+- No convergence check
+- No second-order information
+
+This is intentionally simple:
+- Easy to debug
+- Clear sensitivity inspection
+- Computationally expensive (2 solves per parameter)
+
+Suitable for:
+- Small parameter sets (≤5 variables)
+- Demonstration of inverse design loop
+"""
+
 import copy
 import numpy as np
-
 from modulator_analysis.modulator_evaluate import evaluate_params
 from modulator_analysis.modulator_objective import objective_function
 
@@ -37,6 +66,10 @@ class FDOptimizer:
     # -------------------------------------------------
     # Compute central FD gradient
     # -------------------------------------------------
+    # Central finite difference:
+    #   grad ≈ (J(p+h) - J(p-h)) / (2h)
+    #
+    # Requires two full simulation pipelines per parameter.
     def compute_gradient(self, params):
         grads = {}
 
@@ -73,6 +106,9 @@ class FDOptimizer:
     # -------------------------------------------------
     # Gradient descent update
     # -------------------------------------------------
+    # Sign-based descent:
+    # Step magnitude proportional to parameter size.
+    # This avoids large jumps when parameters vary in scale.
     def update(self, params, grads):
         new_params = params.copy()
 

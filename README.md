@@ -1,26 +1,145 @@
-# SRNmodulator
-Repository to store code and data for SRN modulator project @ UCSD
+# SRN Electro-Optic Modulator Inverse Design Framework
 
-## Code File Notes
+Author: Nakul  
+Institution: UC San Diego  
+Project: Silicon-Rich Nitride (SRN) Electro-Optic Modulator Optimization  
 
-## Data File Notes
+---
 
-### Lum_HfO2_ALDShield_reducedAu_VpiL.csv
-<p> Contains data from Lumerical about the loss of modes propagating through a modulator which thin gold electrodes, an SRN core, and HfO2 shields which are deposited throudh ALD </p>
+# 1. Overview
 
-- <b>gap</b> <i>(nm)</i>: spacing between gold electrodes and core on both sides
-- <b>loss(TE)</b> <i>(dB/cm)</i>: loss of the fundamental TE mode
-- <b>loss(TM)</b> <i>(dB/cm)</i>: loss of the fundamental TM mode
+This repository implements a physics-driven inverse design loop for a silicon-rich nitride (SRN) electro-optic modulator cross-section.
 
-### COMSOL_HfO2_ALDshield_reducedAu_acdc_field_dist.csv
-<p> Contains spatially resolved electric field distributions extracted from COMSOL Multiphysics electrostatics simulations of the SRN modulator cross-section under both DC bias and small-signal AC excitation.
+The workflow couples:
 
-This dataset is used to compute electro-optic overlap integrals with optical mode profiles from Lumerical in order to evaluate the effective refractive index change 
-and modulator efficiency</p>
+- Lumerical DEVICE (electrostatics)
+- Lumerical MODE (optical eigenmode solver)
+- Python-based overlap integrals
+- Finite-difference gradient optimization
 
-- <b>x</b> <i>(m)</i>: horizontal spatial coordinate
-- <b>y</b> <i>(m)</i>: vertical spatial coordinate
-- <b>esAC.Ex</b> <i>(V/m)</i>: x-component of AC electric field (1 V drive, per-volt scaling)
-- <b>esAC.Ey</b> <i>(V/m)</i>: y-component of AC electric field (1 V drive, per-volt scaling)
-- <b>esDC.Ex</b> <i>(V/m)</i>: x-component of DC electric field (100 V DC bias applied to signal gold electrode)
-- <b>esDC.Ey</b> <i>(V/m)</i>: y-component of DC electric field (100 V DC bias applied to signal gold electrode)
+The goal is to minimize:
+
+$$
+J = w_1 \frac{V_{\pi}L}{(V_{\pi}L)_0}
+  + w_2 \frac{\text{loss}}{(\text{loss})_0}
+$$
+
+over geometric parameters.
+
+This is a full end-to-end simulation-driven optimization framework.
+
+---
+
+# 2. Physics Model
+
+The modulator operates via EFISH (Electric Field Induced Second Harmonic).
+
+We assume:
+
+- Third-order nonlinearity χ³ in SRN
+- Effective χ² induced by DC field:
+  
+  $$
+  \chi^{(2)}_{\text{eff}} = \frac{3}{2} \chi^{(3)} E_{\text{DC}}
+  $$
+
+- Small-signal AC modulation (linear regime)
+- No carrier injection
+- No plasma dispersion
+- No thermal effects
+- 2D cross-sectional approximation
+
+Effective index perturbation:
+
+$$
+\Delta n_{\text{eff}} =
+\frac{\int \Delta \varepsilon |E|^2 dA}
+{2 \int \varepsilon |E|^2 dA}
+$$
+
+Modulation efficiency:
+
+$$
+V_{\pi}L = \frac{\lambda}{2 \Delta n_{\text{eff}}}
+$$
+
+Loss is extracted directly from the MODE solver.
+
+---
+
+# 3. Optimization Variables
+
+Optimized geometry parameters:
+
+- g — electrode-core gap
+- t_shield_gapL
+- t_shield_gapR
+- t_shield_core
+
+Clamped for physical feasibility:
+
+- g ∈ [150 nm, 3 µm]
+- shield thicknesses ∈ [10 nm, 0.9g]
+
+---
+
+# 4. Data Flow
+
+1. Parameters pushed to Lumerical
+2. Electrostatics solved → E_DC and E_AC fields
+3. Optical mode solved → |E|² and loss
+4. Electrostatics interpolated onto optical grid
+5. Overlap integrals computed
+6. Objective evaluated
+7. Finite-difference gradients computed
+8. Parameters updated
+
+---
+
+# 5. Numerical Methods
+
+Gradients computed via central finite differences:
+
+$$
+\frac{dJ}{dp} \approx \frac{J(p+h) - J(p-h)}{2h}
+$$
+
+Update rule:
+
+$$
+p_{new} = p - \alpha |p| \, \text{sign}(dJ/dp)
+$$
+
+Where:
+- α = step_frac
+- h = max(rel·|p|, abs_min)
+
+This is sign-based projected gradient descent.
+
+---
+
+# 6. Current Status
+
+✔ End-to-end inverse design loop functional  
+✔ Electrostatics + optical coupling validated  
+✔ Multi-parameter optimization demonstrated  
+✔ Loss-weighted objective supported  
+
+Future improvements:
+- Adjoint gradient method
+- Line search or trust region
+- Hessian-based update
+- RF modeling
+
+---
+
+# 7. Requirements
+
+- Ansys Lumerical DEVICE + MODE
+- Python 3.9+
+- numpy
+- pandas
+- scipy
+- h5py
+
+---

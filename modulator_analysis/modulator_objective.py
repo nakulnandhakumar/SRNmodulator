@@ -1,3 +1,23 @@
+"""
+modulator_objective.py
+----------------------
+
+Defines scalar objective J to minimize.
+
+Default objective:
+
+    J = w1 * (VpiL / VpiL_ref)
+      + w2 * (loss / loss_ref)
+
+Normalization ensures:
+- Terms are dimensionless
+- Baseline J ≈ 1
+
+Weights allow:
+- Pure efficiency optimization (loss weight = 0)
+- Multi-objective tradeoff
+"""
+
 def objective_function(results, refs, weights=None):
     """
     Scalar objective to minimize.

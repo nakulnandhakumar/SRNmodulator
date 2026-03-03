@@ -1,3 +1,34 @@
+"""
+modulator_lumapi.py
+-------------------
+
+Handles communication between Python and Lumerical.
+
+Responsibilities:
+- Open DEVICE and MODE projects
+- Push parameters into Lumerical
+- Execute .lsf scripts
+- Run electrostatics and optical solvers
+- Clamp parameters for physical feasibility
+
+Important design choice:
+Geometry is built once (setup_geometry),
+then updated via update_and_run scripts.
+
+Assumptions:
+- 2D Z-normal simulations
+- Geometry parameter names match LSF variable names
+- MAT files written to known directories
+
+Clamp strategy:
+- Prevent negative geometry
+- Prevent shield > gap
+- Prevent unrealistic electrode sizes
+
+This file contains NO physics.
+It only manages simulation execution.
+"""
+
 import sys
 sys.path.append(r"C:\Program Files\Lumerical\v202\api\python")
 import lumapi # pyright: ignore[reportMissingImports]

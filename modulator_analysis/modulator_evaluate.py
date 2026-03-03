@@ -1,3 +1,35 @@
+"""
+modulator_evaluate.py
+---------------------
+
+Single evaluation pipeline.
+
+Input:
+    params (dict of geometry + voltage)
+
+Pipeline:
+    1. Run Lumerical solvers
+    2. Convert MAT → CSV
+    3. Compute overlap integrals
+    4. Return performance metrics
+
+This function is intentionally stateless:
+Each call performs a full simulation.
+
+Returns:
+    {
+        VpiL_Vcm,
+        loss_dB_per_cm,
+        dneff_per_V,
+        chi2_eff_avg,
+        ...
+    }
+
+Note:
+Objective is NOT computed here.
+This file returns raw metrics only.
+"""
+
 from modulator_analysis.modulator_lumapi import LumericalSession
 from modulator_analysis.file_parsing.lumerical_electrostatics_mattocsv import convert_lumerical_electrostatics_to_csv
 from modulator_analysis.file_parsing.lumerical_mode_mattocsv import convert_lumerical_mode_to_csv

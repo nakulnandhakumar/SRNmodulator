@@ -149,9 +149,9 @@ set("y span", y_span_SiO2);
 
 # Update mesh override
 select("mesh_core");
-set("x span", W + 2*g + 2*metal_w + 2*buffer_x);
+set("x span", W + 2*g + 2*metal_w);
 set("y", y_core_center);
-set("y span", H + 2*t_shield_core + 2*buffer_y);
+set("y span", H + 2*t_shield_core);
 
 # Solve for modes
 select("FDE");

@@ -130,13 +130,13 @@ class FDOptimizer:
 
             for key in self.opt_keys:
 
-                # scaled gradient
+                # scaled gradient (objective change per percentage change in parameter)
                 g_scaled = grads[key] * abs(params[key])
 
                 # normalized direction
                 direction = g_scaled / norm
 
-                trial_params[key] -= alpha * direction
+                trial_params[key] -= alpha * abs(params[key]) * direction
 
             print("\n[TRIAL PARAMS]")
             for k in self.opt_keys:

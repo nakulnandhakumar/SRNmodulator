@@ -33,6 +33,7 @@ import sys
 sys.path.append(r"C:\Program Files\Lumerical\v202\api\python")
 import lumapi # pyright: ignore[reportMissingImports]
 import numpy as np
+import time
 
 def clamp_params(p):
     p = p.copy()
@@ -64,7 +65,6 @@ class LumericalSession:
             hide=False,
             project=r"./lumerical/electrostatics/modulator_electrostatics.ldev"
         )
-
         self.mode = lumapi.MODE(
             hide=False,
             project=r"./lumerical/mode/modulator_mode.ldev"
@@ -76,28 +76,31 @@ class LumericalSession:
         if self.mode:
             self.mode.close()
 
-    def setup_geometry(self, params):
+    def setup_geometry_electrostatics(self, params):
         """
-        Run once. Builds geometry.
+        Run once. Builds electrostatics geometry.
         """
         for k, v in params.items():
             self.charge.putv(k, v)
         with open(r"./lumerical/electrostatics/setup_geometry_electrostatics.lsf") as f:
             self.charge.eval(f.read())
-
+            
+    def setup_geometry_mode(self, params):
+        """
+        Run once. Builds optical geometry.
+        """
         for k, v in params.items():
             self.mode.putv(k, v)
         with open(r"./lumerical/mode/setup_geometry_mode.lsf") as f:
             self.mode.eval(f.read())
 
-    def run_simulation(self, params):
+    def run_electrostatics(self, params):
         """
-        Called every evaluation.
-        Updates parameters and runs.
+        Update parameters and run electrostatic simulation.
+        Returns runtime in seconds.
         """
-        
         params = clamp_params(params)
-        
+        start = time.perf_counter()
         # --- DEVICE ---
         self.charge.eval("switchtolayout;")
 
@@ -106,7 +109,18 @@ class LumericalSession:
 
         with open(r"./lumerical/electrostatics/update_and_run_electrostatics.lsf") as f:
             self.charge.eval(f.read())
-
+        end = time.perf_counter()
+        runtime = end - start
+        print(f"[Electrostatics runtime] {runtime:.2f} s")
+        return runtime
+            
+    def run_mode(self, params):
+        """
+        Update parameters and run optical simulation.
+        Returns runtime in seconds.
+        """
+        params = clamp_params(params)
+        start = time.perf_counter()
         # --- MODE ---
         self.mode.eval("switchtolayout;")
 
@@ -115,3 +129,17 @@ class LumericalSession:
 
         with open(r"./lumerical/mode/update_and_run_mode.lsf") as f:
             self.mode.eval(f.read())
+        end = time.perf_counter()
+        runtime = end - start
+        print(f"[Mode runtime] {runtime:.2f} s")
+        return runtime
+    
+    def run_simulation(self, params):
+        """
+        Run both electrostatic and optical simulations.
+        Returns total runtime in seconds.
+        """
+        t1 = self.run_electrostatics(params)
+        t2 = self.run_mode(params)
+        print(f"[Total electro-optic runtime] {t1+t2:.2f} s")
+        return t1 + t2

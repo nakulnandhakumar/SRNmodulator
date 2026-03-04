@@ -98,23 +98,42 @@ Clamped for physical feasibility:
 
 # 5. Numerical Methods
 
-Gradients computed via central finite differences:
+## Optimization Method (Finite-Difference + Gradient Descent)
+
+### Finite-Difference Gradient
+
+For each design parameter \(p\), we estimate the objective sensitivity using a **central finite difference**:
+
+
+$$\frac{dJ}{dp} \approx \frac{J(p+h) - J(p-h)}{2h}$$
+
+
+with perturbation size
 
 $$
-\frac{dJ}{dp} \approx \frac{J(p+h) - J(p-h)}{2h}
+h = \max(\text{rel}\cdot |p|,\ \text{abs\_min})
 $$
 
-Update rule:
+where:
+- `rel` is a relative perturbation fraction (e.g., 0.03 for 3%)
+- `abs_min` is a minimum absolute perturbation in meters (prevents tiny steps)
+
+---
+
+### Update Rule (Magnitude-Based Gradient Descent)
+
+We perform a **magnitude-based** gradient descent update (not sign descent):
 
 $$
-p_{new} = p - \alpha |p| \, \text{sign}(dJ/dp)
+p_{\text{new}} = p - \alpha \, s_p \, \frac{dJ}{dp}
 $$
 
-Where:
-- α = step_frac
-- h = max(rel·|p|, abs_min)
+where:
+- \($\alpha$\) is the step size (`alpha` / `step_frac` depending on implementation)
+- \($s_p$\) is a characteristic scale used to keep steps reasonable and unit-consistent  
+  (for geometry parameters, this is typically \(s_p = |p|\) so that steps are relative)
 
-This is sign-based projected gradient descent.
+This uses the **actual gradient magnitude**, so parameters with larger sensitivity receive larger updates, while still keeping the update roughly *relative to the parameter scale*.
 
 ---
 

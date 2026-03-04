@@ -7,25 +7,37 @@ Finite-difference gradient-based optimizer.
 Method:
 - Central finite differences for each parameter
 - Scalar objective J
-- Sign-based descent update:
-      p_new = p - α |p| sign(dJ/dp)
+- Magnitude-based gradient descent update:
+      p_new = p - α |p| (dJ/dp)
 
 Key design decisions:
 - Relative perturbation size (rel)
 - Minimum absolute perturbation (abs_min)
-- Fixed update fraction (step_frac)
-- No line search
+- Fixed update fraction (alpha / step_frac)
+- Optional backtracking line search
 - No convergence check
 - No second-order information
 
-This is intentionally simple:
+Notes:
+- Gradients are estimated numerically using central differences
+- Updates use the **actual gradient magnitude**, not just the sign
+- Scaling by |p| keeps updates roughly relative to the parameter scale,
+  which is useful for geometry parameters spanning different magnitudes
+- Line search may shrink the step size if the objective increases
+
+This approach is intentionally simple:
 - Easy to debug
 - Clear sensitivity inspection
-- Computationally expensive (2 solves per parameter)
+- Deterministic behavior
+
+Tradeoffs:
+- Computationally expensive (≈2 solves per parameter for gradients)
+- Does not use adjoint methods or Hessian information
 
 Suitable for:
-- Small parameter sets (≤5 variables)
-- Demonstration of inverse design loop
+- Small parameter sets (≈5–10 variables)
+- Demonstrating an inverse design optimization loop
+- Early-stage device design exploration
 """
 
 import copy

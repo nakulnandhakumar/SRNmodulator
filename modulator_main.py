@@ -106,7 +106,7 @@ optimizer = FDOptimizer(
     weights=weights,
     rel=0.02,          # FD perturbation (~3%)
     abs_min=5e-9,    # minimum FD step (5 nm)
-    alpha_init=0.05,  # initial step size (5% of parameter)
+    alpha_init=0.02,  # initial step size (5% of parameter)
     beta=0.5,         # line search shrink factor
     min_alpha=1e-3,   # minimum step size (0.1%)
 )

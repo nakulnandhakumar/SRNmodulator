@@ -118,7 +118,7 @@ class LumericalSession:
             self.charge.eval(f.read())
         end = time.perf_counter()
         runtime = end - start
-        print(f"[Electrostatics runtime] {runtime:.2f} s")
+        #print(f"[Electrostatics runtime] {runtime:.2f} s")
         return runtime
             
     def run_mode(self, params):
@@ -138,7 +138,7 @@ class LumericalSession:
             self.mode.eval(f.read())
         end = time.perf_counter()
         runtime = end - start
-        print(f"[Mode runtime] {runtime:.2f} s")
+        #print(f"[Mode runtime] {runtime:.2f} s")
         return runtime
     
     def run_simulation(self, params):
@@ -148,5 +148,5 @@ class LumericalSession:
         """
         t1 = self.run_electrostatics(params)
         t2 = self.run_mode(params)
-        print(f"[Total electro-optic runtime] {t1+t2:.2f} s")
+        #print(f"[Total electro-optic runtime] {t1+t2:.2f} s")
         return t1 + t2

@@ -93,6 +93,13 @@ class LumericalSession:
             self.mode.putv(k, v)
         with open(r"./lumerical/mode/setup_geometry_mode.lsf") as f:
             self.mode.eval(f.read())
+            
+    def setup_geometry(self, params):
+        """
+        Run once. Builds geometry in both solvers.
+        """
+        self.setup_geometry_electrostatics(params)
+        self.setup_geometry_mode(params)
 
     def run_electrostatics(self, params):
         """

@@ -55,8 +55,8 @@ OBJECTIVE_WEIGHTS = {
 # ============================================================
 
 OPT_SETTINGS = {
-    "alpha_init": 0.02,
-    "rel_fd": 0.03,
+    "alpha_init": 0.06,
+    "rel_fd": 0.1,
     "abs_fd_min": 5e-9,
 }
 

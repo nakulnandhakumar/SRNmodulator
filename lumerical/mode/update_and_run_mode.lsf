@@ -21,18 +21,25 @@
 #  Parametric SRN modulator cross-section
 # ============================================
 
-# ------------------- Parameters to set from Python script --------------
-# g            = set from python script;    # electrode–sidewall gap
-# W            = 450nm;                     # SRN core width (keep fixed for now)
-# H            = 350nm;                     # SRN core height (keep fixed for now)
-# metal_t      = 100nm;                     # metal electrode thickness (height) (keep fixed for now)
-# t_shield_gapR = set from python script;    # thickness of the shield within the right gap
-# t_shield_gapL = set from python script;    # thickness of the shield within the left gap
-# t_shield_core = set from python script;   # thickness of the shield above the core
-# t_shield_metal = set from python script;  # thickness of the shield above the metal electrodes
-# -----------------------------------------------------------------------
+# ------------------- Parameters from Python -------------------
+# g
+# Vdc
+# W
+# H
+# metal_t
+#
+# Base shield heights
+# t_shield_gapR
+# t_shield_gapL
+# t_shield_core
+# t_shield_metal
+#
+# Segment deltas (3 segments per region)
+# dt_shield_gapR_1, dt_shield_gapR_2, dt_shield_gapR_3
+# dt_shield_gapL_1, dt_shield_gapL_2, dt_shield_gapL_3
+# -------------------------------------------------------------
 
-# Check if parameters are set (in case someone runs this .lsf directly without going through the Python script)
+# ---- Check params exist ----
 ?g;
 ?W;
 ?H;
@@ -42,25 +49,35 @@
 ?t_shield_core;
 ?t_shield_metal;
 
+?dt_shield_gapR_1;
+?dt_shield_gapR_2;
+?dt_shield_gapR_3;
+
+?dt_shield_gapL_1;
+?dt_shield_gapL_2;
+?dt_shield_gapL_3;
+
 # ---- Global parameters ----
-#Vdc          = set from python script;       
+tBOX         = 3e-6;
+tCLAD        = 2e-6;
+metal_w      = 1e-6;
+Xext         = 4e-6;
+Ytop_margin  = 2e-6;
+Ybot_margin  = 2e-6;
 
-# All units are in meters
-#W            = set from python script;    # SRN core width
-#H            = set from python script;    # SRN core height 
-#g            = set from python script;    # electrode–sidewall gap (sweep later)
-tBOX         = 3e-6;      # BOX thickness below core
-tCLAD        = 2e-6;      # top cladding thickness
-metal_w      = 1e-6;      # metal electrode width
-#metal_t      = set from python script;    # metal electrode height
-Xext         = 4e-6;     # half-width of simulation window
-Ytop_margin  = 2e-6;     # extra margin above cladding
-Ybot_margin  = 2e-6;     # extra margin below BOX
+# ============================================================
+# Actual segment heights = base + delta
+# ============================================================
 
-#t_shield_gapR = set from python script;    # thickness of the shield within the right gap
-#t_shield_gapL = set from python script;    # thickness of the shield within the left gap
-#t_shield_core = set from python script;   # thickness of the shield above the core
-#t_shield_metal = set from python script;  # thickness of the shield above the metal electrodes
+# Left gap shield segments
+t_gapL_1 = t_shield_gapL + dt_shield_gapL_1;
+t_gapL_2 = t_shield_gapL + dt_shield_gapL_2;
+t_gapL_3 = t_shield_gapL + dt_shield_gapL_3;
+
+# Right gap shield segments
+t_gapR_1 = t_shield_gapR + dt_shield_gapR_1;
+t_gapR_2 = t_shield_gapR + dt_shield_gapR_2;
+t_gapR_3 = t_shield_gapR + dt_shield_gapR_3;
 
 # ---- Derived positions ----
 y_core_center = tBOX + H/2;
@@ -71,15 +88,32 @@ y_metal_center     = y_core_bottom + metal_t/2;
 y_metal_top        = y_core_bottom + metal_t;
 
 y_topshield_center = tBOX + H + t_shield_core/2;
-y_sideshield_centerR = tBOX + t_shield_gapR/2;
-y_sideshield_centerL = tBOX + t_shield_gapL/2;
 y_metshield_center = y_metal_top + t_shield_metal/2;
 
-y_span_SiO2 = tBOX + H + metal_t + t_shield_core + tCLAD + Ytop_margin + Ybot_margin;
-y_SiO2_center = -Ybot_margin + y_span_SiO2/2;
+# Segment centers in y
+y_gapL_1 = tBOX + t_gapL_1/2;
+y_gapL_2 = tBOX + t_gapL_2/2;
+y_gapL_3 = tBOX + t_gapL_3/2;
 
-x_shield_L = -(W/2 + g/2);
-x_shield_R = (W/2 + g/2);
+y_gapR_1 = tBOX + t_gapR_1/2;
+y_gapR_2 = tBOX + t_gapR_2/2;
+y_gapR_3 = tBOX + t_gapR_3/2;
+
+# Segment widths / x locations
+seg_gap  = g/3;
+
+# Left gap segments span x in [-(W/2+g), -(W/2)]
+x_gapL_1 = -(W/2 + g) + seg_gap/2;
+x_gapL_2 = x_gapL_1 + seg_gap;
+x_gapL_3 = x_gapL_2 + seg_gap;
+
+# Right gap segments span x in [W/2, W/2+g]
+x_gapR_1 =  (W/2) + seg_gap/2;
+x_gapR_2 =  x_gapR_1 + seg_gap;
+x_gapR_3 =  x_gapR_2 + seg_gap;
+
+y_span_SiO2 = tBOX + H + t_shield_core + tCLAD + Ytop_margin + Ybot_margin;
+y_SiO2_center = -Ybot_margin + y_span_SiO2/2;
 
 x_metal_L  = -(W/2 + g + metal_w/2);
 x_metal_R  = (W/2 + g + metal_w/2);
@@ -101,17 +135,44 @@ set("y", y_core_center);
 set("y span", H);
 
 # Side Shields
-select("shield_left");
-set("x", x_shield_L);
-set("x span", g);
-set("y", y_sideshield_centerL);
-set("y span", t_shield_gapL);
 
-select("shield_right");
-set("x", x_shield_R);
-set("x span", g);
-set("y", y_sideshield_centerR);
-set("y span", t_shield_gapR);
+# Left gap shield segments
+select("shield_left_1");
+set("x", x_gapL_1);
+set("x span", seg_gap);
+set("y", y_gapL_1);
+set("y span", t_gapL_1);
+
+select("shield_left_2");
+set("x", x_gapL_2);
+set("x span", seg_gap);
+set("y", y_gapL_2);
+set("y span", t_gapL_2);
+
+select("shield_left_3");
+set("x", x_gapL_3);
+set("x span", seg_gap);
+set("y", y_gapL_3);
+set("y span", t_gapL_3);
+
+# Right gap shield segments
+select("shield_right_1");
+set("x", x_gapR_1);
+set("x span", seg_gap);
+set("y", y_gapR_1);
+set("y span", t_gapR_1);
+
+select("shield_right_2");
+set("x", x_gapR_2);
+set("x span", seg_gap);
+set("y", y_gapR_2);
+set("y span", t_gapR_2);
+
+select("shield_right_3");
+set("x", x_gapR_3);
+set("x span", seg_gap);
+set("y", y_gapR_3);
+set("y span", t_gapR_3);
 
 # Top shield slab
 select("shield_top");
@@ -151,7 +212,7 @@ set("y span", y_span_SiO2);
 select("mesh_core");
 set("x span", W + 2*g + 2*metal_w);
 set("y", y_core_center);
-set("y span", H + 2*t_shield_core);
+set("y span", H + 500e-9);
 
 # Solve for modes
 select("FDE");

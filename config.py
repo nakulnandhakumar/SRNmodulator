@@ -12,22 +12,36 @@ Central configuration for SRN modulator optimization experiments.
 g0 = 600e-9
 
 PARAMS = {
-    # electrostatics
+
+    # ---------------- electrostatics ----------------
     "Vdc": 100.0,
 
-    # SRN core
+    # ---------------- SRN core ----------------
     "W": 450e-9,
     "H": 350e-9,
 
-    # electrode
+    # ---------------- electrode ----------------
     "metal_t": 100e-9,
 
-    # geometry parameters
+    # ---------------- base geometry ----------------
     "g": g0,
+
+    # base shield heights (NOT optimized)
     "t_shield_gapR": 0.5 * g0,
     "t_shield_gapL": 0.5 * g0,
     "t_shield_core": 0.5 * g0,
     "t_shield_metal": 0.5 * g0,
+
+    # ---------------- segmentation deltas ----------------
+    # left shield segments
+    "dt_shield_gapL_1": 0.0,
+    "dt_shield_gapL_2": 0.0,
+    "dt_shield_gapL_3": 0.0,
+
+    # right shield segments
+    "dt_shield_gapR_1": 0.0,
+    "dt_shield_gapR_2": 0.0,
+    "dt_shield_gapR_3": 0.0,
 }
 
 # ============================================================
@@ -36,9 +50,15 @@ PARAMS = {
 
 OPT_KEYS = [
     "g",
-    "t_shield_gapR",
-    "t_shield_gapL",
     "t_shield_core",
+
+    "dt_shield_gapL_1",
+    "dt_shield_gapL_2",
+    "dt_shield_gapL_3",
+
+    "dt_shield_gapR_1",
+    "dt_shield_gapR_2",
+    "dt_shield_gapR_3",
 ]
 
 # ============================================================
@@ -75,11 +95,27 @@ EXPERIMENT = {
 
 PARAM_BOUNDS = {
 
-    # electrode gap
+    # ------------------------------------------------
+    # Electrode gap
+    # ------------------------------------------------
     "g": (200e-9, 700e-9),
 
-    # shield geometry
-    "t_shield_gapR": (10e-9, 500e-9),
-    "t_shield_gapL": (10e-9, 500e-9),
-    "t_shield_core": (10e-9, 500e-9),
+    # ------------------------------------------------
+    # Base shield heights
+    # ------------------------------------------------
+    "t_shield_gapL": (50e-9, 500e-9),
+    "t_shield_gapR": (50e-9, 500e-9),
+    "t_shield_core": (50e-9, 600e-9),
+
+    # ------------------------------------------------
+    # Segmented shield deltas
+    # actual height = base + delta
+    # ------------------------------------------------
+    "dt_shield_gapL_1": (-200e-9, 200e-9),
+    "dt_shield_gapL_2": (-200e-9, 200e-9),
+    "dt_shield_gapL_3": (-200e-9, 200e-9),
+
+    "dt_shield_gapR_1": (-200e-9, 200e-9),
+    "dt_shield_gapR_2": (-200e-9, 200e-9),
+    "dt_shield_gapR_3": (-200e-9, 200e-9),
 }

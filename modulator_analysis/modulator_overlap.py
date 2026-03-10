@@ -95,20 +95,45 @@ def compute_modulator_overlap(params):
     # ============================================================
 
     # All units are in meters
-    W            = params["W"];    # SRN core width
-    H            = params["H"];    # SRN core height 
-    g            = params["g"];    # electrode–sidewall gap 
-    tBOX         = 3e-6;      # BOX thickness below core
-    tCLAD        = 2e-6;      # top cladding thickness
-    metal_w      = 1e-6;      # metal electrode width
-    metal_t      = params["metal_t"];    # metal electrode height
-    Xext         = 4e-6;     # half-width of simulation window
-    Ytop_margin  = 2e-6;     # extra margin above cladding
-    Ybot_margin  = 2e-6;     # extra margin below BOX
-    t_shield_gapR = params["t_shield_gapR"];  # thickness of the shield within the right gap
-    t_shield_gapL = params["t_shield_gapL"];  # thickness of the shield within the left gap
-    t_shield_core = params["t_shield_core"];  # thickness of the shield above the core
-    t_shield_metal = params["t_shield_metal"];  # thickness of the shield above the metal electrodes
+    Vdc = params["Vdc"]
+    g = params["g"]
+    W = params["W"]
+    H = params["H"]
+    metal_t = params["metal_t"]
+    t_shield_gapR = params["t_shield_gapR"]
+    t_shield_gapL = params["t_shield_gapL"]
+    t_shield_core = params["t_shield_core"]
+    t_shield_metal = params["t_shield_metal"]
+
+    dt_shield_gapR_1 = params["dt_shield_gapR_1"]
+    dt_shield_gapR_2 = params["dt_shield_gapR_2"]
+    dt_shield_gapR_3 = params["dt_shield_gapR_3"]
+
+    dt_shield_gapL_1 = params["dt_shield_gapL_1"]
+    dt_shield_gapL_2 = params["dt_shield_gapL_2"]
+    dt_shield_gapL_3 = params["dt_shield_gapL_3"]
+    
+    # ---- Global parameters ----
+    tBOX         = 3e-6
+    tCLAD        = 2e-6
+    metal_w      = 1e-6
+    Xext         = 4e-6
+    Ytop_margin  = 2e-6
+    Ybot_margin  = 2e-6
+
+    # ============================================================
+    # Actual segment heights = base + delta
+    # ============================================================
+
+    # Left gap shield segments
+    t_gapL_1 = t_shield_gapL + dt_shield_gapL_1
+    t_gapL_2 = t_shield_gapL + dt_shield_gapL_2
+    t_gapL_3 = t_shield_gapL + dt_shield_gapL_3
+
+    # Right gap shield segments
+    t_gapR_1 = t_shield_gapR + dt_shield_gapR_1
+    t_gapR_2 = t_shield_gapR + dt_shield_gapR_2
+    t_gapR_3 = t_shield_gapR + dt_shield_gapR_3
 
     # ---- Derived positions ----
     y_core_center = tBOX + H/2
@@ -119,15 +144,32 @@ def compute_modulator_overlap(params):
     y_metal_top        = y_core_bottom + metal_t
 
     y_topshield_center = tBOX + H + t_shield_core/2
-    y_sideshield_centerR = tBOX + t_shield_gapR/2
-    y_sideshield_centerL = tBOX + t_shield_gapL/2
     y_metshield_center = y_metal_top + t_shield_metal/2
 
-    y_span_SiO2 = tBOX + H + metal_t + t_shield_core + tCLAD + Ytop_margin + Ybot_margin
-    y_SiO2_center = -Ybot_margin + y_span_SiO2/2
+    # Segment centers in y
+    y_gapL_1 = tBOX + t_gapL_1/2
+    y_gapL_2 = tBOX + t_gapL_2/2
+    y_gapL_3 = tBOX + t_gapL_3/2
 
-    x_shield_L = -(W/2 + g/2)
-    x_shield_R = (W/2 + g/2)
+    y_gapR_1 = tBOX + t_gapR_1/2
+    y_gapR_2 = tBOX + t_gapR_2/2
+    y_gapR_3 = tBOX + t_gapR_3/2
+
+    # Segment widths / x locations
+    seg_gap  = g/3
+
+    # Left gap segments span x in [-(W/2+g), -(W/2)]
+    x_gapL_1 = -(W/2 + g) + seg_gap/2
+    x_gapL_2 = x_gapL_1 + seg_gap
+    x_gapL_3 = x_gapL_2 + seg_gap
+
+    # Right gap segments span x in [W/2, W/2+g]
+    x_gapR_1 =  (W/2) + seg_gap/2
+    x_gapR_2 =  x_gapR_1 + seg_gap
+    x_gapR_3 =  x_gapR_2 + seg_gap
+
+    y_span_SiO2 = tBOX + H + t_shield_core + tCLAD + Ytop_margin + Ybot_margin
+    y_SiO2_center = -Ybot_margin + y_span_SiO2/2
 
     x_metal_L  = -(W/2 + g + metal_w/2)
     x_metal_R  = (W/2 + g + metal_w/2)
@@ -213,23 +255,76 @@ def compute_modulator_overlap(params):
     )
 
     # -----------------------------------------------------------
-    # Side shield masks (tapered poly, matches LSF)
+    # Segmented side shield masks (matches segmented LSF geometry)
     # -----------------------------------------------------------
-    left_gap_hf02 = (
-        (lum["x_m"] >= -(W/2 + g)) &
-        (lum["x_m"] <= -(W/2)) &
+
+    # segment x-edges
+    x_gapL_1_min = -(W/2 + g)
+    x_gapL_1_max = x_gapL_1_min + seg_gap
+
+    x_gapL_2_min = x_gapL_1_max
+    x_gapL_2_max = x_gapL_2_min + seg_gap
+
+    x_gapL_3_min = x_gapL_2_max
+    x_gapL_3_max = -(W/2)
+
+    x_gapR_1_min = W/2
+    x_gapR_1_max = x_gapR_1_min + seg_gap
+
+    x_gapR_2_min = x_gapR_1_max
+    x_gapR_2_max = x_gapR_2_min + seg_gap
+
+    x_gapR_3_min = x_gapR_2_max
+    x_gapR_3_max = W/2 + g
+
+    # left segments
+    left_seg1 = (
+        (lum["x_m"] >= x_gapL_1_min) &
+        (lum["x_m"] <= x_gapL_1_max) &
         (lum["y_m"] >= tBOX) &
-        (lum["y_m"] <= tBOX + t_shield_gapL)
+        (lum["y_m"] <= tBOX + t_gapL_1)
     )
 
-    right_gap_hf02 = (
-        (lum["x_m"] >=  (W/2)) &
-        (lum["x_m"] <=  (W/2 + g)) &
+    left_seg2 = (
+        (lum["x_m"] >= x_gapL_2_min) &
+        (lum["x_m"] <= x_gapL_2_max) &
         (lum["y_m"] >= tBOX) &
-        (lum["y_m"] <= tBOX + t_shield_gapR)
+        (lum["y_m"] <= tBOX + t_gapL_2)
     )
 
-    gap_hf02_mask = left_gap_hf02 | right_gap_hf02
+    left_seg3 = (
+        (lum["x_m"] >= x_gapL_3_min) &
+        (lum["x_m"] <= x_gapL_3_max) &
+        (lum["y_m"] >= tBOX) &
+        (lum["y_m"] <= tBOX + t_gapL_3)
+    )
+
+    # right segments
+    right_seg1 = (
+        (lum["x_m"] >= x_gapR_1_min) &
+        (lum["x_m"] <= x_gapR_1_max) &
+        (lum["y_m"] >= tBOX) &
+        (lum["y_m"] <= tBOX + t_gapR_1)
+    )
+
+    right_seg2 = (
+        (lum["x_m"] >= x_gapR_2_min) &
+        (lum["x_m"] <= x_gapR_2_max) &
+        (lum["y_m"] >= tBOX) &
+        (lum["y_m"] <= tBOX + t_gapR_2)
+    )
+
+    right_seg3 = (
+        (lum["x_m"] >= x_gapR_3_min) &
+        (lum["x_m"] <= x_gapR_3_max) &
+        (lum["y_m"] >= tBOX) &
+        (lum["y_m"] <= tBOX + t_gapR_3)
+    )
+
+    gap_hf02_mask = (
+        left_seg1 | left_seg2 | left_seg3 |
+        right_seg1 | right_seg2 | right_seg3
+    )
 
     # -----------------------------------------------------------
     # Top shield slab above core mask

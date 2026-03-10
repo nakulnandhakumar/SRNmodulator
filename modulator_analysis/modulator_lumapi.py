@@ -34,26 +34,72 @@ sys.path.append(r"C:\Program Files\Lumerical\v202\api\python")
 import lumapi # pyright: ignore[reportMissingImports]
 import numpy as np
 import time
+from config import PARAM_BOUNDS
 
+# ============================================================
+# Parameter clamping for physical feasibility
+# ============================================================
 def clamp_params(p):
     p = p.copy()
-    eps = 5e-9  # 5 nm minimum
+    eps = 10e-9  # minimum physical thickness (5 nm)
+
+    # ------------------------------------------------
+    # 1) Clamp using PARAM_BOUNDS
+    # ------------------------------------------------
+    for k, (lo, hi) in PARAM_BOUNDS.items():
+        if k in p:
+            p[k] = float(np.clip(p[k], lo, hi))
+
+    # ------------------------------------------------
+    # 2) Additional geometric constraints
+    # ------------------------------------------------
 
     # gap
-    p["g"] = float(np.clip(p["g"], 150e-9, 3e-6))
-    g = p["g"]
+    if "g" in p:
+        p["g"] = float(np.clip(p["g"], 150e-9, 3e-6))
+        g = p["g"]
+    else:
+        g = None
 
-    # shield thicknesses
+    # shield base thicknesses
     for k in ["t_shield_gapR","t_shield_gapL","t_shield_core","t_shield_metal"]:
-        if k in p:
+        if k in p and g is not None:
             p[k] = float(np.clip(p[k], eps, 0.9*g))
 
     # metal thickness
     if "metal_t" in p:
         p["metal_t"] = float(np.clip(p["metal_t"], 20e-9, 500e-9))
 
+    # ------------------------------------------------
+    # 3) Enforce segmented shield thickness >= eps
+    # ------------------------------------------------
+
+    # Left shield segments
+    if "t_shield_gapL" in p:
+        base_L = p["t_shield_gapL"]
+        for i in (1,2,3):
+            dk = f"dt_shield_gapL_{i}"
+            if dk in p:
+                t_seg = base_L + p[dk]
+                if t_seg < eps:
+                    p[dk] = eps - base_L
+
+    # Right shield segments
+    if "t_shield_gapR" in p:
+        base_R = p["t_shield_gapR"]
+        for i in (1,2,3):
+            dk = f"dt_shield_gapR_{i}"
+            if dk in p:
+                t_seg = base_R + p[dk]
+                if t_seg < eps:
+                    p[dk] = eps - base_R
+
     return p
 
+
+# ============================================================
+# Lumerical session management
+# ============================================================
 class LumericalSession:
 
     def __init__(self):

@@ -18,7 +18,7 @@ Weights allow:
 - Multi-objective tradeoff
 """
 
-def objective_function(results, refs, weights=None):
+def objective_function(results, refs=None, weights=None):
     """
     Scalar objective to minimize.
 
@@ -40,13 +40,18 @@ def objective_function(results, refs, weights=None):
     if weights is None:
         weights = {
             "VpiL": 1.0,
-            "loss": 0.0,   # add later
+            "loss": 0.0,
         }
 
     VpiL_Vcm = results["VpiL_Vcm"]
-    loss_dB_per_cm = results["loss_dB_per_cm"]  
-    V_term = VpiL_Vcm / refs["VpiL_Vcm"]
-    loss_term = loss_dB_per_cm / refs["loss_dB_per_cm"]
+    loss_dB_per_cm = results["loss_dB_per_cm"]
+
+    # Physical scaling (NOT starting design)
+    V_scale = refs["VpiL_Vcm"]
+    loss_scale = refs["loss_dB_per_cm"]
+
+    V_term = VpiL_Vcm / V_scale
+    loss_term = loss_dB_per_cm / loss_scale
 
     J = (weights["VpiL"] * V_term) + (weights["loss"] * loss_term)
 

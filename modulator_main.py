@@ -41,10 +41,11 @@ from modulator_analysis.modulator_lumapi import LumericalSession
 from modulator_analysis.modulator_evaluate import evaluate_params
 from modulator_analysis.modulator_fd_optimization import FDOptimizer
 from modulator_analysis.modulator_objective import objective_function
-from config import PARAMS, OPT_KEYS, OBJECTIVE_WEIGHTS, OPT_SETTINGS, EXPERIMENT, PARAM_BOUNDS
+from config import PARAMS, OPT_KEYS, OBJECTIVE_WEIGHTS, OPT_SETTINGS, EXPERIMENT, PARAM_BOUNDS, OBJECTIVE_SCALES
 
 opt_keys = OPT_KEYS.copy()
 weights = OBJECTIVE_WEIGHTS.copy()
+scales = OBJECTIVE_SCALES.copy()
 
 # -------------------- Open Lumerical --------------------
 session = LumericalSession()
@@ -71,6 +72,10 @@ for run in range(EXPERIMENT["random_starts"]):
         lo, hi = PARAM_BOUNDS[k]
         params_i[k] = random.uniform(lo, hi)
 
+    print("Initial parameters:")
+    for k in opt_keys:
+        print(f"{k} = {params_i[k]*1e9:.2f} nm")
+    
     # -------------------- Build geometry --------------------
     session.setup_geometry(params_i)
 
@@ -78,10 +83,7 @@ for run in range(EXPERIMENT["random_starts"]):
     print("\n=== BASELINE ===")
     res0 = evaluate_params(session, params_i)
 
-    refs = {
-        "VpiL_Vcm": res0["VpiL_Vcm"],
-        "loss_dB_per_cm": res0["loss_dB_per_cm"],
-    }
+    refs = scales  # use objective scales as normalization references
 
     J0 = objective_function(res0, refs, weights)
 

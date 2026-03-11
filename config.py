@@ -71,6 +71,15 @@ OBJECTIVE_WEIGHTS = {
 }
 
 # ============================================================
+# Objective scaling targets
+# ============================================================
+
+OBJECTIVE_SCALES = {
+    "VpiL_Vcm": 10.0,        # desired modulation efficiency scale
+    "loss_dB_per_cm": 5.0,   # acceptable loss scale
+}
+
+# ============================================================
 # Optimizer settings
 # ============================================================
 

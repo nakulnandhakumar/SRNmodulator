@@ -321,7 +321,7 @@ def compute_modulator_overlap(params):
         (lum["y_m"] <= tBOX + t_gapR_3)
     )
 
-    gap_hf02_mask = (
+    gap_shield_mask = (
         left_seg1 | left_seg2 | left_seg3 |
         right_seg1 | right_seg2 | right_seg3
     )
@@ -329,13 +329,13 @@ def compute_modulator_overlap(params):
     # -----------------------------------------------------------
     # Top shield slab above core mask
     # -----------------------------------------------------------
-    top_core_hf02 = (
+    top_core_shield = (
         (np.abs(lum["x_m"]) <= W/2) &
         (lum["y_m"] >= y_core_top) &
         (lum["y_m"] <= y_core_top + t_shield_core)
     )
 
-    hf02_mask = gap_hf02_mask | top_core_hf02
+    shield_mask = gap_shield_mask | top_core_shield
 
     # ============================================================
     # DELTA EPSILON MAP
@@ -376,7 +376,7 @@ def compute_modulator_overlap(params):
     epsr_SRN  = n_SRN**2
 
     lum["epsr_opt"] = epsr_SiO2
-    lum.loc[hf02_mask, "epsr_opt"] = epsr_HfO2
+    lum.loc[shield_mask, "epsr_opt"] = epsr_HfO2
     lum.loc[core_mask, "epsr_opt"] = epsr_SRN
 
     # ============================================================
@@ -420,11 +420,12 @@ def compute_modulator_overlap(params):
     VpiL_Vcm = VpiL_Vm * 100
     
     return {
-        "g_nm": g * 1e9,
         "dneff_per_V": dneff_per_V,
         "chi2_eff_avg_mV": chi2_eff_avg,
         "chi2_eff_avg_pmV": chi2_eff_avg * 1e12,
         "VpiL_Vm": VpiL_Vm,
         "VpiL_Vcm": VpiL_Vcm,
         "lum": lum,
+        "core_mask": core_mask,
+        "shield_mask": shield_mask,
     }

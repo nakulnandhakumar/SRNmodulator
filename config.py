@@ -14,7 +14,7 @@ g0 = 600e-9
 PARAMS = {
 
     # ---------------- electrostatics ----------------
-    "Vdc": 100.0,
+    "Vdc": 1.0,  # voltage for electrostatics simulation
 
     # ---------------- SRN core ----------------
     "W": 450e-9,

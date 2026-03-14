@@ -51,6 +51,7 @@ session.open()
 
 best_J = float("inf")
 best_params = None
+best_rslt = None
 
 # ============================================================
 # RANDOM START LOOP
@@ -79,13 +80,13 @@ for run in range(EXPERIMENT["random_starts"]):
 
     # -------------------- Baseline --------------------
     print("\n=== BASELINE ===")
-    res0 = evaluate_params(session, params_i)
+    rslt0 = evaluate_params(session, params_i)
 
-    J0 = objective_function(res0)
+    J0 = objective_function(rslt0)
 
     print(f"J0 = {J0:.6f}")
-    print(f"VpiL = {res0['VpiL_Vcm']:.3f} V·cm")
-    print(f"loss = {res0['loss_dB_per_cm']:.3f} dB/cm")
+    print(f"VpiL = {rslt0['VpiL_Vcm']:.3f} V·cm")
+    print(f"loss = {rslt0['loss_dB_per_cm']:.3f} dB/cm")
 
     # -------------------- Optimizer --------------------
     optimizer = FDOptimizer(
@@ -100,7 +101,7 @@ for run in range(EXPERIMENT["random_starts"]):
 
     print("\n=== OPTIMIZATION LOOP ===")
 
-    prev_res = res0
+    prev_rslt = rslt0
 
     # -------------------- Iterations --------------------
     for it in range(EXPERIMENT["num_iterations"]):
@@ -108,19 +109,19 @@ for run in range(EXPERIMENT["random_starts"]):
         print(f"\n--- Iteration {it+1} ---")
 
         params_i, grads = optimizer.step(params_i)
-        res_i = evaluate_params(session, params_i)
-        J_i = objective_function(res_i)
-
+        rslt_i = evaluate_params(session, params_i)
+        J_i = objective_function(rslt_i)
         print(f"J = {J_i:.6f}")
-        print(f"VpiL = {res_i['VpiL_Vcm']:.3f} V·cm   (Δ {res_i['VpiL_Vcm'] - prev_res['VpiL_Vcm']:+.3f})")
-        print(f"loss = {res_i['loss_dB_per_cm']:.3f} dB/cm   (Δ {res_i['loss_dB_per_cm'] - prev_res['loss_dB_per_cm']:+.3f})")
+        print(f"VpiL = {rslt_i['VpiL_Vcm']:.3f} V·cm   (Δ {rslt_i['VpiL_Vcm'] - prev_rslt['VpiL_Vcm']:+.3f})")
+        print(f"loss = {rslt_i['loss_dB_per_cm']:.3f} dB/cm   (Δ {rslt_i['loss_dB_per_cm'] - prev_rslt['loss_dB_per_cm']:+.3f})")
 
-        prev_res = res_i
+        prev_rslt = rslt_i
 
     # -------------------- Track best result --------------------
     if J_i < best_J:
         best_J = J_i
         best_params = params_i.copy()
+        best_rslt = rslt_i.copy()
 
 # ============================================================
 # FINAL RESULT

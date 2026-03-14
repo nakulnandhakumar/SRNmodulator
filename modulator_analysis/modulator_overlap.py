@@ -45,6 +45,7 @@ This is the physics core of the project.
 import numpy as np
 import pandas as pd
 from scipy.interpolate import griddata
+from material_properties import BREAKDOWN_FIELDS
 
 
 def compute_modulator_overlap(params):
@@ -70,10 +71,8 @@ def compute_modulator_overlap(params):
     # ============================================================
     # USER SETTINGS
     # ============================================================
-
     lam0 = 1.55e-6
     eps0 = 8.854e-12
-
     chi3_SRN = 6e-19   # m^2 / V^2  (update if you refine this)
 
     # ============================================================
@@ -325,6 +324,23 @@ def compute_modulator_overlap(params):
         left_seg1 | left_seg2 | left_seg3 |
         right_seg1 | right_seg2 | right_seg3
     )
+    
+    # -----------------------------------------------------------
+    # HfO2 shield on top of gold electrodes (ALD conformal layer)
+    # -----------------------------------------------------------
+    top_metal_shield = (
+        (
+            (lum["x_m"] >= x_metal_L - metal_w/2) &
+            (lum["x_m"] <= x_metal_L + metal_w/2)
+        ) |
+        (
+            (lum["x_m"] >= x_metal_R - metal_w/2) &
+            (lum["x_m"] <= x_metal_R + metal_w/2)
+        )
+    ) & (
+        (lum["y_m"] >= y_metal_top) &
+        (lum["y_m"] <= y_metal_top + t_shield_metal)
+    )
 
     # -----------------------------------------------------------
     # Top shield slab above core mask
@@ -335,8 +351,14 @@ def compute_modulator_overlap(params):
         (lum["y_m"] <= y_core_top + t_shield_core)
     )
 
-    shield_mask = gap_shield_mask | top_core_shield
+    shield_mask = gap_shield_mask | top_core_shield | top_metal_shield
 
+    # ---------------------------------------------------
+    # SiO2 mask (everything that isn't core or shield is SiO2)
+    # ---------------------------------------------------
+    # SiO2 region = everything that is not SRN or HfO2
+    BOX_cladding_mask = ~(core_mask | shield_mask)
+    
     # ============================================================
     # DELTA EPSILON MAP
     # ============================================================
@@ -375,9 +397,9 @@ def compute_modulator_overlap(params):
     epsr_HfO2 = n_HfO2**2
     epsr_SRN  = n_SRN**2
 
-    lum["epsr_opt"] = epsr_SiO2
-    lum.loc[shield_mask, "epsr_opt"] = epsr_HfO2
-    lum.loc[core_mask, "epsr_opt"] = epsr_SRN
+    lum["epsr_opt"] = epsr_SiO2         # default to SiO2 (after all other regions are assigned BOX/Cladding is SiO2)
+    lum.loc[shield_mask, "epsr_opt"] = epsr_HfO2       # shields are HfO2
+    lum.loc[core_mask, "epsr_opt"] = epsr_SRN       # core is SRN
 
     # ============================================================
     # DELTA Neff OVERLAP 
@@ -419,6 +441,48 @@ def compute_modulator_overlap(params):
     VpiL_Vm  = lam0 / (2.0 * dneff_per_V)
     VpiL_Vcm = VpiL_Vm * 100
     
+    # ============================================================
+    # BREAKDOWN FIELD SEARCH (per 1 V applied)
+    # ============================================================
+
+    # AC electric field magnitude per volt
+    lum["EAC_mag_1V"] = np.sqrt(
+        lum["EACx_1V"]**2 + lum["EACy_1V"]**2
+    )
+
+    # Maximum field in each material (EAC_mag_1V is still the same as a 1V DC field)
+    Emax_SRN  = lum.loc[core_mask, "EAC_mag_1V"].max()
+    Emax_HfO2 = lum.loc[shield_mask, "EAC_mag_1V"].max()
+    Emax_SiO2 = lum.loc[BOX_cladding_mask, "EAC_mag_1V"].max()
+    
+    # ============================================================
+    # MAXIMUM SAFE VOLTAGE BEFORE BREAKDOWN
+    # ============================================================
+
+    Ebreak_SRN  = BREAKDOWN_FIELDS["SRN"]
+    Ebreak_HfO2 = BREAKDOWN_FIELDS["HfO2"]
+    Ebreak_SiO2 = BREAKDOWN_FIELDS["SiO2"]
+
+    # Voltage that would cause breakdown in each material
+    Vbreak_SRN  = Ebreak_SRN  / Emax_SRN
+    Vbreak_HfO2 = Ebreak_HfO2 / Emax_HfO2
+    Vbreak_SiO2 = Ebreak_SiO2 / Emax_SiO2
+
+    # Device limit
+    Vbreak_device = min(Vbreak_SRN, Vbreak_HfO2, Vbreak_SiO2)
+
+    # Identify limiting material
+    if Vbreak_device == Vbreak_SRN:
+        breakdown_material = "SRN"
+    elif Vbreak_device == Vbreak_HfO2:
+        breakdown_material = "HfO2"
+    else:
+        breakdown_material = "SiO2"
+    
+    # ============================================================
+    # Return results
+    # ============================================================
+    
     return {
         "dneff_per_V": dneff_per_V,
         "chi2_eff_avg_mV": chi2_eff_avg,
@@ -428,4 +492,6 @@ def compute_modulator_overlap(params):
         "lum": lum,
         "core_mask": core_mask,
         "shield_mask": shield_mask,
+        "Vbreak_device": Vbreak_device,
+        "breakdown_material": breakdown_material
     }

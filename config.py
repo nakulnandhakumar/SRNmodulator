@@ -51,14 +51,15 @@ PARAMS = {
 OPT_KEYS = [
     "g",
     "t_shield_core",
+    "t_shield_gapL",
+    "t_shield_gapR",
+    # "dt_shield_gapL_1",
+    # "dt_shield_gapL_2",
+    # "dt_shield_gapL_3",
 
-    "dt_shield_gapL_1",
-    "dt_shield_gapL_2",
-    "dt_shield_gapL_3",
-
-    "dt_shield_gapR_1",
-    "dt_shield_gapR_2",
-    "dt_shield_gapR_3",
+    # "dt_shield_gapR_1",
+    # "dt_shield_gapR_2",
+    # "dt_shield_gapR_3",
 ]
 
 # ============================================================
@@ -67,16 +68,16 @@ OPT_KEYS = [
 
 OBJECTIVE_WEIGHTS = {
     "VpiL": 1.0,
-    "loss": 0.05,
+    "loss": 0.1,
 }
 
 # ============================================================
-# Objective scaling targets
+# Objective targets
 # ============================================================
 
-OBJECTIVE_SCALES = {
-    "VpiL_Vcm": 10.0,        # desired modulation efficiency scale
-    "loss_dB_per_cm": 5.0,   # acceptable loss scale
+OBJECTIVE_TARGETS = {
+    "VpiL_Vcm": 10.0,        # desired electro-optic efficiency
+    "loss_dB_per_cm": 10.0,  # maximum acceptable optical loss
 }
 
 # ============================================================

@@ -41,11 +41,9 @@ from modulator_analysis.modulator_lumapi import LumericalSession
 from modulator_analysis.modulator_evaluate import evaluate_params
 from modulator_analysis.modulator_fd_optimization import FDOptimizer
 from modulator_analysis.modulator_objective import objective_function
-from config import PARAMS, OPT_KEYS, OBJECTIVE_WEIGHTS, OPT_SETTINGS, EXPERIMENT, PARAM_BOUNDS, OBJECTIVE_SCALES
+from config import PARAMS, OPT_KEYS, OPT_SETTINGS, EXPERIMENT, PARAM_BOUNDS
 
 opt_keys = OPT_KEYS.copy()
-weights = OBJECTIVE_WEIGHTS.copy()
-scales = OBJECTIVE_SCALES.copy()
 
 # -------------------- Open Lumerical --------------------
 session = LumericalSession()
@@ -83,9 +81,7 @@ for run in range(EXPERIMENT["random_starts"]):
     print("\n=== BASELINE ===")
     res0 = evaluate_params(session, params_i)
 
-    refs = scales  # use objective scales as normalization references
-
-    J0 = objective_function(res0, refs, weights)
+    J0 = objective_function(res0)
 
     print(f"J0 = {J0:.6f}")
     print(f"VpiL = {res0['VpiL_Vcm']:.3f} V·cm")
@@ -94,9 +90,7 @@ for run in range(EXPERIMENT["random_starts"]):
     # -------------------- Optimizer --------------------
     optimizer = FDOptimizer(
         session=session,
-        refs=refs,
         opt_keys=opt_keys,
-        weights=weights,
         rel=OPT_SETTINGS["rel_fd"],
         abs_min=OPT_SETTINGS["abs_fd_min"],
         alpha_init=OPT_SETTINGS["alpha_init"],
@@ -115,7 +109,7 @@ for run in range(EXPERIMENT["random_starts"]):
 
         params_i, grads = optimizer.step(params_i)
         res_i = evaluate_params(session, params_i)
-        J_i = objective_function(res_i, refs, weights)
+        J_i = objective_function(res_i)
 
         print(f"J = {J_i:.6f}")
         print(f"VpiL = {res_i['VpiL_Vcm']:.3f} V·cm   (Δ {res_i['VpiL_Vcm'] - prev_res['VpiL_Vcm']:+.3f})")

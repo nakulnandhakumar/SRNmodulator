@@ -4,55 +4,45 @@ modulator_objective.py
 
 Defines scalar objective J to minimize.
 
-Default objective:
+Objective:
 
-    J = w1 * (VpiL / VpiL_ref)
-      + w2 * (loss / loss_ref)
+    J = w_V * (VpiL / VpiL_target)
+      + w_L * penalty(loss)
 
-Normalization ensures:
-- Terms are dimensionless
-- Baseline J ≈ 1
-
-Weights allow:
-- Pure efficiency optimization (loss weight = 0)
-- Multi-objective tradeoff
+Loss penalty:
+    if loss <= loss_target:
+        penalty = 0
+    else:
+        penalty = ((loss - loss_target)/loss_target)^2
 """
 
-def objective_function(results, refs=None, weights=None):
+from config import OBJECTIVE_TARGETS
+from config import OBJECTIVE_WEIGHTS
+
+def objective_function(results):
     """
     Scalar objective to minimize.
-
-    Parameters
-    ----------
-    results : dict
-        Output of compute_modulator_overlap()
-    refs : dict
-        Reference values for normalization
-    weights : dict
-        Optional weighting of terms
-
-    Returns
-    -------
-    J : float
-        Objective value
     """
 
-    if weights is None:
-        weights = {
-            "VpiL": 1.0,
-            "loss": 0.0,
-        }
+    weight_VpiL = OBJECTIVE_WEIGHTS["VpiL"]
+    weight_loss = OBJECTIVE_WEIGHTS["loss"]
 
     VpiL_Vcm = results["VpiL_Vcm"]
     loss_dB_per_cm = results["loss_dB_per_cm"]
 
-    # Physical scaling (NOT starting design)
-    V_scale = refs["VpiL_Vcm"]
-    loss_scale = refs["loss_dB_per_cm"]
+    # targets
+    V_target = OBJECTIVE_TARGETS["VpiL_Vcm"]
+    loss_target = OBJECTIVE_TARGETS["loss_dB_per_cm"]
 
-    V_term = VpiL_Vcm / V_scale
-    loss_term = loss_dB_per_cm / loss_scale
+    # VpiL term
+    V_term = VpiL_Vcm / V_target
 
-    J = (weights["VpiL"] * V_term) + (weights["loss"] * loss_term)
+    # loss penalty
+    if loss_dB_per_cm <= loss_target:
+        loss_penalty = 0.0
+    else:
+        loss_penalty = ((loss_dB_per_cm - loss_target) / loss_target) ** 2
+
+    J = (weight_VpiL * V_term) + (weight_loss * loss_penalty)
 
     return J

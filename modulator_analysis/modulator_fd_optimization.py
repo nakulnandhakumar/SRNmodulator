@@ -54,9 +54,7 @@ class FDOptimizer:
     def __init__(
         self,
         session,
-        refs,
         opt_keys,
-        weights=None,
         rel=0.02,         # relative FD step (2%)
         abs_min=5e-9,   # minimum absolute FD step (5 nm)
         alpha_init=0.05,     # initial step scale
@@ -64,9 +62,7 @@ class FDOptimizer:
         min_alpha=1e-3,
     ):
         self.session = session
-        self.refs = refs
         self.opt_keys = opt_keys
-        self.weights = weights if weights is not None else {}
         self.rel = rel                # relative FD step (for gradient)
         self.abs_min = abs_min        # minimum FD step (meters)
         self.alpha_init = alpha_init
@@ -102,12 +98,11 @@ class FDOptimizer:
 
             # Evaluate objective at p+h
             results_plus = evaluate_params(self.session, p_plus)
-            Jp = objective_function(results_plus, self.refs, self.weights)
+            Jp = objective_function(results_plus)
 
             # Evaluate objective at p-h
             results_minus = evaluate_params(self.session, p_minus)
-            Jm = objective_function(results_minus, self.refs, self.weights)
-
+            Jm = objective_function(results_minus)
             grad = (Jp - Jm) / (2 * h)
             grads[key] = grad
 
@@ -126,7 +121,7 @@ class FDOptimizer:
 
         # Current objective
         results_current = evaluate_params(self.session, params)
-        J_current = objective_function(results_current, self.refs, self.weights)
+        J_current = objective_function(results_current)
 
         alpha = self.alpha_init
         
@@ -156,7 +151,7 @@ class FDOptimizer:
 
             # Evaluate trial
             results_trial = evaluate_params(self.session, trial_params)
-            J_trial = objective_function(results_trial, self.refs, self.weights)
+            J_trial = objective_function(results_trial)
 
             print(f"[LS] alpha={alpha:.4f}, J_trial={J_trial:.6f}")
 

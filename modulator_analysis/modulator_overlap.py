@@ -45,7 +45,7 @@ This is the physics core of the project.
 import numpy as np
 import pandas as pd
 from scipy.interpolate import griddata
-from material_properties import BREAKDOWN_FIELDS
+from material_properties import MATERIAL_DB
 
 
 def compute_modulator_overlap(params):
@@ -73,7 +73,14 @@ def compute_modulator_overlap(params):
     # ============================================================
     lam0 = 1.55e-6
     eps0 = 8.854e-12
-    chi3_SRN = 6e-19   # m^2 / V^2  (update if you refine this)
+    
+    # ============================================================
+    # MATERIAL SELECTION
+    # ============================================================
+
+    core_material   = "SRN"
+    shield_material = "HfO2"
+    BOX_cladding_material   = "SiO2"
 
     # ============================================================
     # FILE PATHS
@@ -356,7 +363,6 @@ def compute_modulator_overlap(params):
     # ---------------------------------------------------
     # SiO2 mask (everything that isn't core or shield is SiO2)
     # ---------------------------------------------------
-    # SiO2 region = everything that is not SRN or HfO2
     BOX_cladding_mask = ~(core_mask | shield_mask)
     
     # ============================================================
@@ -366,8 +372,21 @@ def compute_modulator_overlap(params):
     lum["EDCdotEAC"] = lum["EDCx"]*lum["EACx_1V"] + lum["EDCy"]*lum["EACy_1V"]
     E_cross = 2*lum["EDCdotEAC"]
 
-    lum["Deps"] = 0.0
-    lum.loc[core_mask, "Deps"] += (3/4) * eps0 * chi3_SRN * E_cross[core_mask]
+    # ------------------------------------------------------------
+    # χ3 spatial map (supports nonlinear shields as well)
+    # ------------------------------------------------------------
+    lum["chi3"] = 0.0
+    
+    # core χ3
+    lum.loc[core_mask, "chi3"] = MATERIAL_DB[core_material].get("chi3", 0.0)
+    
+    # shield χ3 (if defined in MATERIAL_DB)
+    lum.loc[shield_mask, "chi3"] = MATERIAL_DB[shield_material].get("chi3", 0.0)
+    
+    # ------------------------------------------------------------
+    # Δε calculation
+    # ------------------------------------------------------------
+    lum["Deps"] = (3/4) * eps0 * lum["chi3"] * E_cross
 
     # ============================================================
     # EFFECTIVE chi^(2) MAP (EFISH)
@@ -377,13 +396,8 @@ def compute_modulator_overlap(params):
     lum["EDC2"] = lum["EDCx"]**2 + lum["EDCy"]**2
     lum["EDC_mag"] = np.sqrt(lum["EDC2"])
 
-    # allocate chi2 map
-    lum["chi2_eff"] = 0.0
-
-    # EFISH chi2: (3/2) * chi3 * E_DC
-    lum.loc[core_mask, "chi2_eff"] = (
-        1.5 * chi3_SRN * lum.loc[core_mask, "EDC_mag"]
-    )
+    # χ2 map
+    lum["chi2_eff"] = 1.5 * lum["chi3"] * lum["EDC_mag"]
 
     # ============================================================
     # OPTICAL PERMITTIVITY MAP
@@ -459,26 +473,26 @@ def compute_modulator_overlap(params):
     # MAXIMUM SAFE VOLTAGE BEFORE BREAKDOWN
     # ============================================================
 
-    Ebreak_SRN  = BREAKDOWN_FIELDS["SRN"]
-    Ebreak_HfO2 = BREAKDOWN_FIELDS["HfO2"]
-    Ebreak_SiO2 = BREAKDOWN_FIELDS["SiO2"]
+    Ebreak_core  = MATERIAL_DB[core_material]["Ebreak"]
+    Ebreak_shield = MATERIAL_DB[shield_material]["Ebreak"]
+    Ebreak_BOX_cladding = MATERIAL_DB[BOX_cladding_material]["Ebreak"]
 
     # Voltage that would cause breakdown in each material
-    Vbreak_SRN  = Ebreak_SRN  / Emax_SRN
-    Vbreak_HfO2 = Ebreak_HfO2 / Emax_HfO2
-    Vbreak_SiO2 = Ebreak_SiO2 / Emax_SiO2
+    Vbreak_core  = Ebreak_core  / Emax_SRN
+    Vbreak_shield = Ebreak_shield / Emax_HfO2
+    Vbreak_BOX_cladding = Ebreak_BOX_cladding / Emax_SiO2
 
     # Device limit
-    Vbreak_device = min(Vbreak_SRN, Vbreak_HfO2, Vbreak_SiO2)
+    Vbreak_device = min(Vbreak_core, Vbreak_shield, Vbreak_BOX_cladding)
 
     # Identify limiting material
-    if Vbreak_device == Vbreak_SRN:
-        breakdown_material = "SRN"
-    elif Vbreak_device == Vbreak_HfO2:
-        breakdown_material = "HfO2"
+    if Vbreak_device == Vbreak_core:
+        breakdown_material = core_material
+    elif Vbreak_device == Vbreak_shield:
+        breakdown_material = shield_material
     else:
-        breakdown_material = "SiO2"
-    
+        breakdown_material = BOX_cladding_material
+
     # ============================================================
     # Return results
     # ============================================================

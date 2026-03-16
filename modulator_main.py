@@ -112,8 +112,31 @@ for run in range(EXPERIMENT["random_starts"]):
         rslt_i = evaluate_params(session, params_i)
         J_i = objective_function(rslt_i)
         print(f"J = {J_i:.6f}")
-        print(f"VpiL = {rslt_i['VpiL_Vcm']:.3f} V·cm   (Δ {rslt_i['VpiL_Vcm'] - prev_rslt['VpiL_Vcm']:+.3f})")
-        print(f"loss = {rslt_i['loss_dB_per_cm']:.3f} dB/cm   (Δ {rslt_i['loss_dB_per_cm'] - prev_rslt['loss_dB_per_cm']:+.3f})")
+        # ---- breakdown voltage info ----
+        Vbreak = rslt_i["Vbreak_device"]
+        breakdown_material = rslt_i["breakdown_material"]
+
+        bias_fraction = 0.8
+        Vbias = bias_fraction * Vbreak
+
+        # VpiL values
+        VpiL_1V = rslt_i["VpiL_Vcm"]
+        VpiL_bias = VpiL_1V / Vbias
+
+        print(
+            f"VpiL(1V) = {VpiL_1V:.3f} V·cm   "
+            f"(Δ {VpiL_1V - prev_rslt['VpiL_Vcm']:+.3f})"
+        )
+
+        print(
+            f"VpiL({bias_fraction*100:.0f}% Vbreak) = {VpiL_bias:.3f} V·cm   "
+            f"(Vbreak={Vbreak:.1f}V, limit={breakdown_material})"
+        )
+
+        print(
+            f"loss = {rslt_i['loss_dB_per_cm']:.3f} dB/cm   "
+            f"(Δ {rslt_i['loss_dB_per_cm'] - prev_rslt['loss_dB_per_cm']:+.3f})"
+        )
 
         prev_rslt = rslt_i
 
@@ -124,17 +147,31 @@ for run in range(EXPERIMENT["random_starts"]):
         best_rslt = rslt_i.copy()
 
 # ============================================================
-# FINAL RESULT
+# TRUE DEVICE PERFORMANCE AT BREAKDOWN BIAS
 # ============================================================
 
+Vbreak = best_rslt["Vbreak_device"]
+breakdown_material = best_rslt["breakdown_material"]
+
+# choose safe operating voltage (80% of breakdown)
+bias_fraction = 0.8
+Vbias = bias_fraction * Vbreak
+
+# VpiL computed at 1 V in overlap code
+VpiL_1V = best_rslt["VpiL_Vcm"]
+
+# true VpiL when biased at Vbias
+VpiL_true = VpiL_1V / Vbias
+
 print("\n=======================================")
-print(" BEST RESULT ACROSS RANDOM STARTS")
+print(" DEVICE PERFORMANCE AT SAFE BIAS")
 print("=======================================")
 
-print(f"Best objective J = {best_J:.6f}")
-print("Best parameters:")
+print(f"Breakdown voltage = {Vbreak:.2f} V")
+print(f"Limiting material = {breakdown_material}")
+print(f"Operating voltage (80%) = {Vbias:.2f} V")
 
-for k, v in best_params.items():
-    print(f"{k} = {v:.3e}")
+print(f"\nVpiL @ 1V = {VpiL_1V:.3f} V·cm")
+print(f"True VpiL @ {Vbias:.2f} V = {VpiL_true:.3f} V·cm")
 
 session.close()

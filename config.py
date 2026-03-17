@@ -76,7 +76,7 @@ OBJECTIVE_WEIGHTS = {
 # ============================================================
 
 OBJECTIVE_TARGETS = {
-    "VpiL_Vcm": 10.0,        # desired electro-optic efficiency
+    "VpiL_Vcm": 1000.0,        # desired electro-optic efficiency (Vdc = 1V)
     "loss_dB_per_cm": 10.0,  # maximum acceptable optical loss
 }
 
@@ -100,8 +100,15 @@ EXPERIMENT = {
 }
 
 # ============================================================
-# Random start bounds
+# Random start variables and bounds
 # ============================================================
+
+RANDOM_KEYS = {
+    "g",
+    "t_shield_core",
+    "t_shield_gapR",
+    "t_shield_gapL",
+}
 
 PARAM_BOUNDS = {
 

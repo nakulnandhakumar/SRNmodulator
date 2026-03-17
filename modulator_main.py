@@ -41,9 +41,10 @@ from modulator_analysis.modulator_lumapi import LumericalSession
 from modulator_analysis.modulator_evaluate import evaluate_params
 from modulator_analysis.modulator_fd_optimization import FDOptimizer
 from modulator_analysis.modulator_objective import objective_function
-from config import PARAMS, OPT_KEYS, OPT_SETTINGS, EXPERIMENT, PARAM_BOUNDS
+from config import PARAMS, OPT_KEYS, OPT_SETTINGS, EXPERIMENT, PARAM_BOUNDS, RANDOM_KEYS
 
 opt_keys = OPT_KEYS.copy()
+random_keys = RANDOM_KEYS.copy()
 
 # -------------------- Open Lumerical --------------------
 session = LumericalSession()
@@ -67,7 +68,7 @@ for run in range(EXPERIMENT["random_starts"]):
     params_i = PARAMS.copy()
 
     # Randomize optimization variables within bounds
-    for k in opt_keys:
+    for k in random_keys:
         lo, hi = PARAM_BOUNDS[k]
         params_i[k] = random.uniform(lo, hi)
 
@@ -173,5 +174,6 @@ print(f"Operating voltage (80%) = {Vbias:.2f} V")
 
 print(f"\nVpiL @ 1V = {VpiL_1V:.3f} V·cm")
 print(f"True VpiL @ {Vbias:.2f} V = {VpiL_true:.3f} V·cm")
+print(f"Loss = {best_rslt['loss_dB_per_cm']:.3f} dB/cm")
 
 session.close()

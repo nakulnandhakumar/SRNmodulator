@@ -127,8 +127,12 @@ set("name", "SiO2");
 addmaterialproperties("CT", "SiO2 (Glass) - Sze");
 
 addmodelmaterial;
-set("name", "SRN");
-addmaterialproperties("CT", "SRN (Silicon Rich Nitride)");
+set("name", "SRN_n3p1");
+addmaterialproperties("CT", "SRN 3.1 (Silicon Rich Nitride)");
+
+addmodelmaterial;
+set("name", "SRN_n2p5");
+addmaterialproperties("CT", "SRN 2.5 (Silicon Rich Nitride)");
 
 addmodelmaterial;
 set("name", "HfO2");
@@ -160,7 +164,7 @@ set("z span", 1e-6);    # arbitrary thickness for 2D FDE
 # ----------------
 addrect;
 set("name", "core_SRN");
-set("material", "SRN");
+set("material", "SRN_n3p1");
 set("x", 0);
 set("x span", W);
 set("y", y_core_center);
@@ -173,7 +177,7 @@ set("z span", 1e-6);
 # ----------------
 addrect;
 set("name", "shield_left_1");
-set("material", "HfO2");
+set("material", "SRN_n2p5");
 set("x", x_gapL_1);
 set("x span", seg_gap);
 set("y", y_gapL_1);
@@ -183,7 +187,7 @@ set("z span", 1e-6);
 
 addrect;
 set("name", "shield_left_2");
-set("material", "HfO2");
+set("material", "SRN_n2p5");
 set("x", x_gapL_2);
 set("x span", seg_gap);
 set("y", y_gapL_2);
@@ -193,7 +197,7 @@ set("z span", 1e-6);
 
 addrect;
 set("name", "shield_left_3");
-set("material", "HfO2");
+set("material", "SRN_n2p5");
 set("x", x_gapL_3);
 set("x span", seg_gap);
 set("y", y_gapL_3);
@@ -206,7 +210,7 @@ set("z span", 1e-6);
 # ----------------
 addrect;
 set("name", "shield_right_1");
-set("material", "HfO2");
+set("material", "SRN_n2p5");
 set("x", x_gapR_1);
 set("x span", seg_gap);
 set("y", y_gapR_1);
@@ -216,7 +220,7 @@ set("z span", 1e-6);
 
 addrect;
 set("name", "shield_right_2");
-set("material", "HfO2");
+set("material", "SRN_n2p5");
 set("x", x_gapR_2);
 set("x span", seg_gap);
 set("y", y_gapR_2);
@@ -226,7 +230,7 @@ set("z span", 1e-6);
 
 addrect;
 set("name", "shield_right_3");
-set("material", "HfO2");
+set("material", "SRN_n2p5");
 set("x", x_gapR_3);
 set("x span", seg_gap);
 set("y", y_gapR_3);
@@ -239,7 +243,7 @@ set("z span", 1e-6);
 # ----------------------
 addrect;
 set("name", "shield_top");
-set("material", "HfO2");
+set("material", "SRN_n2p5");
 set("x", 0);
 set("x span", W);          
 set("y", y_topshield_center);
@@ -278,7 +282,7 @@ set("z span", 1e-6);
 # Left metal-top shield
 addrect;
 set("name", "shield_metal_left_top");
-set("material", "HfO2");     # match your shield material
+set("material", "SRN_n2p5");     # match your shield material
 set("x", x_metal_L);
 set("x span", metal_w);
 set("y", y_metshield_center);   # bottom touches metal top
@@ -289,7 +293,7 @@ set("z span", 1e-6);
 # Right metal-top shield
 addrect;
 set("name", "shield_metal_right_top");
-set("material", "HfO2");
+set("material", "SRN_n2p5");
 set("x", x_metal_R);
 set("x span", metal_w);
 set("y", y_metshield_center);

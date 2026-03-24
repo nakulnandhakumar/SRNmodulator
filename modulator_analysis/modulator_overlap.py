@@ -71,6 +71,7 @@ def compute_modulator_overlap(params):
     # ============================================================
     # USER SETTINGS
     # ============================================================
+    
     lam0 = 1.55e-6
     eps0 = 8.854e-12
     
@@ -78,9 +79,9 @@ def compute_modulator_overlap(params):
     # MATERIAL SELECTION
     # ============================================================
 
-    core_material   = "SRN"
-    shield_material = "HfO2"
-    BOX_cladding_material   = "SiO2"
+    core_material = "SRN_n3p1"
+    shield_material = "SRN_n2p5"
+    BOX_cladding_material = "SiO2"
 
     # ============================================================
     # FILE PATHS

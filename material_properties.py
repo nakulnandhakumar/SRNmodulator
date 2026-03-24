@@ -1,8 +1,8 @@
 MATERIAL_DB = {
 
-    "SRN": {
+    "SRN_n3p1": {
         "n": 3.1,
-        "chi3": 6e-19,
+        "chi3": 8.5e-19,
         "Ebreak": 6e8
     },
 
@@ -22,6 +22,11 @@ MATERIAL_DB = {
         "n": 1.65,
         "chi3": 0,
         "Ebreak": 8e8
-    }
-
+    },
+    
+    "SRN_n2p5": {
+        "n": 2.5,
+        "chi3": 1.56e-19,
+        "Ebreak": 6e8
+    },
 }

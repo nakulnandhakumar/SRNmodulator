@@ -45,7 +45,6 @@ This is the physics core of the project.
 import numpy as np
 import pandas as pd
 from scipy.interpolate import griddata
-from material_properties import MATERIAL_DB
 
 
 def compute_modulator_overlap():

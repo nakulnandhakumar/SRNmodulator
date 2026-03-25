@@ -15,3 +15,6 @@ mode = lumapi.MODE(
     hide=False,
     project=r"./lumerical/mode/modulator_mode.ldev"
 )
+
+with open(r"./code_verification/electrostatics.lsf") as f:
+    charge.eval(f.read())

@@ -40,7 +40,7 @@ switchtolayout;
 deleteall;
 
 # ---- Check params exist ----
-Vdc = 100;
+Vdc = 1;
 W = 380e-9;
 H = 550e-9;
 metal_t = 300e-9;
@@ -49,14 +49,6 @@ t_shield_gapR = 550e-9;
 t_shield_gapL = 550e-9;
 g = 2e-6 - (W/2) - w_shield;
 
-dt_shield_gapR_1 = 0e-9;
-dt_shield_gapR_2 = 0e-9;
-dt_shield_gapR_3 = 0e-9;
-
-dt_shield_gapL_1 = 0e-9;
-dt_shield_gapL_2 = 0e-9;
-dt_shield_gapL_3 = 0e-9;
-
 # ---- Global parameters ----
 tBOX         = 3e-6;
 tCLAD        = 2e-6;
@@ -64,20 +56,6 @@ metal_w      = 1e-6;
 Xext         = 6e-6;
 Ytop_margin  = 2e-6;
 Ybot_margin  = 2e-6;
-
-# ============================================================
-# Actual segment heights = base + delta
-# ============================================================
-
-# Left gap shield segments
-t_gapL_1 = t_shield_gapL + dt_shield_gapL_1;
-t_gapL_2 = t_shield_gapL + dt_shield_gapL_2;
-t_gapL_3 = t_shield_gapL + dt_shield_gapL_3;
-
-# Right gap shield segments
-t_gapR_1 = t_shield_gapR + dt_shield_gapR_1;
-t_gapR_2 = t_shield_gapR + dt_shield_gapR_2;
-t_gapR_3 = t_shield_gapR + dt_shield_gapR_3;
 
 # ---- Derived positions ----
 y_BOX_top = tBOX;

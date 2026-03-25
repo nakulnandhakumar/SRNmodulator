@@ -1,6 +1,10 @@
 import sys
 sys.path.append(r"C:\Program Files\Lumerical\v202\api\python")
 import lumapi # pyright: ignore[reportMissingImports]
+import numpy as np
+from modulator_analysis.file_parsing.lumerical_electrostatics_mattocsv import convert_lumerical_electrostatics_to_csv
+from modulator_analysis.file_parsing.lumerical_mode_mattocsv import convert_lumerical_mode_to_csv
+from code_verification.overlap import compute_modulator_overlap
 
 # ============================================================
 # Lumerical session management
@@ -16,5 +20,13 @@ mode = lumapi.MODE(
     project=r"./lumerical/mode/modulator_mode.ldev"
 )
 
+# Run the electrostatics and mode scripts to simulate the device and extract the results
 with open(r"./code_verification/electrostatics.lsf") as f:
     charge.eval(f.read())
+    
+with open(r"./code_verification/mode.lsf") as f:
+    mode.eval(f.read())
+    
+convert_lumerical_electrostatics_to_csv(Vdc=1)
+loss_dB_per_cm = convert_lumerical_mode_to_csv()
+results = compute_modulator_overlap()

@@ -35,7 +35,7 @@
 # dt_shield_gapL_1, dt_shield_gapL_2, dt_shield_gapL_3
 # -------------------------------------------------------------
 
- ---- Clean start ----
+# ---- Clean start ----
 switchtolayout;
 deleteall;
 
@@ -80,6 +80,9 @@ t_gapR_2 = t_shield_gapR + dt_shield_gapR_2;
 t_gapR_3 = t_shield_gapR + dt_shield_gapR_3;
 
 # ---- Derived positions ----
+y_BOX_top = tBOX;
+y_BOX_bottom = 0 - Ybot_margin;
+
 y_clad_bottom = tBOX;
 y_clad_top = tBOX + tCLAD + Ytop_margin;
 
@@ -115,8 +118,8 @@ set("material", BOX_material);
 set("x", 0);
 set("x span", 2*Xext);
 
-set("y", tBOX/2);
-set("y span", tBOX);
+set("y", (y_BOX_bottom + y_BOX_top)/2);
+set("y span", (y_BOX_top - y_BOX_bottom));
 
 set("z", 0);
 set("z span", 1e-6);
@@ -213,8 +216,8 @@ select("FDE");
 set("solver type", "2D Z normal");               # 2D cross-section
 set("x", 0);
 set("x span", 2*Xext);
-set("y", y_SiO2_center);
-set("y span", y_span_SiO2);
+set("y", y_center);
+set("y span", y_span);
 set("z", 0);
 set("wavelength", 1.55e-6);
 set("number of trial modes", 2);
@@ -229,11 +232,11 @@ set("name", "mesh_core");
 # --- position & size of override box ---
 # x: centered at 0, spanning core + gaps + metal + margins
 set("x", 0);
-set("x span", W + 2*g + 2*metal_w);
+set("x span", W + 2*w_shield + 2*g + 2*metal_w);
 
 # y: centered on core, spanning core height + margins
 set("y", y_core_center);
-set("y span", H + 500e-9);
+set("y span", H + 200e-9);
 
 # For 2D Z-normal FDE, z doesn’t matter but we can still set something small:
 set("z", 0);

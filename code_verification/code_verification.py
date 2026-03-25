@@ -29,6 +29,7 @@ with open(r"./code_verification/mode.lsf") as f:
 convert_lumerical_electrostatics_to_csv(Vdc=1)
 loss_dB_per_cm = convert_lumerical_mode_to_csv()
 results = compute_modulator_overlap()
+results["loss_dB_per_cm"] = loss_dB_per_cm
 
 print(f"VpiL(1V) = {results['VpiL_Vcm']:.3f} V·cm")
 print(f"loss = {results['loss_dB_per_cm']:.3f} dB/cm")

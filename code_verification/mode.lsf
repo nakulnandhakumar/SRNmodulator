@@ -195,19 +195,6 @@ set("y span", metal_t);
 set("z", 0);
 set("z span", 1e-6);
 
-# --------------------------
-# Dummy semiconductor
-# --------------------------
-addrect;
-set("name","dummy_semiconductor");
-set("material","Si"); 
-set("x", 0);
-set("x span", 0.1e-6);
-set("y", -(Ybot_margin - 0.5e-6));  
-set("y span", 0.1e-6);
-set("z", 0);
-set("z span", 1e-6);
-
 # -------------------------
 # 6) FDE mode solver region
 # -------------------------

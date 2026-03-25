@@ -1,0 +1,249 @@
+# ============================================================
+# SRN Electro-Optic Modulator Geometry
+# ============================================================
+#
+# 2D cross-section
+# Z-normal simulation
+#
+# Parameterization controlled from Python via lumapi
+#
+# All units: meters
+#
+# This script assumes:
+# - Parameters already exist in workspace
+# - Geometry names remain unchanged
+# - Material names match model database
+#
+# DO NOT rename objects without updating Python pipeline.
+# ============================================================
+
+# ------------------- Parameters from Python -------------------
+# g
+# Vdc
+# W
+# H
+# metal_t
+#
+# Base shield heights
+# t_shield_gapR
+# t_shield_gapL
+# t_shield_core
+# t_shield_metal
+#
+# Segment deltas (3 segments per region)
+# dt_shield_gapR_1, dt_shield_gapR_2, dt_shield_gapR_3
+# dt_shield_gapL_1, dt_shield_gapL_2, dt_shield_gapL_3
+# -------------------------------------------------------------
+
+ ---- Clean start ----
+switchtolayout;
+deleteall;
+
+# ---- Check params exist ----
+Vdc = 100;
+W = 380e-9;
+H = 550e-9;
+metal_t = 300e-9;
+w_shield = 230e-9;
+t_shield_gapR = 550e-9;
+t_shield_gapL = 550e-9;
+g = 2e-6 - (W/2) - w_shield;
+
+dt_shield_gapR_1 = 0e-9;
+dt_shield_gapR_2 = 0e-9;
+dt_shield_gapR_3 = 0e-9;
+
+dt_shield_gapL_1 = 0e-9;
+dt_shield_gapL_2 = 0e-9;
+dt_shield_gapL_3 = 0e-9;
+
+# ---- Global parameters ----
+tBOX         = 3e-6;
+tCLAD        = 2e-6;
+metal_w      = 1e-6;
+Xext         = 6e-6;
+Ytop_margin  = 2e-6;
+Ybot_margin  = 2e-6;
+
+# ============================================================
+# Actual segment heights = base + delta
+# ============================================================
+
+# Left gap shield segments
+t_gapL_1 = t_shield_gapL + dt_shield_gapL_1;
+t_gapL_2 = t_shield_gapL + dt_shield_gapL_2;
+t_gapL_3 = t_shield_gapL + dt_shield_gapL_3;
+
+# Right gap shield segments
+t_gapR_1 = t_shield_gapR + dt_shield_gapR_1;
+t_gapR_2 = t_shield_gapR + dt_shield_gapR_2;
+t_gapR_3 = t_shield_gapR + dt_shield_gapR_3;
+
+# ---- Derived positions ----
+y_clad_bottom = tBOX;
+y_clad_top = tBOX + tCLAD + Ytop_margin;
+
+y_core_center = tBOX + H/2;
+y_core_bottom = tBOX;
+y_core_top = tBOX + H;
+
+y_metal_center     = y_core_bottom + metal_t/2;
+y_metal_top        = y_core_bottom + metal_t;
+
+y_span = tBOX + tCLAD + Ytop_margin + Ybot_margin;
+y_center = -Ybot_margin + y_span/2;
+
+# Metal is separated from the shield by gap g
+x_metal_L  = -(W/2 + w_shield + g + metal_w/2);
+x_metal_R  =  (W/2 + w_shield + g + metal_w/2);
+
+# ---------------------------------------------
+# Set region materials
+# ---------------------------------------------
+core_material = "E-O Polymer";
+shield_material = "SRN 2.5 (Silicon Rich Nitride)";
+BOX_material = "SiO2 (Glass) - Palik";
+cladding_material = "E-O Polymer";
+metal_material = "Al (Aluminium) - CRC";
+
+# --------------------------------------------
+# 1) BOX and Cladding
+# --------------------------------------------
+addrect;
+set("name", "BOX");
+set("material", BOX_material);
+set("x", 0);
+set("x span", 2*Xext);
+
+set("y", tBOX/2);
+set("y span", tBOX);
+
+set("z", 0);
+set("z span", 1e-6);
+
+addrect;
+set("name", "cladding");
+set("material", cladding_material);
+set("x", 0);
+set("x span", 2*Xext);
+
+set("y", (y_clad_bottom + y_clad_top)/2);
+set("y span", (y_clad_top - y_clad_bottom));
+
+set("z", 0);
+set("z span", 1e-6);
+
+# ----------------
+# 2) SRN core
+# ----------------
+addrect;
+set("name", "core_SRN");
+set("material", core_material);
+set("x", 0);
+set("x span", W);
+set("y", y_core_center);
+set("y span", H);
+set("z", 0);
+set("z span", 1e-6);
+
+# ----------------
+# 3) Left side shield: 3 segments
+# ----------------
+# LEFT ridge
+addrect;
+set("name", "ridge_left");
+set("material", shield_material);
+set("x", -(W/2 + w_shield/2));
+set("x span", w_shield);
+set("y", y_core_center);
+set("y span", H);
+
+# RIGHT ridge
+addrect;
+set("name", "ridge_right");
+set("material", shield_material);
+set("x",  (W/2 + w_shield/2));
+set("x span", w_shield);
+set("y", y_core_center);
+set("y span", H);
+
+# -------------------------
+# 6) Metal electrodes
+# -------------------------
+# Left metal
+addrect;
+set("name", "metal_left");
+set("material", metal_material);
+set("x", x_metal_L);
+set("x span", metal_w);
+set("y", y_metal_center);
+set("y span", metal_t);
+set("z", 0);
+set("z span", 1e-6);
+
+# Right metal
+addrect;
+set("name", "metal_right");
+set("material", metal_material);
+set("x", x_metal_R);
+set("x span", metal_w);
+set("y", y_metal_center);
+set("y span", metal_t);
+set("z", 0);
+set("z span", 1e-6);
+
+# --------------------------
+# Dummy semiconductor
+# --------------------------
+addrect;
+set("name","dummy_semiconductor");
+set("material","Si"); 
+set("x", 0);
+set("x span", 0.1e-6);
+set("y", -(Ybot_margin - 0.5e-6));  
+set("y span", 0.1e-6);
+set("z", 0);
+set("z span", 1e-6);
+
+# -------------------------
+# 6) FDE mode solver region
+# -------------------------
+addfde;
+select("FDE");
+set("solver type", "2D Z normal");               # 2D cross-section
+set("x", 0);
+set("x span", 2*Xext);
+set("y", y_SiO2_center);
+set("y span", y_span_SiO2);
+set("z", 0);
+set("wavelength", 1.55e-6);
+set("number of trial modes", 2);
+set("search", "near n");    # searching near max n
+set("mesh cells x", 251);   # adjust for accuracy vs. time
+set("mesh cells y", 201);
+
+# --- add mesh override object ---
+addmesh;
+set("name", "mesh_core");
+
+# --- position & size of override box ---
+# x: centered at 0, spanning core + gaps + metal + margins
+set("x", 0);
+set("x span", W + 2*g + 2*metal_w);
+
+# y: centered on core, spanning core height + margins
+set("y", y_core_center);
+set("y span", H + 500e-9);
+
+# For 2D Z-normal FDE, z doesn’t matter but we can still set something small:
+set("z", 0);
+set("z span", 0.5e-6);      # any nonzero span is fine in 2D
+
+# 2 nm steps (0.002 µm). Go to 0.001µm if you want even finer near metals.
+set("dx", 0.005e-6);        # 5 nm
+set("dy", 0.005e-6);        # 5 nm
+
+# (optional) make sure it’s enabled
+set("enabled", 1);
+
+

@@ -80,6 +80,9 @@ t_gapR_2 = t_shield_gapR + dt_shield_gapR_2;
 t_gapR_3 = t_shield_gapR + dt_shield_gapR_3;
 
 # ---- Derived positions ----
+y_BOX_top = tBOX;
+y_BOX_bottom = 0 - Ybot_margin;
+
 y_clad_bottom = tBOX;
 y_clad_top = tBOX + tCLAD + Ytop_margin;
 
@@ -110,7 +113,7 @@ addmaterialproperties("CT", "SiO2 (Glass) - Sze");
 
 addmodelmaterial;
 set("name", "Al");
-addmaterialproperties("CT", "Al (Aluminum) - CRC");
+addmaterialproperties("CT", "Al (Aluminium) - CRC");
 
 addmodelmaterial;
 set("name", "E-O Polymer");
@@ -138,8 +141,8 @@ set("material", BOX_material);
 set("x", 0);
 set("x span", 2*Xext);
 
-set("y", tBOX/2);
-set("y span", tBOX);
+set("y", (y_BOX_bottom + y_BOX_top)/2);
+set("y span", (y_BOX_top - y_BOX_bottom));
 
 set("z", 0);
 set("z span", 1e-6);

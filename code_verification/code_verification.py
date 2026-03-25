@@ -3,7 +3,7 @@ sys.path.append(r"C:\Program Files\Lumerical\v202\api\python")
 import lumapi # pyright: ignore[reportMissingImports]
 from file_parsing.lumerical_electrostatics_mattocsv import convert_lumerical_electrostatics_to_csv
 from file_parsing.lumerical_mode_mattocsv import convert_lumerical_mode_to_csv
-from code_verification.overlap import compute_modulator_overlap
+from overlap import compute_modulator_overlap
 
 # ============================================================
 # Lumerical session management

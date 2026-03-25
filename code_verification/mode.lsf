@@ -242,19 +242,16 @@ findmodes;
 
 # ----- EXPORT OPTICAL MODE FIELD -----
 
-mode = 1;   # fundamental TE mode
+x = getdata("FDE::data::mode2","x");
+y = getdata("FDE::data::mode2","y");
 
-x = getdata("FDE::data::mode"+num2str(mode),"x");
-y = getdata("FDE::data::mode"+num2str(mode),"y");
-
-Ex = getdata("FDE::data::mode"+num2str(mode),"Ex");
-Ey = getdata("FDE::data::mode"+num2str(mode),"Ey");
-Ez = getdata("FDE::data::mode"+num2str(mode),"Ez");
+Ex = getdata("FDE::data::mode2","Ex");
+Ey = getdata("FDE::data::mode2","Ey");
+Ez = getdata("FDE::data::mode2","Ez");
 
 E2 = abs(Ex)^2 + abs(Ey)^2 + abs(Ez)^2;
 
-loss = getdata("FDE::data::mode"+num2str(mode), "loss");   # dB/cm
-
+loss = getdata("FDE::data::mode2", "loss");   # dB/cm
 fname = "modulator_mode.mat";
 
 matlabsave(fname, x, y, Ex, Ey, Ez, E2, loss);

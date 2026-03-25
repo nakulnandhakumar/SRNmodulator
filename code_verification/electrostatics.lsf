@@ -1,0 +1,288 @@
+# ============================================================
+# SRN Electro-Optic Modulator Geometry
+# ============================================================
+#
+# 2D cross-section
+# Z-normal simulation
+#
+# Parameterization controlled from Python via lumapi
+#
+# All units: meters
+#
+# This script assumes:
+# - Parameters already exist in workspace
+# - Geometry names remain unchanged
+# - Material names match model database
+#
+# DO NOT rename objects without updating Python pipeline.
+# ============================================================
+
+# ------------------- Parameters from Python -------------------
+# g
+# Vdc
+# W
+# H
+# metal_t
+#
+# Base shield heights
+# t_shield_gapR
+# t_shield_gapL
+# t_shield_core
+# t_shield_metal
+#
+# Segment deltas (3 segments per region)
+# dt_shield_gapR_1, dt_shield_gapR_2, dt_shield_gapR_3
+# dt_shield_gapL_1, dt_shield_gapL_2, dt_shield_gapL_3
+# -------------------------------------------------------------
+
+# ---- Clean start ----
+switchtolayout;
+deleteall;
+
+# ---- Check params exist ----
+Vdc = 100;
+W = 380e-9;
+H = 550e-9;
+metal_t = 300e-9;
+w_shield = 230e-9;
+t_shield_gapR = 550e-9;
+t_shield_gapL = 550e-9;
+g = 2e-6 - (W/2) - w_shield;
+
+dt_shield_gapR_1 = 0e-9;
+dt_shield_gapR_2 = 0e-9;
+dt_shield_gapR_3 = 0e-9;
+
+dt_shield_gapL_1 = 0e-9;
+dt_shield_gapL_2 = 0e-9;
+dt_shield_gapL_3 = 0e-9;
+
+# ---- Global parameters ----
+tBOX         = 3e-6;
+tCLAD        = 2e-6;
+metal_w      = 1e-6;
+Xext         = 6e-6;
+Ytop_margin  = 2e-6;
+Ybot_margin  = 2e-6;
+
+# ============================================================
+# Actual segment heights = base + delta
+# ============================================================
+
+# Left gap shield segments
+t_gapL_1 = t_shield_gapL + dt_shield_gapL_1;
+t_gapL_2 = t_shield_gapL + dt_shield_gapL_2;
+t_gapL_3 = t_shield_gapL + dt_shield_gapL_3;
+
+# Right gap shield segments
+t_gapR_1 = t_shield_gapR + dt_shield_gapR_1;
+t_gapR_2 = t_shield_gapR + dt_shield_gapR_2;
+t_gapR_3 = t_shield_gapR + dt_shield_gapR_3;
+
+# ---- Derived positions ----
+y_clad_bottom = tBOX;
+y_clad_top = tBOX + tCLAD + Ytop_margin;
+
+y_core_center = tBOX + H/2;
+y_core_bottom = tBOX;
+y_core_top = tBOX + H;
+
+y_metal_center     = y_core_bottom + metal_t/2;
+y_metal_top        = y_core_bottom + metal_t;
+
+y_span = tBOX + tCLAD + Ytop_margin + Ybot_margin;
+y_center = -Ybot_margin + y_span/2;
+
+# Metal is separated from the shield by gap g
+x_metal_L  = -(W/2 + w_shield + g + metal_w/2);
+x_metal_R  =  (W/2 + w_shield + g + metal_w/2);
+
+# ---------------------------------------------
+# Add model materials
+# ---------------------------------------------
+addmodelmaterial;
+set("name", "SRNn2p5");
+addmaterialproperties("CT", "SRN 2.5 (Silicon Rich Nitride)");
+
+addmodelmaterial;
+set("name", "SiO2");
+addmaterialproperties("CT", "SiO2 (Glass) - Sze");
+
+addmodelmaterial;
+set("name", "Al");
+addmaterialproperties("CT", "Al (Aluminum) - CRC");
+
+addmodelmaterial;
+set("name", "E-O Polymer");
+addmaterialproperties("CT", "E-O Polymer");
+
+addmodelmaterial;
+set("name", "Si");
+addmaterialproperties("CT", "Si (Silicon)");
+
+# ---------------------------------------------
+# Set region materials
+# ---------------------------------------------
+core_material = "E-O Polymer";
+shield_material = "SRNn2p5";
+BOX_material = "SiO2";
+cladding_material = "E-O Polymer";
+metal_material = "Al";
+
+# --------------------------------------------
+# 1) BOX and Cladding
+# --------------------------------------------
+addrect;
+set("name", "BOX");
+set("material", BOX_material);
+set("x", 0);
+set("x span", 2*Xext);
+
+set("y", tBOX/2);
+set("y span", tBOX);
+
+set("z", 0);
+set("z span", 1e-6);
+
+addrect;
+set("name", "cladding");
+set("material", cladding_material);
+set("x", 0);
+set("x span", 2*Xext);
+
+set("y", (y_clad_bottom + y_clad_top)/2);
+set("y span", (y_clad_top - y_clad_bottom));
+
+set("z", 0);
+set("z span", 1e-6);
+
+# ----------------
+# 2) SRN core
+# ----------------
+addrect;
+set("name", "core_SRN");
+set("material", core_material);
+set("x", 0);
+set("x span", W);
+set("y", y_core_center);
+set("y span", H);
+set("z", 0);
+set("z span", 1e-6);
+
+# ----------------
+# 3) Left side shield: 3 segments
+# ----------------
+# LEFT ridge
+addrect;
+set("name", "ridge_left");
+set("material", shield_material);
+set("x", -(W/2 + w_shield/2));
+set("x span", w_shield);
+set("y", y_core_center);
+set("y span", H);
+
+# RIGHT ridge
+addrect;
+set("name", "ridge_right");
+set("material", shield_material);
+set("x",  (W/2 + w_shield/2));
+set("x span", w_shield);
+set("y", y_core_center);
+set("y span", H);
+
+# -------------------------
+# 6) Metal electrodes
+# -------------------------
+# Left metal
+addrect;
+set("name", "metal_left");
+set("material", metal_material);
+set("x", x_metal_L);
+set("x span", metal_w);
+set("y", y_metal_center);
+set("y span", metal_t);
+set("z", 0);
+set("z span", 1e-6);
+
+# Right metal
+addrect;
+set("name", "metal_right");
+set("material", metal_material);
+set("x", x_metal_R);
+set("x span", metal_w);
+set("y", y_metal_center);
+set("y span", metal_t);
+set("z", 0);
+set("z span", 1e-6);
+
+# --------------------------
+# Dummy semiconductor
+# --------------------------
+addrect;
+set("name","dummy_semiconductor");
+set("material","Si"); 
+set("x", 0);
+set("x span", 0.1e-6);
+set("y", -(Ybot_margin - 0.5e-6));  
+set("y span", 0.1e-6);
+set("z", 0);
+set("z span", 1e-6);
+
+# -------------------------
+# 7) Electrostatics solver region
+# -------------------------
+addchargesolver; 
+select("CHARGE");
+set("norm length", 1e-6);   # 1 micron is standard
+set("max edge length", 0.08e-6); # = 80 nm
+
+select("simulation region");
+
+# Geometry
+set("dimension","2D Z-normal");
+
+set("x", 0);
+set("x span", 2*Xext);
+
+set("y", y_center);
+set("y span", y_span);
+
+# Boundaries (electrostatics → closed is fine)
+set("x min boundary","closed");
+set("x max boundary","closed");
+set("y min boundary","closed");
+set("y max boundary","closed");
+
+addmesh;
+set("name","mesh_electrostatic");
+
+set("x", 0);
+set("x span", W + 2*w_shield + 2*g + 2*metal_w);
+
+set("y", y_core_center);
+set("y span", H + 200e-9);
+
+set("z", 0);
+set("z span", 1e-6);
+
+# FEM mesh control
+set("max edge length", 0.06e-6);   # = 60 nm
+
+# ----------------------------------------
+# Add electrical contacts (gold electrodes)
+# ----------------------------------------
+addelectricalcontact;
+set("name","electrode_left");
+set("bc mode","steady state");
+set("sweep type","single");
+set("voltage",Vdc);          # 1 V bias (sweep later)
+set("surface type","solid");
+set("solid","metal_left");
+
+addelectricalcontact;
+set("name","electrode_right");
+set("bc mode","steady state");
+set("sweep type","single");
+set("voltage",0.0);          # 1 V bias (sweep later)
+set("surface type","solid");
+set("solid","metal_right");

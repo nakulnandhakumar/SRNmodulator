@@ -51,15 +51,15 @@ PARAMS = {
 OPT_KEYS = [
     "g",
     "t_shield_core",
-    # "t_shield_gapL",
-    # "t_shield_gapR",
-    "dt_shield_gapL_1",
-    "dt_shield_gapL_2",
-    "dt_shield_gapL_3",
+    "t_shield_gapL",
+    "t_shield_gapR",
+    # "dt_shield_gapL_1",
+    # "dt_shield_gapL_2",
+    # "dt_shield_gapL_3",
 
-    "dt_shield_gapR_1",
-    "dt_shield_gapR_2",
-    "dt_shield_gapR_3",
+    # "dt_shield_gapR_1",
+    # "dt_shield_gapR_2",
+    # "dt_shield_gapR_3",
 ]
 
 # ============================================================

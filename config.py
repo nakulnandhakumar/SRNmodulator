@@ -68,7 +68,7 @@ OPT_KEYS = [
 
 OBJECTIVE_WEIGHTS = {
     "VpiL": 1.0,
-    "loss": 0.1,
+    "loss": 5.0,
 }
 
 # ============================================================
@@ -77,7 +77,7 @@ OBJECTIVE_WEIGHTS = {
 
 OBJECTIVE_TARGETS = {
     "VpiL_Vcm": 1000.0,        # desired electro-optic efficiency (Vdc = 1V)
-    "loss_dB_per_cm": 10.0,  # maximum acceptable optical loss
+    "loss_dB_per_cm": 5.0,    # maximum acceptable optical loss
 }
 
 # ============================================================

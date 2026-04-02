@@ -1,13 +1,15 @@
 from modulator_analysis.modulator_lumapi import LumericalSession
 from modulator_analysis.modulator_evaluate import evaluate_params
-from modulator_analysis.modulator_fd_optimization import FDOptimizer
-from modulator_analysis.modulator_objective import objective_function
+import matplotlib.pyplot as plt
 from config import PARAMS
 
 # Define loop over gap values
 gap_values = [400e-9, 450e-9, 500e-9, 550e-9, 600e-9, 650e-9, 700e-9, 750e-9, 800e-9, 850e-9, 900e-9, 950e-9, 1000e-9]
 true_VpiL_results = {}
 loss_results = {}
+Vbreak_results = {}
+chi2_eff_results = {}
+pockels_eff_results = {}
 
 for g in gap_values:
     print(f"\n=== Evaluating gap g = {g*1e9:.0f} nm ===")
@@ -43,13 +45,45 @@ for g in gap_values:
     VpiL_true = VpiL_1V / Vbias
     
     print(
-        f"gap = {g*1e9:.0f} nm: VpiL(1V) = {VpiL_1V:.3f} V·cm, "
+        f"gap = {g*1e9:.0f} nm: "
+        f"VpiL(1V) = {VpiL_1V:.3f} V·cm, "
         f"Vbreak = {Vbreak:.1f} V ({breakdown_material}), "
         f"Vbias = {Vbias:.1f} V, "
         f"VpiL(true) = {VpiL_true:.3f} V·cm, "
-        f"loss = {results['loss_dB_per_cm']:.3f} dB/cm"
+        f"loss = {results['loss_dB_per_cm']:.3f} dB/cm, "
+        f"chi2_eff = {results['chi2_eff_avg_pmV']:.3f} pm/V, "
+        f"r_eff_avg = {results['r_eff_avg_pmV']:.3f} pm/V"
     )
     
     true_VpiL_results[g] = VpiL_true
     loss_results[g] = results["loss_dB_per_cm"]
+    chi2_eff_results[g] = results["chi2_eff_avg_pmV"]
+    pockels_eff_results[g] = results["r_eff_avg_pmV"]
+    Vbreak_results[g] = Vbreak
     
+# Plot the result for true VpiL vs gap
+plt.figure(figsize=(6, 5))
+plt.plot(list(true_VpiL_results.keys()), list(true_VpiL_results.values()), marker='o')
+plt.xlabel("Gap (nm)")
+plt.ylabel("True VpiL (V·cm)")
+plt.title("True VpiL vs Gap")
+plt.grid()
+plt.show()
+
+# Plot the result for loss vs gap
+plt.figure(figsize=(6, 5))
+plt.plot(list(loss_results.keys()), list(loss_results.values()), marker='o', color='orange')
+plt.xlabel("Gap (nm)")
+plt.ylabel("Loss (dB/cm)")
+plt.title("Loss vs Gap")
+plt.grid()
+plt.show()
+
+# Plot the result for breakdown voltage vs gap
+plt.figure(figsize=(6, 5))
+plt.plot(list(Vbreak_results.keys()), list(Vbreak_results.values()), marker='o', color='green')
+plt.xlabel("Gap (nm)")
+plt.ylabel("Breakdown Voltage (V)")
+plt.title("Breakdown Voltage vs Gap")
+plt.grid()
+plt.show()

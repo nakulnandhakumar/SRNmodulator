@@ -448,6 +448,16 @@ def compute_modulator_overlap(params):
     den_chi2 = np.sum(Eopt2) * dA
 
     chi2_eff_avg = num_chi2 / den_chi2
+    
+    # ============================================================
+    # Pockel's coefficient map and average
+    # ============================================================
+    lum["r_eff"] = 2 * lum["chi2_eff"] / (lum["epsr_opt"]**2)
+    
+    r_eff = lum["r_eff"].to_numpy(float)
+    num_r = np.sum(r_eff * Eopt2) * dA
+    den_r = np.sum(Eopt2) * dA
+    r_eff_avg = num_r / den_r
 
     # ============================================================
     # Vpi L
@@ -502,6 +512,8 @@ def compute_modulator_overlap(params):
         "dneff_per_V": dneff_per_V,
         "chi2_eff_avg_mV": chi2_eff_avg,
         "chi2_eff_avg_pmV": chi2_eff_avg * 1e12,
+        "r_eff_avg_mV": r_eff_avg,
+        "r_eff_avg_pmV": r_eff_avg * 1e12,
         "VpiL_Vm": VpiL_Vm,
         "VpiL_Vcm": VpiL_Vcm,
         "lum": lum,

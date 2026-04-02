@@ -271,7 +271,7 @@ def compute_modulator_overlap():
     n_polymer = 1.65
 
     # ---- HARDCODE VALUES (you can tune these) ----
-    chi2_polymer = 60e-12 * n_polymer**4  # [m/V] e.g. 50 pm/V
+    chi2_polymer = 60e-12 * 0.5 * n_polymer**4  # [m/V] e.g. 50 pm/V
 
     # assign χ² to EO polymer regions
     lum.loc[slot_mask, "chi2"] = chi2_polymer

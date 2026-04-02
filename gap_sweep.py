@@ -44,16 +44,15 @@ for g in gap_values:
     # true VpiL when biased at Vbias
     VpiL_true = VpiL_1V / Vbias
     
-    print(
-        f"gap = {g*1e9:.0f} nm: "
-        f"VpiL(1V) = {VpiL_1V:.3f} V·cm, "
-        f"Vbreak = {Vbreak:.1f} V ({breakdown_material}), "
-        f"Vbias = {Vbias:.1f} V, "
-        f"VpiL(true) = {VpiL_true:.3f} V·cm, "
-        f"loss = {results['loss_dB_per_cm']:.3f} dB/cm, "
-        f"chi2_eff = {results['chi2_eff_avg_pmV']:.3f} pm/V, "
-        f"r_eff_avg = {results['r_eff_avg_pmV']:.3f} pm/V"
-    )
+    print(f"VpiL (1V)       : {VpiL_1V:.3f} V·cm")
+    print(f"Vbreak          : {Vbreak:.1f} V ({breakdown_material})")
+    print(f"Vbias           : {Vbias:.1f} V")
+    print(f"VpiL (bias)     : {VpiL_true:.3f} V·cm")
+    print(f"Loss            : {results['loss_dB_per_cm']:.3f} dB/cm")
+    print(f"chi2_eff (1V)   : {results['chi2_eff_avg_pmV']:.3f} pm/V")
+    print(f"r_eff (1V)      : {results['r_eff_avg_pmV']:.3f} pm/V")
+    print(f"chi2_eff (bias)  : {results['chi2_eff_avg_pmV'] * Vbias:.3f} pm/V")
+    print(f"r_eff (bias)  : {results['r_eff_avg_pmV'] * Vbias:.3f} pm/V")
     
     true_VpiL_results[g] = VpiL_true
     loss_results[g] = results["loss_dB_per_cm"]

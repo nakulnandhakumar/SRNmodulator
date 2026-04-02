@@ -113,7 +113,7 @@ class LumericalSession:
         )
         self.mode = lumapi.MODE(
             hide=False,
-            project=r"./lumerical/mode/modulator_mode.ldev"
+            project=r"./lumerical/mode/modulator_mode.lms"
         )
 
     def close(self):

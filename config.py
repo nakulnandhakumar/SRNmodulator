@@ -93,8 +93,8 @@ OBJECTIVE_TARGETS = {
 # ============================================================
 
 OPT_SETTINGS = {
-    "alpha_init": 0.06,
-    "rel_fd": 0.1,
+    "alpha_init": 0.03,     # initial learning rate (step size multiplier for finite difference gradients)
+    "rel_fd": 0.05,          # finite difference step relative to parameter value
     "abs_fd_min": 5e-9,
 }
 
@@ -103,8 +103,8 @@ OPT_SETTINGS = {
 # ============================================================
 
 EXPERIMENT = {
-    "random_starts": 4,
-    "num_iterations": 5,
+    "random_starts": 1,
+    "num_iterations": 10,
 }
 
 # ============================================================
@@ -123,7 +123,7 @@ PARAM_BOUNDS = {
     # ------------------------------------------------
     # Electrode gap
     # ------------------------------------------------
-    "g": (200e-9, 700e-9),
+    "g": (750e-9, 850e-9),
 
     # ------------------------------------------------
     # Base shield heights

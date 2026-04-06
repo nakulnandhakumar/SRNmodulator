@@ -46,6 +46,7 @@ import numpy as np
 import pandas as pd
 from scipy.interpolate import griddata
 from material_properties import MATERIAL_DB
+from config import PARAMS
 
 
 def compute_modulator_overlap(params):
@@ -79,9 +80,9 @@ def compute_modulator_overlap(params):
     # MATERIAL SELECTION
     # ============================================================
 
-    core_material = "SRN_n3p1"
-    shield_material = "SRN_n2p5"
-    BOX_cladding_material = "SiO2"
+    core_material = PARAMS["core_material_elect"]
+    shield_material = PARAMS["shield_material_elect"]
+    BOX_cladding_material = PARAMS["BOX_cladding_material_elect"]
 
     # ============================================================
     # FILE PATHS

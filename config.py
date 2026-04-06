@@ -12,6 +12,14 @@ Central configuration for SRN modulator optimization experiments.
 g0 = 600e-9
 
 PARAMS = {
+    # ---------------- region materials ----------------
+    "core_material_elect": "SRN_n3p1",
+    "shield_material_elect": "HfO2",
+    "BOX_cladding_material_elect": "SiO2",
+    
+    "core_material_mode": "SRN 3.1 (Silicon Rich Nitride)",
+    "shield_material_mode": "HfO2",
+    "BOX_cladding_material_mode": "SiO2 (Glass) - Palik",
 
     # ---------------- electrostatics ----------------
     "Vdc": 1.0,  # voltage for electrostatics simulation

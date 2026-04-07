@@ -86,7 +86,7 @@ for run in range(EXPERIMENT["random_starts"]):
     J0 = objective_function(rslt0)
 
     print(f"J0 = {J0:.6f}")
-    print(f"VpiL = {rslt0['VpiL_Vcm']:.3f} V·cm")
+    print(f"VpiL = {rslt0['VpiL_1V_Vcm']:.3f} V·cm")
     print(f"loss = {rslt0['loss_dB_per_cm']:.3f} dB/cm")
 
     # -------------------- Optimizer --------------------
@@ -121,12 +121,12 @@ for run in range(EXPERIMENT["random_starts"]):
         Vbias = bias_fraction * Vbreak
 
         # VpiL values
-        VpiL_1V = rslt_i["VpiL_Vcm"]
-        VpiL_bias = VpiL_1V / Vbias
+        VpiL_Vcm_1V = rslt_i["VpiL_1V_Vcm"]
+        VpiL_bias = VpiL_Vcm_1V / Vbias
 
         print(
-            f"VpiL(1V) = {VpiL_1V:.3f} V·cm   "
-            f"(Δ {VpiL_1V - prev_rslt['VpiL_Vcm']:+.3f})"
+            f"VpiL(1V) = {VpiL_Vcm_1V:.3f} V·cm   "
+            f"(Δ {VpiL_Vcm_1V - prev_rslt['VpiL_1V_Vcm']:+.3f})"
         )
 
         print(
@@ -159,10 +159,10 @@ bias_fraction = 0.8
 Vbias = bias_fraction * Vbreak
 
 # VpiL computed at 1 V in overlap code
-VpiL_1V = best_rslt["VpiL_Vcm"]
+VpiL_Vcm_1V = best_rslt["VpiL_1V_Vcm"]
 
 # true VpiL when biased at Vbias
-VpiL_true = VpiL_1V / Vbias
+VpiL_Vcm_true = VpiL_Vcm_1V / Vbias
 
 print("\n=======================================")
 print(" DEVICE PERFORMANCE AT SAFE BIAS")
@@ -172,8 +172,8 @@ print(f"Breakdown voltage = {Vbreak:.2f} V")
 print(f"Limiting material = {breakdown_material}")
 print(f"Operating voltage (80%) = {Vbias:.2f} V")
 
-print(f"\nVpiL @ 1V = {VpiL_1V:.3f} V·cm")
-print(f"True VpiL @ {Vbias:.2f} V = {VpiL_true:.3f} V·cm")
+print(f"\nVpiL @ 1V = {VpiL_Vcm_1V:.3f} V·cm")
+print(f"True VpiL @ {Vbias:.2f} V = {VpiL_Vcm_true:.3f} V·cm")
 print(f"Loss = {best_rslt['loss_dB_per_cm']:.3f} dB/cm")
 
 session.close()

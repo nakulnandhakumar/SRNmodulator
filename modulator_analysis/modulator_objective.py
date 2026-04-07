@@ -27,15 +27,15 @@ def objective_function(results):
     weight_VpiL = OBJECTIVE_WEIGHTS["VpiL"]
     weight_loss = OBJECTIVE_WEIGHTS["loss"]
 
-    VpiL_Vcm = results["VpiL_Vcm"]
+    VpiL_true_Vcm = results["VpiL_true_Vcm"]
     loss_dB_per_cm = results["loss_dB_per_cm"]
 
     # targets
-    V_target = OBJECTIVE_TARGETS["VpiL_Vcm"]
+    V_target = OBJECTIVE_TARGETS["VpiL_true_Vcm"]
     loss_target = OBJECTIVE_TARGETS["loss_dB_per_cm"]
 
     # VpiL term
-    V_term = VpiL_Vcm / V_target
+    V_term = VpiL_true_Vcm / V_target
 
     # loss penalty
     if loss_dB_per_cm <= loss_target:

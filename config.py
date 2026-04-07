@@ -84,7 +84,7 @@ OBJECTIVE_WEIGHTS = {
 # ============================================================
 
 OBJECTIVE_TARGETS = {
-    "VpiL_Vcm": 1000.0,        # desired electro-optic efficiency (Vdc = 1V)
+    "VpiL_true_Vcm": 10.0,        # desired electro-optic efficiency (Vdc = breakdown operating voltage)
     "loss_dB_per_cm": 5.0,    # maximum acceptable optical loss
 }
 

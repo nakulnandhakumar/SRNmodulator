@@ -504,6 +504,13 @@ def compute_modulator_overlap(params):
         breakdown_material = shield_material
     else:
         breakdown_material = BOX_cladding_material
+        
+    # ============================================================
+    # True VpiL at breakdown bias
+    # ============================================================
+    bias_fraction = 0.8
+    Vbias = bias_fraction * Vbreak_device
+    VpiL_true_Vcm = (VpiL_Vm / Vbias) * 100  # convert to V·cm
 
     # ============================================================
     # Return results
@@ -515,8 +522,9 @@ def compute_modulator_overlap(params):
         "chi2_eff_avg_pmV": chi2_eff_avg * 1e12,
         "r_eff_avg_mV": r_eff_avg,
         "r_eff_avg_pmV": r_eff_avg * 1e12,
-        "VpiL_Vm": VpiL_Vm,
-        "VpiL_Vcm": VpiL_Vcm,
+        "VpiL_1V_Vm": VpiL_Vm,
+        "VpiL_1V_Vcm": VpiL_Vcm,
+        "VpiL_true_Vcm": VpiL_true_Vcm,
         "lum": lum,
         "core_mask": core_mask,
         "shield_mask": shield_mask,

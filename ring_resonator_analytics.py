@@ -30,7 +30,7 @@ neff_passive = 2.2659
 ng_active = 3.3753
 ng_passive = 3.69967
 
-# dneff_active = 
+dneff_active = 4.298e-06
 
 alpha_active_dB_cm = 0.39982
 alpha_passive_dB_cm = 0
@@ -39,6 +39,7 @@ alpha_passive_dB_cm = 0
 # WAVELENGTH SWEEP
 # ============================================================
 lam = np.linspace(1.50e-6, 1.60e-6, 4000)
+lam0 = 1.55e-6
 
 # ============================================================
 # 1) EXTRACT COUPLING FROM FDTD
@@ -104,25 +105,36 @@ T_mod = ring_through_transmission(t, a, phi_mod)
 # ============================================================
 # 7) WAVELENGTH SHIFT ESTIMATE
 # ============================================================
-# Small-signal estimate using effective group index
-dlam_est = (lam.mean() / ng_eff) * dneff_active * (L_active / L_ring)
+FSR = lam0**2 / (ng_eff * L_ring)
 
-# Numerically extracted resonance shift from the nearest dip
-idx_static = np.argmin(T_static)
-idx_mod = np.argmin(T_mod)
-lam_res_static = lam[idx_static]
-lam_res_mod = lam[idx_mod]
+# Small-signal estimate using effective group index
+dlam_est = (lam0 / ng_eff) * dneff_active * (L_active / L_ring)
+
+window = FSR / 2   # half-FSR window
+mask = (lam > lam0 - window) & (lam < lam0 + window)
+
+# Extract local arrays
+lam_local = lam[mask]
+T_static_local = T_static[mask]
+T_mod_local = T_mod[mask]
+
+# Find dip inside this window
+idx_static = np.argmin(T_static_local)
+idx_mod = np.argmin(T_mod_local)
+lam_res_static = lam_local[idx_static]
+lam_res_mod = lam_local[idx_mod]
+
 dlam_numeric = lam_res_mod - lam_res_static
 
 # ============================================================
 # 8) Q ESTIMATES
 # ============================================================
 # Coupling Q (general formula)
-Qc = (2 * np.pi * ng_eff * R) / (lam.mean() * (-np.log(1 - kappa**2)))
+Qc = (2 * np.pi * ng_eff * R) / (lam0 * (-np.log(1 - kappa**2)))
 
 # Intrinsic Q
 alpha_avg = (alpha_active * L_active + alpha_passive * L_passive) / L_ring
-Qint = (2 * np.pi * ng_eff) / (alpha_avg * lam.mean())
+Qint = (2 * np.pi * ng_eff) / (alpha_avg * lam0)
 
 # Loaded Q
 Qtotal = 1 / (1 / Qc + 1 / Qint)
@@ -151,6 +163,7 @@ print(f"neff_eff_mod                = {neff_eff_mod:.6f}")
 print(f"ng_eff                      = {ng_eff:.6f}")
 
 print("\n========== SHIFT ==========")
+print(f"FSR [nm] = {FSR * 1e9:.4f}")
 print(f"Estimated dlam [nm]         = {dlam_est * 1e9:.6f}")
 print(f"Numeric dlam from dips [nm] = {dlam_numeric * 1e9:.6f}")
 

@@ -9,7 +9,7 @@ Central configuration for SRN modulator optimization experiments.
 # Device + geometry parameters
 # ============================================================
 
-g0 = 600e-9
+g0 = 800e-9
 
 PARAMS = {
     # ---------------- region materials ----------------
@@ -103,8 +103,8 @@ OPT_SETTINGS = {
 # ============================================================
 
 EXPERIMENT = {
-    "random_starts": 3,
-    "num_iterations": 6,
+    "random_starts": 1,
+    "num_iterations": 10,
 }
 
 # ============================================================
@@ -112,10 +112,10 @@ EXPERIMENT = {
 # ============================================================
 
 RANDOM_KEYS = {
-    "g",
-    "t_shield_core",
-    "t_shield_gapR",
-    "t_shield_gapL",
+    #"g",
+    #"t_shield_core",
+    #"t_shield_gapR",
+    #"t_shield_gapL",
 }
 
 PARAM_BOUNDS = {

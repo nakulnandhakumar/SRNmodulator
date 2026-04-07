@@ -232,7 +232,7 @@ Ez = getdata("FDE::data::mode"+num2str(mode),"Ez");
 
 E2 = abs(Ex)^2 + abs(Ey)^2 + abs(Ez)^2;
 
-loss = getdata("FDE::data::mode"+num2str(mode), "loss");   # dB/cm
+loss = getdata("FDE::data::mode"+num2str(mode), "loss");   # dB/m
 
 fname = "modulator_mode.mat";
 

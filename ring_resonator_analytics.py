@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 # ============================================================
 # INPUTS FROM FDTD
 # ============================================================
-P_bus = 0.585
-P_ring = 0.20
+P_bus = 0.578
+P_ring = 0.201
 Lc_fdtd = 8e-6          # straight coupler interaction length used in FDTD
 L_cpl_ring = 5e-6       # effective coupling length in actual ring coupler region
 
@@ -38,7 +38,7 @@ alpha_passive_dB_cm = 0
 # ============================================================
 # WAVELENGTH SWEEP
 # ============================================================
-lam = np.linspace(1.50e-6, 1.60e-6, 4000)
+lam = np.linspace(1.50e-6, 1.60e-6, 400000)
 lam0 = 1.55e-6
 
 # ============================================================

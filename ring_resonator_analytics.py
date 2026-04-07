@@ -28,12 +28,12 @@ neff_active = 2.4309
 neff_passive = 2.2659
 
 ng_active = 3.3753
-ng_passive = 3.699251
+ng_passive = 3.69967
 
-dneff_active = 
+# dneff_active = 
 
 alpha_active_dB_cm = 0.39982
-alpha_passive_dB_cm = 0.00726
+alpha_passive_dB_cm = 0
 
 # ============================================================
 # WAVELENGTH SWEEP

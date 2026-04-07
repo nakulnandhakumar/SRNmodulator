@@ -39,7 +39,7 @@ for g in gap_values:
     Vbias = bias_fraction * Vbreak
 
     # VpiL computed at 1 V in overlap code
-    VpiL_1V = results["VpiL_Vcm"]
+    VpiL_1V = results["VpiL_1V_Vcm"]
 
     # true VpiL when biased at Vbias
     VpiL_true = VpiL_1V / Vbias

@@ -3,6 +3,8 @@
 *.csv
 *.mat
 test/
+*.ldev
+*.lms
 
 # Python bytecode (ignore pycache and .pyc files)
 __pycache__/

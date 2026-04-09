@@ -1,0 +1,143 @@
+# ============================================================
+# Coupled Waveguide Supermode Solver (MODE)
+# ============================================================
+
+clear;
+switchtolayout;
+deleteall;
+
+# ===================== PARAMETERS ============================
+W = 450e-9;
+H = 350e-9;
+g = 200e-9;          # <-- CHANGE THIS GAP
+
+lambda0 = 1.55e-6;
+
+# Materials
+core_mat = "SRN 3.1 (Silicon Rich Nitride)";
+clad_mat = "SiO2 (Glass) - Palik";
+
+# Simulation region
+x_span = 3e-6;
+y_span = 3e-6;
+
+# ===================== GEOMETRY ==============================
+
+# Background (cladding)
+addrect;
+set("name","clad");
+set("material", clad_mat);
+set("x",0);
+set("x span", x_span);
+set("y",0);
+set("y span", y_span);
+
+# Left waveguide
+addrect;
+set("name","wg_left");
+set("material", core_mat);
+set("x", -(W/2 + g/2));
+set("x span", W);
+set("y", 0);
+set("y span", H);
+
+# Right waveguide
+addrect;
+set("name","wg_right");
+set("material", core_mat);
+set("x", (W/2 + g/2));
+set("x span", W);
+set("y", 0);
+set("y span", H);
+
+# ===================== MODE SOLVER ===========================
+
+addfde;
+select("FDE");
+
+set("solver type","2D Z normal");
+set("x",0);
+set("x span", x_span);
+set("y",0);
+set("y span", y_span);
+
+set("wavelength", lambda0);
+set("number of trial modes", 4);
+set("search","near n");
+
+# Global mesh (coarse baseline)
+set("mesh cells x", 200);
+set("mesh cells y", 200);
+
+# ===================== MESH OVERRIDE =========================
+
+addmesh;
+set("name","mesh_coupler");
+
+set("x", 0);
+set("x span", W + 2*g + 1e-6);   # include both waveguides + margin
+
+set("y", 0);
+set("y span", H + 1e-6);         # include evanescent region
+
+set("z", 0);
+set("z span", 0.5e-6);
+
+# Fine resolution
+set("dx", 5e-9);
+set("dy", 5e-9);
+
+set("enabled", 1);
+
+
+# ===================== SOLVE ================================
+
+findmodes;
+
+# ===================== EXTRACT MODES =========================
+
+# get neff for first two modes
+neff1 = getdata("mode1","neff");
+neff2 = getdata("mode2","neff");
+
+# sort to ensure correct ordering
+if (real(neff1) > real(neff2)) {
+    neff_even = real(neff1);
+    neff_odd  = real(neff2);
+} else {
+    neff_even = real(neff2);
+    neff_odd  = real(neff1);
+}
+
+# ===================== COUPLING ==============================
+
+# Δneff
+dneff = neff_even - neff_odd;
+
+# Δβ
+dBeta = (2*pi/lambda0) * dneff;
+
+# κ' (per meter)
+kappa_prime = dBeta / 2;
+
+# 100% coupling length
+L_100 = pi / (2*kappa_prime);
+
+# ===================== PRINT ================================
+
+?"======================================";
+?"SUPERMODE RESULTS";
+?"======================================";
+
+?"neff_even = " + num2str(neff_even);
+?"neff_odd  = " + num2str(neff_odd);
+
+?"--------------------------------------";
+?"Δneff     = " + num2str(dneff);
+?"Δβ        = " + num2str(dBeta);
+
+?"--------------------------------------";
+?"kappa' [1/m] = " + num2str(kappa_prime);
+?"L_100 [um]   = " + num2str(L_100*1e6);
+
+?"======================================";

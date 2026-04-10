@@ -94,20 +94,45 @@ set("enabled", 1);
 
 findmodes;
 
-# ===================== EXTRACT MODES =========================
+# ===================== EXTRACT MODES (ROBUST) =========================
 
-# get neff for first two modes
-neff1 = getdata("mode1","neff");
-neff2 = getdata("mode2","neff");
+nmodes = 4;   # should match "number of trial modes"
 
-# sort to ensure correct ordering
-if (real(neff1) > real(neff2)) {
-    neff_even = real(neff1);
-    neff_odd  = real(neff2);
-} else {
-    neff_even = real(neff2);
-    neff_odd  = real(neff1);
+neff_list = zeros(nmodes);
+TEfrac_list = zeros(nmodes);
+
+# ---- collect data ----
+for (i=1:nmodes) {
+    mode_name = "mode" + num2str(i);
+    
+    neff_list(i) = real(getdata(mode_name, "neff"));
+    TEfrac_list(i) = getdata(mode_name, "TE polarization fraction");
 }
+
+# ---- filter TE modes (threshold ~90%) ----
+neff_TE = [];
+
+for (i=1:nmodes) {
+    if (TEfrac_list(i) > 90) {
+        neff_TE = append(neff_TE, neff_list(i));
+    }
+}
+
+# ---- safety check ----
+if (length(neff_TE) < 2) {
+    ?"ERROR: Not enough TE modes found!";
+    break;
+}
+
+# ---- sort descending (largest neff first) ----
+neff_TE_sorted = sort(neff_TE);
+
+# Lumerical sort() returns ascending → flip it
+neff_TE_sorted = flip(neff_TE_sorted);
+
+# ---- assign even/odd ----
+neff_even = neff_TE_sorted(1);
+neff_odd  = neff_TE_sorted(2);
 
 # ===================== COUPLING ==============================
 

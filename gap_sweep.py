@@ -15,7 +15,6 @@ pockels_eff_results = {}
 session = LumericalSession()
 session.open()
 
-
 for g in gap_values:
     print(f"\n=== Evaluating gap g = {g*1e9:.0f} nm ===")
 

@@ -96,43 +96,59 @@ findmodes;
 
 # ===================== EXTRACT MODES (ROBUST) =========================
 
+# ===================== EXTRACT MODES (ROBUST) =========================
+
 nmodes = 4;   # should match "number of trial modes"
 
-neff_list = zeros(nmodes);
+neff_list   = zeros(nmodes);
 TEfrac_list = zeros(nmodes);
 
-# ---- collect data ----
+# ---- collect data from all trial modes ----
 for (i=1:nmodes) {
     mode_name = "mode" + num2str(i);
-    
-    neff_list(i) = real(getdata(mode_name, "neff"));
+
+    neff_list(i)   = real(getdata(mode_name, "neff"));
     TEfrac_list(i) = getdata(mode_name, "TE polarization fraction");
 }
 
-# ---- filter TE modes (threshold ~90%) ----
-neff_TE = [];
+# ---- debug print ----
+?"---- MODE SUMMARY ----";
+for (i=1:nmodes) {
+    ?"mode " + num2str(i) + 
+      " | neff = " + num2str(neff_list(i)) + 
+      " | TE frac = " + num2str(TEfrac_list(i));
+}
+
+# ---- keep only TE-like modes ----
+TE_threshold = 90;   # percent
+neff_TE = zeros(nmodes);
+nTE = 0;
 
 for (i=1:nmodes) {
-    if (TEfrac_list(i) > 90) {
-        neff_TE = append(neff_TE, neff_list(i));
+    if (TEfrac_list(i) > TE_threshold) {
+        nTE = nTE + 1;
+        neff_TE(nTE) = neff_list(i);
     }
 }
 
 # ---- safety check ----
-if (length(neff_TE) < 2) {
-    ?"ERROR: Not enough TE modes found!";
+if (nTE < 2) {
+    ? "ERROR: fewer than 2 TE-like modes found.";
     break;
 }
 
-# ---- sort descending (largest neff first) ----
-neff_TE_sorted = sort(neff_TE);
+# ---- trim unused zeros and sort ascending ----
+neff_TE = neff_TE(1:nTE);
+neff_TE = sort(neff_TE);
 
-# Lumerical sort() returns ascending → flip it
-neff_TE_sorted = flip(neff_TE_sorted);
+# sort() is ascending, so highest neff is last
+neff_even = neff_TE(nTE);
+neff_odd  = neff_TE(nTE-1);
 
-# ---- assign even/odd ----
-neff_even = neff_TE_sorted(1);
-neff_odd  = neff_TE_sorted(2);
+?"--------------------------------------";
+?"Selected TE supermodes:";
+?"neff_even = " + num2str(neff_even);
+?"neff_odd  = " + num2str(neff_odd);
 
 # ===================== COUPLING ==============================
 

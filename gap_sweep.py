@@ -11,6 +11,11 @@ Vbreak_results = {}
 chi2_eff_results = {}
 pockels_eff_results = {}
 
+# Open Lumerical session and setup geometry
+session = LumericalSession()
+session.open()
+
+
 for g in gap_values:
     print(f"\n=== Evaluating gap g = {g*1e9:.0f} nm ===")
 
@@ -21,10 +26,7 @@ for g in gap_values:
     params["t_shield_gapL"] = 0.5 * g
     params["t_shield_core"] = 0.5 * g
     params["t_shield_metal"] = 0.5 * g
-
-    # Open Lumerical session and setup geometry
-    session = LumericalSession()
-    session.open()
+    
     session.setup_geometry(params)
 
     # Evaluate performance

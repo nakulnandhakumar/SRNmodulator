@@ -6,19 +6,21 @@ import matplotlib.pyplot as plt
 # ============================================================
 P_bus = 0.578
 P_ring = 0.201
-Lc_fdtd = 8e-6          # straight coupler interaction length used in FDTD
-L_cpl_ring = 5e-6       # effective coupling length in actual ring coupler region
 
 # ============================================================
-# RING GEOMETRY
+# RACETRACK GEOMETRY
 # ============================================================
-R = 20e-6               # ring radius [m]
-L_ring = 2 * np.pi * R
+R = 20e-6                    # bend radius
+L_cpl = 5e-6                 # straight coupling section (DESIGN PARAMETER)
+L_straight_total = 2 * L_cpl # two straight sections
 
-# Piecewise segmentation
-# Example: mostly active ring, small passive coupler section
-L_active = L_ring - L_cpl_ring
-L_passive = L_cpl_ring
+L_ring = 2 * np.pi * R + L_straight_total
+
+# Active region = everything except coupler
+L_active = L_ring - L_cpl
+
+# Passive = coupler only
+L_passive = L_cpl
 
 # ============================================================
 # MODE / DEVICE PARAMETERS
@@ -50,10 +52,10 @@ P_ring_norm = P_ring / P_total_guided
 P_bus_norm = P_bus / P_total_guided
 
 # Coupling coefficient per unit length in straight coupler
-kappa_prime = np.arcsin(np.sqrt(P_ring_norm)) / Lc_fdtd
+kappa_prime = np.arcsin(np.sqrt(P_ring_norm)) / L_cpl
 
 # Dimensionless ring coupling coefficient from effective ring coupler length
-kappa = np.sin(kappa_prime * L_cpl_ring)
+kappa = np.sin(kappa_prime * L_cpl)
 t = np.sqrt(1 - kappa**2)
 
 # ============================================================

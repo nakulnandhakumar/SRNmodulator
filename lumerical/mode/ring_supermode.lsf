@@ -120,7 +120,7 @@ for (i=1:nmodes) {
 }
 
 # ---- keep only TE-like modes ----
-TE_threshold = 90;   # percent
+TE_threshold = 0.90;
 neff_TE = zeros(nmodes);
 nTE = 0;
 

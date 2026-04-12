@@ -7,7 +7,7 @@ import lumapi # pyright: ignore[reportMissingImports]
 # ============================================================
 # RACETRACK GEOMETRY
 # ============================================================
-R = 10e-6
+R = 20e-6
 L_cpl = 3e-6
 L_straight_total = 2 * L_cpl
 
@@ -56,7 +56,7 @@ with open(r"./lumerical/mode/ring_supermode.lsf") as f:
 # ============================================================
 # SWEEP GAP → EXTRACT κ′
 # ============================================================
-gaps = np.linspace(100e-9, 400e-9, 20)
+gaps = np.linspace(400e-9, 600e-9, 20)
 
 kappa_prime_list = []
 

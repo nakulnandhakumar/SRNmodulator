@@ -7,8 +7,8 @@ import lumapi # pyright: ignore[reportMissingImports]
 # ============================================================
 # RACETRACK GEOMETRY
 # ============================================================
-R = 20e-6
-L_cpl = 5e-6
+R = 10e-6
+L_cpl = 3e-6
 L_straight_total = 2 * L_cpl
 
 L_ring = 2 * np.pi * R + L_straight_total

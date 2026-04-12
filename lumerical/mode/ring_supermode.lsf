@@ -1,8 +1,6 @@
 # ============================================================
 # Coupled Waveguide Supermode Solver (MODE)
 # ============================================================
-
-clear;
 switchtolayout;
 deleteall;
 

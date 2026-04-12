@@ -56,7 +56,7 @@ with open(r"./lumerical/mode/ring_supermode.lsf") as f:
 # ============================================================
 # SWEEP GAP → EXTRACT κ′
 # ============================================================
-gaps = np.linspace(400e-9, 600e-9, 20)
+gaps = np.linspace(400e-9, 600e-9, 50)
 
 kappa_prime_list = []
 
@@ -108,7 +108,7 @@ optical_path_mod = (neff_active + dneff_active) * L_active + neff_passive * L_pa
 # ============================================================
 # WAVELENGTH SWEEP
 # ============================================================
-lam = np.linspace(1.50e-6, 1.60e-6, 400000)
+lam = np.linspace(1.50e-6, 1.60e-6, 1000000)
 lam0 = 1.55e-6
 
 phi_static = (2 * np.pi / lam) * optical_path_static
@@ -153,9 +153,8 @@ print(f"ER     = {ER_static_dB:.2f} dB")
 # ============================================================
 plt.figure()
 plt.plot(gaps * 1e9, kappa_array, 'o-', label="κ(g) from supermode")
-plt.axhline(kappa_target, linestyle='--', label="critical κ")
-# mark optimal point
-plt.scatter(g_opt * 1e9, kappa_opt, s=80, label="optimal gap")
+plt.axhline(kappa_target, linestyle='--', label="target κ") # mark optimal point
+plt.scatter(g_opt * 1e9, kappa_opt, s=80)
 plt.xlabel("Gap (nm)")
 plt.ylabel("Coupling coefficient κ")
 plt.title("Coupling vs Gap")

@@ -172,8 +172,8 @@ L_100 = pi / (2*kappa_prime);
 ?"neff_odd  = " + num2str(neff_odd);
 
 ?"--------------------------------------";
-?"Δneff     = " + num2str(dneff);
-?"Δβ        = " + num2str(dBeta);
+?"delta neff     = " + num2str(dneff);
+?"delta β        = " + num2str(dBeta);
 
 ?"--------------------------------------";
 ?"kappa' [1/m] = " + num2str(kappa_prime);

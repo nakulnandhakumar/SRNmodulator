@@ -9,7 +9,7 @@ deleteall;
 # ===================== PARAMETERS ============================
 W = 450e-9;
 H = 350e-9;
-?g          # get coupling gap from python script
+?g;          # get coupling gap from python script
 
 lambda0 = 1.55e-6;
 

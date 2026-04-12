@@ -149,7 +149,22 @@ print(f"Qtotal = {Qtotal:.3e}")
 print(f"ER     = {ER_static_dB:.2f} dB")
 
 # ============================================================
-# PLOT
+# PLOT κ vs. GAP
+# ============================================================
+plt.figure()
+plt.plot(gaps * 1e9, kappa_array, 'o-', label="κ(g) from supermode")
+plt.axhline(kappa_target, linestyle='--', label="critical κ")
+# mark optimal point
+plt.scatter(g_opt * 1e9, kappa_opt, s=80, label="optimal gap")
+plt.xlabel("Gap (nm)")
+plt.ylabel("Coupling coefficient κ")
+plt.title("Coupling vs Gap")
+plt.grid(True)
+plt.legend()
+plt.show()
+
+# ============================================================
+# PLOT TRANSMISSION SPECTRUM of perturbed vs. static
 # ============================================================
 plt.figure()
 plt.plot(lam * 1e9, T_static, label="Static")

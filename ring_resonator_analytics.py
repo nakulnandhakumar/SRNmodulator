@@ -86,11 +86,6 @@ idx = np.argmin(np.abs(kappa_array - kappa_target))
 g_opt = gaps[idx]
 kappa_opt = kappa_array[idx]
 
-print("\n====== CRITICAL COUPLING RESULT ======")
-print(f"Target κ       = {kappa_target:.4f}")
-print(f"Optimal gap    = {g_opt*1e9:.2f} nm")
-print(f"κ at gap       = {kappa_opt:.4f}")
-
 # ============================================================
 # USE OPTIMAL κ FOR RING SIMULATION
 # ============================================================
@@ -124,50 +119,80 @@ T_static = ring_through_transmission(t, a, phi_static)
 T_mod = ring_through_transmission(t, a, phi_mod)
 
 # ============================================================
-# EXTRACT NUMERICAL METRICS FROM SPECTRUM
+# EXTRACT NUMERICAL METRICS FROM SPECTRUM (CLEAN VERSION)
 # ============================================================
 
-# --- Resonance location ---
-idx_min = np.argmin(T_static)
-lam_res = lam[idx_min]
+# --- find all local minima (resonances) ---
+dip_indices = np.where(
+    (T_static[1:-1] < T_static[:-2]) &
+    (T_static[1:-1] < T_static[2:])
+)[0] + 1
 
-# --- Find peaks on either side for FSR ---
-left = T_static[:idx_min]
-right = T_static[idx_min:]
+if len(dip_indices) < 2:
+    raise RuntimeError("Not enough resonances found to compute FSR.")
 
-idx_left_max = np.argmax(left)
-idx_right_max = np.argmax(right)
+# --- pick resonance closest to lam0 ---
+center_idx = dip_indices[np.argmin(np.abs(lam[dip_indices] - lam0))]
+lam_res = lam[center_idx]
 
-lam_left = lam[idx_left_max]
-lam_right = lam[idx_min + idx_right_max]
+# --- FSR (distance between adjacent dips) ---
+dip_positions = lam[dip_indices]
 
-FSR_numeric = lam_right - lam_left
+# find index of chosen dip in dip list
+i_center = np.where(dip_indices == center_idx)[0][0]
 
-# --- Linewidth (FWHM) ---
-T_min = T_static[idx_min]
-T_max = np.max(T_static)
-half_level = (T_max + T_min) / 2
-
-indices = np.where(T_static < half_level)[0]
-valid = indices[(indices > idx_left_max) & (indices < idx_min + idx_right_max)]
-
-if len(valid) > 2:
-    lam_low = lam[valid[0]]
-    lam_high = lam[valid[-1]]
-    linewidth = lam_high - lam_low
+if i_center == 0:
+    FSR_numeric = dip_positions[1] - dip_positions[0]
+elif i_center == len(dip_positions) - 1:
+    FSR_numeric = dip_positions[-1] - dip_positions[-2]
 else:
-    linewidth = np.nan
+    FSR_numeric = 0.5 * (
+        (dip_positions[i_center] - dip_positions[i_center - 1]) +
+        (dip_positions[i_center + 1] - dip_positions[i_center])
+    )
 
-# --- Q from spectrum ---
-Q_numeric = lam_res / linewidth if linewidth != 0 else np.nan
+# --- linewidth (FWHM) ---
+T_min = T_static[center_idx]
 
-# --- Analytic FSR ---
+# find surrounding peaks
+left_peak_idx = np.argmax(T_static[:center_idx])
+right_peak_idx = center_idx + np.argmax(T_static[center_idx:])
+
+T_peak = 0.5 * (T_static[left_peak_idx] + T_static[right_peak_idx])
+half_level = 0.5 * (T_peak + T_min)
+
+# find left crossing
+left_cross = np.where(T_static[:center_idx] > half_level)[0]
+lam_left = lam[left_cross[-1]] if len(left_cross) > 0 else lam[center_idx]
+
+# find right crossing
+right_cross = np.where(T_static[center_idx:] > half_level)[0]
+lam_right = lam[center_idx + right_cross[0]] if len(right_cross) > 0 else lam[center_idx]
+
+linewidth = lam_right - lam_left
+Q_numeric = lam_res / linewidth
+
+# --- analytic FSR ---
 FSR_analytic = lam0**2 / (ng_eff * L_ring)
 
-# --- Delta lambda (shift) ---
-idx_min_mod = np.argmin(T_mod)
-lam_res_mod = lam[idx_min_mod]
+# ============================================================
+# TRACK SAME RESONANCE FOR MODULATION SHIFT
+# ============================================================
+
+dip_indices_mod = np.where(
+    (T_mod[1:-1] < T_mod[:-2]) &
+    (T_mod[1:-1] < T_mod[2:])
+)[0] + 1
+
+lam_dips_mod = lam[dip_indices_mod]
+
+# pick closest dip to original resonance
+lam_res_mod = lam_dips_mod[np.argmin(np.abs(lam_dips_mod - lam_res))]
+
 dlam_numeric = lam_res_mod - lam_res
+
+# --- analytic shift ---
+dlam_analytic = lam0 * (dneff_active * L_active) / (ng_eff * L_ring)
 
 # ============================================================
 # Q FACTORS (Analytic)

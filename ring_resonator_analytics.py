@@ -30,6 +30,12 @@ alpha_active_dB_cm = 0.39982
 alpha_passive_dB_cm = 0
 
 # ============================================================
+# WAVELENGTH SWEEP
+# ============================================================
+lam = np.linspace(1.54e-6, 1.56e-6, 1000000)
+lam0 = 1.55e-6
+
+# ============================================================
 # LOSS MODEL
 # ============================================================
 def dBcm_to_nepers_per_m(alpha_dB_cm):
@@ -58,7 +64,7 @@ with open(r"./lumerical/mode/ring_supermode.lsf") as f:
 # ============================================================
 gaps = np.linspace(400e-9, 500e-9, 60)
 kappa_prime_list = []
-ring_supermode.putv("lambda", 1.55e-6) # set wavelength in MODE session
+ring_supermode.putv("lambda", lam0) # set wavelength in MODE session
 
 for g in gaps:
     print(f"\nRunning gap = {g*1e9:.1f} nm")
@@ -99,12 +105,6 @@ ng_eff = (ng_active * L_active + ng_passive * L_passive) / L_ring
 
 optical_path_static = neff_active * L_active + neff_passive * L_passive
 optical_path_mod = (neff_active + dneff_active) * L_active + neff_passive * L_passive
-
-# ============================================================
-# WAVELENGTH SWEEP
-# ============================================================
-lam = np.linspace(1.54e-6, 1.56e-6, 1000000)
-lam0 = 1.55e-6
 
 phi_static = (2 * np.pi / lam) * optical_path_static
 phi_mod = (2 * np.pi / lam) * optical_path_mod
@@ -191,7 +191,6 @@ FSR_analytic = lam0**2 / (ng_eff * L_ring)
 # ============================================================
 # TRACK SAME RESONANCE FOR MODULATION SHIFT
 # ============================================================
-
 dip_indices_mod = np.where(
     (T_mod[1:-1] < T_mod[:-2]) &
     (T_mod[1:-1] < T_mod[2:])
@@ -221,6 +220,13 @@ Qtotal = 1 / (1 / Qc + 1 / Qint)
 # EXTINCTION RATIO
 # ============================================================
 ER_static_dB = 10 * np.log10(T_peak / T_min)
+
+# ============================================================
+# BANDWIDTH CALCULATION
+# ============================================================
+c = 3e8
+f_res = c / lam_res
+bandwidth = f_res / Q_numeric
 
 # ============================================================
 # PRINT RESULTS

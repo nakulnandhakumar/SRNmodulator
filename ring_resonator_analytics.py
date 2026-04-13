@@ -108,7 +108,7 @@ optical_path_mod = (neff_active + dneff_active) * L_active + neff_passive * L_pa
 # ============================================================
 # WAVELENGTH SWEEP
 # ============================================================
-lam = np.linspace(1.50e-6, 1.60e-6, 1000000)
+lam = np.linspace(1.54e-6, 1.56e-6, 1000000)
 lam0 = 1.55e-6
 
 phi_static = (2 * np.pi / lam) * optical_path_static
@@ -124,7 +124,53 @@ T_static = ring_through_transmission(t, a, phi_static)
 T_mod = ring_through_transmission(t, a, phi_mod)
 
 # ============================================================
-# Q FACTORS
+# EXTRACT NUMERICAL METRICS FROM SPECTRUM
+# ============================================================
+
+# --- Resonance location ---
+idx_min = np.argmin(T_static)
+lam_res = lam[idx_min]
+
+# --- Find peaks on either side for FSR ---
+left = T_static[:idx_min]
+right = T_static[idx_min:]
+
+idx_left_max = np.argmax(left)
+idx_right_max = np.argmax(right)
+
+lam_left = lam[idx_left_max]
+lam_right = lam[idx_min + idx_right_max]
+
+FSR_numeric = lam_right - lam_left
+
+# --- Linewidth (FWHM) ---
+T_min = T_static[idx_min]
+T_max = np.max(T_static)
+half_level = (T_max + T_min) / 2
+
+indices = np.where(T_static < half_level)[0]
+valid = indices[(indices > idx_left_max) & (indices < idx_min + idx_right_max)]
+
+if len(valid) > 2:
+    lam_low = lam[valid[0]]
+    lam_high = lam[valid[-1]]
+    linewidth = lam_high - lam_low
+else:
+    linewidth = np.nan
+
+# --- Q from spectrum ---
+Q_numeric = lam_res / linewidth if linewidth != 0 else np.nan
+
+# --- Analytic FSR ---
+FSR_analytic = lam0**2 / (ng_eff * L_ring)
+
+# --- Delta lambda (shift) ---
+idx_min_mod = np.argmin(T_mod)
+lam_res_mod = lam[idx_min_mod]
+dlam_numeric = lam_res_mod - lam_res
+
+# ============================================================
+# Q FACTORS (Analytic)
 # ============================================================
 Qc = (2 * np.pi * ng_eff * R) / (lam0 * (-np.log(1 - kappa**2)))
 
@@ -143,10 +189,31 @@ ER_mod_dB = 10 * np.log10(np.max(T_mod) / np.min(T_mod))
 # PRINT RESULTS
 # ============================================================
 print("\n========== FINAL RING PERFORMANCE ==========")
-print(f"Qc     = {Qc:.3e}")
-print(f"Qint   = {Qint:.3e}")
-print(f"Qtotal = {Qtotal:.3e}")
-print(f"ER     = {ER_static_dB:.2f} dB")
+
+print("\n--- Coupling ---")
+print(f"Target κ       = {kappa_target:.4f}")
+print(f"Optimal gap    = {g_opt*1e9:.2f} nm")
+print(f"κ (used)       = {kappa:.4f}")
+
+print("\n--- Q Factors (Analytic) ---")
+print(f"Qc             = {Qc:.3e}")
+print(f"Qint           = {Qint:.3e}")
+print(f"Qtotal         = {Qtotal:.3e}")
+
+print("\n--- Spectrum Metrics (Numeric) ---")
+print(f"Resonance λ    = {lam_res*1e9:.4f} nm")
+print(f"FSR (numeric)  = {FSR_numeric*1e9:.4f} nm")
+print(f"FSR (analytic) = {FSR_analytic*1e9:.4f} nm")
+print(f"Linewidth      = {linewidth*1e9:.4f} nm")
+print(f"Q (numeric)    = {Q_numeric:.3e}")
+
+print("\n--- Modulation ---")
+print(f"Δλ shift       = {dlam_numeric*1e9:.4f} nm")
+print(f"Δλ / linewidth = {dlam_numeric/linewidth:.3f}")
+
+print("\n--- Extinction ---")
+print(f"ER (static)    = {ER_static_dB:.2f} dB")
+print(f"ER (mod)       = {ER_mod_dB:.2f} dB")
 
 # ============================================================
 # PLOT κ vs. GAP

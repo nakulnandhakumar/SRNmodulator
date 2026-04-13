@@ -112,7 +112,7 @@ def sweep_kappa_vs_lambda(
     }
     
 data = sweep_kappa_vs_lambda(
-    g_opt=469.39e-9,
+    g_opt=467.80e-9,
     lambda_start=1.54e-6,
     lambda_end=1.56e-6,
     Npoints=100,

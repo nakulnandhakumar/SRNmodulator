@@ -9,7 +9,7 @@ W = 450e-9;
 H = 350e-9;
 ?g;          # get coupling gap from python script
 
-lambda0 = 1.55e-6;
+?lambda;
 
 # Materials
 core_mat = "SRN 3.1 (Silicon Rich Nitride)";
@@ -59,7 +59,7 @@ set("x span", x_span);
 set("y",0);
 set("y span", y_span);
 
-set("wavelength", lambda0);
+set("wavelength", lambda);
 set("number of trial modes", 4);
 set("search","near n");
 
@@ -154,7 +154,7 @@ neff_odd  = neff_TE(nTE-1);
 dneff = neff_even - neff_odd;
 
 # Δβ
-dBeta = (2*pi/lambda0) * dneff;
+dBeta = (2*pi/lambda) * dneff;
 
 # κ' (per meter)
 kappa_prime = dBeta / 2;

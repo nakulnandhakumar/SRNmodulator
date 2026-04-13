@@ -117,7 +117,7 @@ data = sweep_kappa_vs_lambda(
     lambda_end=1.56e-6,
     Npoints=100,
     lsf_path=r"./lumerical/mode/ring_supermode.lsf",
-    project_path=r"./lumerical/mode/modulator_mode.lms",
+    project_path=r"./lumerical/mode/ring_supermode.lms",
     output_csv="kappa_vs_lambda.csv",
     hide=False
 )

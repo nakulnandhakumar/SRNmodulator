@@ -3,6 +3,9 @@ import matplotlib.pyplot as plt
 import sys
 sys.path.append(r"C:\Program Files\Lumerical\v202\api\python")
 import lumapi # pyright: ignore[reportMissingImports]
+import pandas as pd
+from scipy.interpolate import interp1d
+from ring_resonator.sweep_kappa_vs_lambda import sweep_kappa_vs_lambda
 
 # ============================================================
 # RACETRACK GEOMETRY
@@ -47,7 +50,7 @@ alpha_passive = dBcm_to_nepers_per_m(alpha_passive_dB_cm)
 a = np.exp(-0.5 * (alpha_active * L_active + alpha_passive * L_passive))
 
 # ============================================================
-# TARGET COUPLING (CRITICAL)
+# TARGET COUPLING FOR CRITICAL COUPLING (at λ0)
 # ============================================================
 kappa_target = np.sqrt(1 - a**2)
 
@@ -93,10 +96,32 @@ g_opt = gaps[idx]
 kappa_opt = kappa_array[idx]
 
 # ============================================================
-# USE OPTIMAL κ FOR RING SIMULATION
+# LOAD κ(λ) DATA FROM CSV (PANDAS)
 # ============================================================
-kappa = kappa_opt
-t = np.sqrt(1 - kappa**2)
+# Sweep λ at optimal gap to extract kappa(λ), neff_even(λ), neff_odd(λ)
+
+# sweep_kappa_vs_lambda(g_opt=g_opt)
+df = pd.read_csv("kappa_vs_lambda.csv")
+
+lam_data = df["lambda (m)"].values
+kappa_prime_data = df["kappa_prime (1/m)"].values
+
+# convert to κ(λ)
+kappa_data = np.sin(kappa_prime_data * L_cpl)
+
+# build interpolator
+kappa_interp = interp1d(
+    lam_data,
+    kappa_data,
+    kind='cubic',
+    fill_value="extrapolate"
+)
+
+# evaluate on dense wavelength grid
+kappa_lambda = kappa_interp(lam)
+
+# compute t(λ)
+t_lambda = np.sqrt(1 - kappa_lambda**2)
 
 # ============================================================
 # EFFECTIVE INDEX + GROUP INDEX
@@ -115,8 +140,8 @@ phi_mod = (2 * np.pi / lam) * optical_path_mod
 def ring_through_transmission(t, a, phi):
     return np.abs((t - a * np.exp(-1j * phi)) / (1 - t * a * np.exp(-1j * phi)))**2
 
-T_static = ring_through_transmission(t, a, phi_static)
-T_mod = ring_through_transmission(t, a, phi_mod)
+T_static = ring_through_transmission(t_lambda, a, phi_static)
+T_mod = ring_through_transmission(t_lambda, a, phi_mod)
 
 # ============================================================
 # EXTRACT NUMERICAL METRICS FROM SPECTRUM (CLEAN VERSION)
@@ -209,7 +234,8 @@ dlam_analytic = lam0 * (dneff_active * L_active) / (ng_eff * L_ring)
 # ============================================================
 # Q FACTORS (Analytic)
 # ============================================================
-Qc = (2 * np.pi * L_ring * ng_eff) / (lam0 * (-np.log(1 - kappa**2)))
+kappa0 = kappa_interp(lam0)
+Qc = (2 * np.pi * L_ring * ng_eff) / (lam0 * (-np.log(1 - kappa0**2)))
 
 alpha_avg = (alpha_active * L_active + alpha_passive * L_passive) / L_ring
 Qint = (2 * np.pi * ng_eff) / (alpha_avg * lam0)
@@ -236,7 +262,7 @@ print("\n========== FINAL RING PERFORMANCE ==========")
 print("\n--- Coupling ---")
 print(f"Target κ       = {kappa_target:.4f}")
 print(f"Optimal gap    = {g_opt*1e9:.2f} nm")
-print(f"κ (used)       = {kappa:.4f}")
+print(f"κ (at lambda0) = {kappa_opt:.4f}")
 
 print("\n--- Q Factors (Analytic) ---")
 print(f"Qc             = {Qc:.3e}")

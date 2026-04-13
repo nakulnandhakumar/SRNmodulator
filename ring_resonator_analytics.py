@@ -155,8 +155,21 @@ else:
 T_min = T_static[center_idx]
 
 # find surrounding peaks
-left_peak_idx = np.argmax(T_static[:center_idx])
-right_peak_idx = center_idx + np.argmax(T_static[center_idx:])
+def find_local_maxima(y):
+    return np.where((y[1:-1] > y[:-2]) & (y[1:-1] > y[2:]))[0] + 1
+
+peak_indices = find_local_maxima(T_static)
+
+# --- separate left and right of resonance ---
+left_peaks = peak_indices[peak_indices < center_idx]
+right_peaks = peak_indices[peak_indices > center_idx]
+
+# --- pick nearest peak on each side ---
+if len(left_peaks) == 0 or len(right_peaks) == 0:
+    raise RuntimeError("Could not find peaks around resonance")
+
+left_peak_idx = left_peaks[-1]      # closest on left
+right_peak_idx = right_peaks[0]     # closest on right
 
 T_peak = 0.5 * (T_static[left_peak_idx] + T_static[right_peak_idx])
 half_level = 0.5 * (T_peak + T_min)
@@ -197,7 +210,7 @@ dlam_analytic = lam0 * (dneff_active * L_active) / (ng_eff * L_ring)
 # ============================================================
 # Q FACTORS (Analytic)
 # ============================================================
-Qc = (2 * np.pi * ng_eff * R) / (lam0 * (-np.log(1 - kappa**2)))
+Qc = (2 * np.pi * L_ring * ng_eff) / (lam0 * (-np.log(1 - kappa**2)))
 
 alpha_avg = (alpha_active * L_active + alpha_passive * L_passive) / L_ring
 Qint = (2 * np.pi * ng_eff) / (alpha_avg * lam0)
@@ -207,8 +220,7 @@ Qtotal = 1 / (1 / Qc + 1 / Qint)
 # ============================================================
 # EXTINCTION RATIO
 # ============================================================
-ER_static_dB = 10 * np.log10(np.max(T_static) / np.min(T_static))
-ER_mod_dB = 10 * np.log10(np.max(T_mod) / np.min(T_mod))
+ER_static_dB = 10 * np.log10(T_peak / T_min)
 
 # ============================================================
 # PRINT RESULTS
@@ -238,7 +250,6 @@ print(f"Δλ / linewidth = {dlam_numeric/linewidth:.3f}")
 
 print("\n--- Extinction ---")
 print(f"ER (static)    = {ER_static_dB:.2f} dB")
-print(f"ER (mod)       = {ER_mod_dB:.2f} dB")
 
 # ============================================================
 # PLOT κ vs. GAP

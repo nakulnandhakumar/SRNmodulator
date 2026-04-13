@@ -262,7 +262,7 @@ print("\n========== FINAL RING PERFORMANCE ==========")
 print("\n--- Coupling ---")
 print(f"Target κ       = {kappa_target:.4f}")
 print(f"Optimal gap    = {g_opt*1e9:.2f} nm")
-print(f"κ (at lambda0) = {kappa_opt:.4f}")
+print(f"κ (at lambda0) = {kappa0:.4f}")
 
 print("\n--- Q Factors (Analytic) ---")
 print(f"Qc             = {Qc:.3e}")

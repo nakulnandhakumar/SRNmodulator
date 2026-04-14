@@ -54,6 +54,9 @@ for g in gap_values:
     print(f"r_eff (1V)      : {results['r_eff_avg_pmV']:.3f} pm/V")
     print(f"chi2_eff (bias)  : {results['chi2_eff_avg_pmV'] * Vbias:.3f} pm/V")
     print(f"r_eff (bias)  : {results['r_eff_avg_pmV'] * Vbias:.3f} pm/V")
+    print(f"dneff_per_V     : {results['dneff_per_V']:.3e}")
+    print(f"dneff (bias)    : {results['dneff_per_V'] * Vbias:.3e}")
+    print(f"static_neff     : {results['static_neff']:.4f}")
     
     true_VpiL_results[g] = VpiL_true
     loss_results[g] = results["loss_dB_per_cm"]

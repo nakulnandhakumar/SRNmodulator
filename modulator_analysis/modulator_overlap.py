@@ -442,8 +442,7 @@ def compute_modulator_overlap(params):
     
     dc_deps = lum["DC_deps"].to_numpy(float)
     num_dc = np.sum(dc_deps * w) * dA
-    print(f"num_dc = {num_dc:.3e}, den = {den:.3e}")
-    static_dneff = num_dc / den
+    static_dneff_per_Vsq = num_dc / den
 
     # ============================================================
     # MODE-WEIGHTED AVERAGE chi^(2)_eff OVERLAP
@@ -525,7 +524,7 @@ def compute_modulator_overlap(params):
     
     return {
         "dneff_per_V": dneff_per_V,
-        "static_dneff": static_dneff,
+        "static_dneff_per_Vsq": static_dneff_per_Vsq,
         "chi2_eff_avg_mV": chi2_eff_avg,
         "chi2_eff_avg_pmV": chi2_eff_avg * 1e12,
         "r_eff_avg_mV": r_eff_avg,

@@ -389,6 +389,8 @@ def compute_modulator_overlap(params):
     # Δε calculation
     # ------------------------------------------------------------
     lum["Deps"] = (3/4) * eps0 * lum["chi3"] * E_cross
+    
+    lum["DC_deps"] = (3/4) * eps0 * lum["chi3"] * (lum["EDCx"]**2 + lum["EDCy"]**2)
 
     # ============================================================
     # EFFECTIVE chi^(2) MAP (EFISH)
@@ -437,6 +439,10 @@ def compute_modulator_overlap(params):
     den = 2 * np.sum(eps0 * epsr * w) * dA
 
     dneff_per_V = num / den
+    
+    dc_deps = lum["DC_deps"].to_numpy(float)
+    num_dc = np.sum(dc_deps * w) * dA
+    static_dneff = num_dc / den
 
     # ============================================================
     # MODE-WEIGHTED AVERAGE chi^(2)_eff OVERLAP
@@ -518,6 +524,7 @@ def compute_modulator_overlap(params):
     
     return {
         "dneff_per_V": dneff_per_V,
+        "static_dneff": static_dneff,
         "chi2_eff_avg_mV": chi2_eff_avg,
         "chi2_eff_avg_pmV": chi2_eff_avg * 1e12,
         "r_eff_avg_mV": r_eff_avg,

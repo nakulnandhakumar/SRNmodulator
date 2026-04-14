@@ -27,7 +27,8 @@ neff_passive = 2.2659
 ng_active = 3.3753
 ng_passive = 3.69967
 
-dneff_active = 4.298e-06
+dneff_active = 4.278e-06
+# static_dneff = 
 
 alpha_active_dB_cm = 0.39982
 alpha_passive_dB_cm = 0

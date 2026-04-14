@@ -442,6 +442,7 @@ def compute_modulator_overlap(params):
     
     dc_deps = lum["DC_deps"].to_numpy(float)
     num_dc = np.sum(dc_deps * w) * dA
+    print(f"num_dc = {num_dc:.3e}, den = {den:.3e}")
     static_dneff = num_dc / den
 
     # ============================================================

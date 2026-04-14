@@ -158,11 +158,27 @@ T_mod = ring_through_transmission(t_lambda, a, phi_mod)
 # EXTRACT NUMERICAL METRICS FROM SPECTRUM (CLEAN VERSION)
 # ============================================================
 
+# Function to find local minima with minimum spacing between minima enforced
+def find_resonance_dips(T, lam, min_spacing_nm=2.0):
+    raw = np.where((T[1:-1] < T[:-2]) & (T[1:-1] < T[2:]))[0] + 1
+    if len(raw) == 0:
+        return raw
+
+    min_spacing = min_spacing_nm * 1e-9
+    kept = [raw[0]]
+
+    for idx in raw[1:]:
+        if lam[idx] - lam[kept[-1]] >= min_spacing:
+            kept.append(idx)
+        else:
+            # keep the deeper of the two nearby minima
+            if T[idx] < T[kept[-1]]:
+                kept[-1] = idx
+
+    return np.array(kept, dtype=int)
+
 # --- find all local minima (resonances) ---
-dip_indices = np.where(
-    (T_bias[1:-1] < T_bias[:-2]) &
-    (T_bias[1:-1] < T_bias[2:])
-)[0] + 1
+dip_indices = find_resonance_dips(T_bias, lam, min_spacing_nm=3.0)
 
 if len(dip_indices) < 2:
     raise RuntimeError("Not enough resonances found to compute FSR.")
@@ -227,10 +243,7 @@ FSR_analytic = lam0**2 / (ng_eff * L_ring)
 # ============================================================
 # TRACK SAME RESONANCE FOR MODULATION SHIFT
 # ============================================================
-dip_indices_mod = np.where(
-    (T_mod[1:-1] < T_mod[:-2]) &
-    (T_mod[1:-1] < T_mod[2:])
-)[0] + 1
+dip_indices_mod = find_resonance_dips(T_mod, lam, min_spacing_nm=3.0)
 
 lam_dips_mod = lam[dip_indices_mod]
 
@@ -306,6 +319,18 @@ plt.ylabel("Coupling coefficient κ")
 plt.title("Coupling vs Gap")
 plt.grid(True)
 plt.legend()
+plt.show()
+
+# ============================================================
+# PLOT κ vs. λ
+# ============================================================
+plt.figure()
+plt.plot(lam_data * 1e9, kappa_data, 'o', label="CSV data")
+plt.plot(lam * 1e9, kappa_lambda, '-', label="Cubic Interp")
+plt.xlabel("Wavelength (nm)")
+plt.ylabel("kappa")
+plt.legend()
+plt.grid(True)
 plt.show()
 
 # ============================================================

@@ -158,34 +158,58 @@ T_mod = ring_through_transmission(t_lambda, a, phi_mod)
 # EXTRACT NUMERICAL METRICS FROM SPECTRUM (CLEAN VERSION)
 # ============================================================
 
-# Function to find local minima with minimum spacing between minima enforced
+# Robust dip finder for high-Q resonators
 def find_resonance_dips(T, lam, min_spacing_nm=2.0):
-    raw = np.where((T[1:-1] < T[:-2]) & (T[1:-1] < T[2:]))[0] + 1
-    if len(raw) == 0:
-        return raw
+    """
+    Robust dip finder for high-Q resonators.
+    Returns exactly one dip per resonance region.
+    """
 
+    # --- raw peak candidates ---
+    raw_peaks = np.where((T[1:-1] > T[:-2]) & (T[1:-1] > T[2:]))[0] + 1
+
+    if len(raw_peaks) < 2:
+        return np.array([], dtype=int)
+
+    # --- enforce minimum spacing between peaks ---
     min_spacing = min_spacing_nm * 1e-9
-    kept = [raw[0]]
+    peaks = [raw_peaks[0]]
 
-    for idx in raw[1:]:
-        if lam[idx] - lam[kept[-1]] >= min_spacing:
-            kept.append(idx)
+    for idx in raw_peaks[1:]:
+        if lam[idx] - lam[peaks[-1]] >= min_spacing:
+            peaks.append(idx)
         else:
-            # keep the deeper of the two nearby minima
-            if T[idx] < T[kept[-1]]:
-                kept[-1] = idx
+            # keep the HIGHER peak (more physical)
+            if T[idx] > T[peaks[-1]]:
+                peaks[-1] = idx
 
-    return np.array(kept, dtype=int)
+    peaks = np.array(peaks)
+
+    # --- now define dip per peak pair ---
+    dips = []
+
+    for i in range(len(peaks) - 1):
+        left = peaks[i]
+        right = peaks[i + 1]
+
+        window = slice(left, right + 1)
+        local_min = np.argmin(T[window])
+        dip_idx = left + local_min
+
+        dips.append(dip_idx)
+
+    return np.array(dips, dtype=int)
 
 # --- find all local minima (resonances) ---
 dip_indices = find_resonance_dips(T_bias, lam, min_spacing_nm=3.0)
-
 if len(dip_indices) < 2:
     raise RuntimeError("Not enough resonances found to compute FSR.")
 
 # --- pick resonance closest to lam0 ---
 center_idx = dip_indices[np.argmin(np.abs(lam[dip_indices] - lam0))]
 lam_res = lam[center_idx]
+
+print(f"Resonance found at λ = {lam_res*1e9:.4f} nm (index {center_idx})")
 
 # --- FSR (distance between adjacent dips) ---
 dip_positions = lam[dip_indices]
@@ -205,6 +229,7 @@ else:
 
 # --- linewidth (FWHM) ---
 T_min = T_bias[center_idx]
+print(f"Resonance depth (min transmission) = {T_min:.6f}")
 
 # find surrounding peaks
 def find_local_maxima(y):
@@ -225,6 +250,7 @@ right_peak_idx = right_peaks[0]     # closest on right
 
 T_peak = 0.5 * (T_bias[left_peak_idx] + T_bias[right_peak_idx])
 half_level = 0.5 * (T_peak + T_min)
+print(f"Peak transmission = {T_peak:.6f}, Half level = {half_level:.6f}")
 
 # find left crossing
 left_cross = np.where(T_bias[:center_idx] > half_level)[0]
@@ -233,6 +259,8 @@ lam_left = lam[left_cross[-1]] if len(left_cross) > 0 else lam[center_idx]
 # find right crossing
 right_cross = np.where(T_bias[center_idx:] > half_level)[0]
 lam_right = lam[center_idx + right_cross[0]] if len(right_cross) > 0 else lam[center_idx]
+
+print(f"Left crossing at λ = {lam_left*1e9:.4f} nm, Right crossing at λ = {lam_right*1e9:.4f} nm")
 
 linewidth = lam_right - lam_left
 Q_numeric = lam_res / linewidth

@@ -101,7 +101,7 @@ kappa_opt = kappa_array[idx]
 # Sweep λ at optimal gap to extract kappa(λ), neff_even(λ), neff_odd(λ)
 
 # sweep_kappa_vs_lambda(g_opt=g_opt)
-df = pd.read_csv("kappa_vs_lambda.csv")
+df = pd.read_csv("ring_resonator/kappa_vs_lambda.csv")
 
 lam_data = df["lambda (m)"].values
 kappa_prime_data = df["kappa_prime (1/m)"].values

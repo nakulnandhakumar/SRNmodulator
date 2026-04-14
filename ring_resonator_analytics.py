@@ -28,12 +28,12 @@ ng_active = 3.3753
 ng_passive = 3.69967
 
 dneff_active = 4.278e-06
-# static_dneff = 
+static_dneff = 0.0014
 
 alpha_active_dB_cm = 0.39982
 alpha_passive_dB_cm = 0
 
-Vdc = 667.2
+Vdc = 667.1
 
 # ============================================================
 # WAVELENGTH SWEEP
@@ -131,10 +131,17 @@ t_lambda = np.sqrt(1 - kappa_lambda**2)
 # ============================================================
 ng_eff = (ng_active * L_active + ng_passive * L_passive) / L_ring
 
-optical_path_static = neff_active * L_active + neff_passive * L_passive
-optical_path_mod = (neff_active + dneff_active) * L_active + neff_passive * L_passive
+# unbiased
+optical_path_unbiased = neff_active * L_active + neff_passive * L_passive
 
-phi_static = (2 * np.pi / lam) * optical_path_static
+# DC-biased operating point
+optical_path_bias = (neff_active + static_dneff) * L_active + neff_passive * L_passive
+
+# DC + AC modulation
+optical_path_mod = (neff_active + static_dneff + dneff_active) * L_active + neff_passive * L_passive
+
+phi_unbiased = (2 * np.pi / lam) * optical_path_unbiased
+phi_bias = (2 * np.pi / lam) * optical_path_bias
 phi_mod = (2 * np.pi / lam) * optical_path_mod
 
 # ============================================================
@@ -143,7 +150,8 @@ phi_mod = (2 * np.pi / lam) * optical_path_mod
 def ring_through_transmission(t, a, phi):
     return np.abs((t - a * np.exp(-1j * phi)) / (1 - t * a * np.exp(-1j * phi)))**2
 
-T_static = ring_through_transmission(t_lambda, a, phi_static)
+T_unbiased = ring_through_transmission(t_lambda, a, phi_unbiased)
+T_bias = ring_through_transmission(t_lambda, a, phi_bias)
 T_mod = ring_through_transmission(t_lambda, a, phi_mod)
 
 # ============================================================
@@ -152,8 +160,8 @@ T_mod = ring_through_transmission(t_lambda, a, phi_mod)
 
 # --- find all local minima (resonances) ---
 dip_indices = np.where(
-    (T_static[1:-1] < T_static[:-2]) &
-    (T_static[1:-1] < T_static[2:])
+    (T_bias[1:-1] < T_bias[:-2]) &
+    (T_bias[1:-1] < T_bias[2:])
 )[0] + 1
 
 if len(dip_indices) < 2:
@@ -180,13 +188,13 @@ else:
     )
 
 # --- linewidth (FWHM) ---
-T_min = T_static[center_idx]
+T_min = T_bias[center_idx]
 
 # find surrounding peaks
 def find_local_maxima(y):
     return np.where((y[1:-1] > y[:-2]) & (y[1:-1] > y[2:]))[0] + 1
 
-peak_indices = find_local_maxima(T_static)
+peak_indices = find_local_maxima(T_bias)
 
 # --- separate left and right of resonance ---
 left_peaks = peak_indices[peak_indices < center_idx]
@@ -199,15 +207,15 @@ if len(left_peaks) == 0 or len(right_peaks) == 0:
 left_peak_idx = left_peaks[-1]      # closest on left
 right_peak_idx = right_peaks[0]     # closest on right
 
-T_peak = 0.5 * (T_static[left_peak_idx] + T_static[right_peak_idx])
+T_peak = 0.5 * (T_bias[left_peak_idx] + T_bias[right_peak_idx])
 half_level = 0.5 * (T_peak + T_min)
 
 # find left crossing
-left_cross = np.where(T_static[:center_idx] > half_level)[0]
+left_cross = np.where(T_bias[:center_idx] > half_level)[0]
 lam_left = lam[left_cross[-1]] if len(left_cross) > 0 else lam[center_idx]
 
 # find right crossing
-right_cross = np.where(T_static[center_idx:] > half_level)[0]
+right_cross = np.where(T_bias[center_idx:] > half_level)[0]
 lam_right = lam[center_idx + right_cross[0]] if len(right_cross) > 0 else lam[center_idx]
 
 linewidth = lam_right - lam_left
@@ -280,8 +288,8 @@ print(f"Linewidth      = {linewidth*1e9:.4f} nm")
 print(f"Q (numeric)    = {Q_numeric:.3e}")
 
 print("\n--- Modulation ---")
-print(f"Δλ shift       = {dlam_numeric*1e9:.4f} nm")
-print(f"Δλ / linewidth = {dlam_numeric/linewidth:.3f}")
+print(f"AC Δλ shift       = {dlam_numeric*1e9:.4f} nm")
+print(f"AC Δλ / linewidth = {dlam_numeric/linewidth:.3f}")
 
 print("\n--- Extinction ---")
 print(f"ER (static)    = {ER_static_dB:.2f} dB")
@@ -304,8 +312,9 @@ plt.show()
 # PLOT TRANSMISSION SPECTRUM of perturbed vs. static
 # ============================================================
 plt.figure()
-plt.plot(lam * 1e9, T_static, label="Static")
-plt.plot(lam * 1e9, T_mod, "--", label="Perturbed")
+plt.plot(lam * 1e9, T_unbiased, label="Unbiased")
+plt.plot(lam * 1e9, T_bias, label="DC-biased")
+plt.plot(lam * 1e9, T_mod, "--", label="DC + AC")
 plt.xlabel("Wavelength (nm)")
 plt.ylabel("Transmission")
 plt.title("Ring Resonator")

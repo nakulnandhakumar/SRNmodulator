@@ -56,6 +56,7 @@ for g in gap_values:
     print(f"r_eff (bias)            : {results['r_eff_avg_pmV'] * Vbias:.3f} pm/V")
     print(f"dneff_per_V             : {results['dneff_per_V']:.3e}")
     print(f"dneff (bias)            : {results['dneff_per_V'] * Vbias:.3e}")
+    print(f"static_dneff_per_Vsq    : {results['static_dneff_per_Vsq']:.3e} per V^2")
     print(f"static_dneff (bias)     : {results['static_dneff_per_Vsq'] * (Vbias**2):.4f}")
     
     true_VpiL_results[g] = VpiL_true

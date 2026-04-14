@@ -111,13 +111,13 @@ def sweep_kappa_vs_lambda(
         "neff_odd": neff_odd_array
     }
     
-data = sweep_kappa_vs_lambda(
-    g_opt=467.80e-9,
-    lambda_start=1.54e-6,
-    lambda_end=1.56e-6,
-    Npoints=100,
-    lsf_path=r"./lumerical/mode/ring_supermode.lsf",
-    project_path=r"./lumerical/mode/ring_supermode.lms",
-    output_csv="kappa_vs_lambda.csv",
-    hide=False
-)
+# data = sweep_kappa_vs_lambda(
+#     g_opt=467.80e-9,
+#     lambda_start=1.54e-6,
+#     lambda_end=1.56e-6,
+#     Npoints=100,
+#     lsf_path=r"./lumerical/mode/ring_supermode.lsf",
+#     project_path=r"./lumerical/mode/ring_supermode.lms",
+#     output_csv="kappa_vs_lambda.csv",
+#     hide=False
+# )

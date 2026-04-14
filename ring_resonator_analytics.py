@@ -307,6 +307,7 @@ print(f"FSR (numeric)  = {FSR_numeric*1e9:.4f} nm")
 print(f"FSR (analytic) = {FSR_analytic*1e9:.4f} nm")
 print(f"Linewidth      = {linewidth*1e9:.4f} nm")
 print(f"Q (numeric)    = {Q_numeric:.3e}")
+print(f"Bandwidth       = {bandwidth/1e9:.3f} GHz")
 
 print("\n--- Modulation ---")
 print(f"AC Δλ shift       = {dlam_numeric*1e9:.4f} nm")

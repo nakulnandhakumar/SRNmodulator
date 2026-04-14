@@ -68,7 +68,7 @@ with open(r"./lumerical/mode/ring_supermode.lsf") as f:
 # ============================================================
 # SWEEP GAP → EXTRACT κ′
 # ============================================================
-gaps = np.linspace(400e-9, 500e-9, 60)
+gaps = np.linspace(450e-9, 500e-9, 30)
 kappa_prime_list = []
 ring_supermode.putv("lambda", lam0) # set wavelength in MODE session
 

@@ -68,7 +68,7 @@ with open(r"./lumerical/mode/ring_supermode.lsf") as f:
 # ============================================================
 # SWEEP GAP → EXTRACT κ′
 # ============================================================
-gaps = np.linspace(450e-9, 500e-9, 30)
+gaps = np.linspace(450e-9, 480e-9, 50)
 kappa_prime_list = []
 ring_supermode.putv("lambda", lam0) # set wavelength in MODE session
 
@@ -354,3 +354,88 @@ plt.title("Ring Resonator")
 plt.legend()
 plt.grid()
 plt.show()
+
+# ============================================================
+# OPERATING POINT FROM LEFT-SIDE RESONANCE (NO MODIFICATION TO ABOVE CODE)
+# ============================================================
+
+print("\n========== OPERATING POINT SEARCH ==========")
+
+# ------------------------------------------------------------
+# 1. Find resonance strictly LEFT of λ0
+# ------------------------------------------------------------
+lam_dips = lam[dip_indices]
+
+left_mask = lam_dips < lam0
+if not np.any(left_mask):
+    raise RuntimeError("No resonance found left of lambda0")
+
+dip_indices_left = dip_indices[left_mask]
+
+# closest resonance to λ0 but still on the left
+left_dip_idx = dip_indices_left[np.argmin(np.abs(lam[dip_indices_left] - lam0))]
+lam_res_left = lam[left_dip_idx]
+
+print(f"Left resonance selected at λ = {lam_res_left*1e9:.4f} nm")
+
+# ------------------------------------------------------------
+# 2. Get its peak-to-peak window (reuse existing arrays)
+# ------------------------------------------------------------
+left_dip_list_idx = np.where(dip_indices == left_dip_idx)[0][0]
+
+left_peak_left  = peak_indices[left_dip_list_idx]
+right_peak_left = peak_indices[left_dip_list_idx + 1]
+
+# ------------------------------------------------------------
+# 3. Search RIGHT slope (because we shift right with DC bias)
+# ------------------------------------------------------------
+lam_candidates = lam[left_dip_idx:right_peak_left + 1]
+T_bias_candidates = T_bias[left_dip_idx:right_peak_left + 1]
+T_mod_candidates  = T_mod[left_dip_idx:right_peak_left + 1]
+
+# ------------------------------------------------------------
+# 4. Compute modulation metrics
+# ------------------------------------------------------------
+ER_mod_candidates_dB = 10 * np.log10(
+    np.maximum(T_bias_candidates, T_mod_candidates) /
+    np.minimum(T_bias_candidates, T_mod_candidates)
+)
+
+deltaT_candidates = np.abs(T_mod_candidates - T_bias_candidates)
+
+# ------------------------------------------------------------
+# 5. Choose optimal point
+# ------------------------------------------------------------
+idx_opt = np.argmax(ER_mod_candidates_dB)
+
+lam_op = lam_candidates[idx_opt]
+T_bias_op = T_bias_candidates[idx_opt]
+T_mod_op  = T_mod_candidates[idx_opt]
+
+ER_mod_opt_dB = ER_mod_candidates_dB[idx_opt]
+deltaT_opt = deltaT_candidates[idx_opt]
+
+print(f"\n--- Optimal Operating Point (from LEFT resonance) ---")
+print(f"λ_op                  = {lam_op*1e9:.4f} nm")
+print(f"T_bias(λ_op)          = {T_bias_op:.6f}")
+print(f"T_mod(λ_op)           = {T_mod_op:.6f}")
+print(f"Modulation ER         = {ER_mod_opt_dB:.3f} dB")
+print(f"Transmission swing    = {deltaT_opt:.6f}")
+
+# ------------------------------------------------------------
+# 6. Compute required DC shift to align λ_op → λ0
+# ------------------------------------------------------------
+dlam_needed = lam0 - lam_op
+
+print(f"\n--- Required Shift to Align to 1550 nm ---")
+print(f"λ0                    = {lam0*1e9:.4f} nm")
+print(f"Δλ needed             = {dlam_needed*1e9:.4f} nm")
+
+# ------------------------------------------------------------
+# 7. Convert to Δneff required
+# ------------------------------------------------------------
+dneff_needed = dlam_needed * ng_eff * L_ring / (lam0 * L_active)
+static_dneff_target = static_dneff + dneff_needed
+
+print(f"Δneff needed          = {dneff_needed:.6e}")
+print(f"Target static dneff   = {static_dneff_target:.6e}")

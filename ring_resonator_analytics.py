@@ -116,7 +116,7 @@ kappa_data = np.sin(kappa_prime_data * L_cpl)
 kappa_interp = interp1d(
     lam_data,
     kappa_data,
-    kind='cubic',
+    kind='linear',
     fill_value="extrapolate"
 )
 

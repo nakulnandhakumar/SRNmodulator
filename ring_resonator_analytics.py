@@ -158,20 +158,18 @@ T_mod = ring_through_transmission(t_lambda, a, phi_mod)
 # EXTRACT NUMERICAL METRICS FROM SPECTRUM (CLEAN VERSION)
 # ============================================================
 
-# Robust dip finder for high-Q resonators
-def find_resonance_dips(T, lam, min_spacing_nm=2.0):
-    """
-    Robust dip finder for high-Q resonators.
-    Returns exactly one dip per resonance region.
-    """
+# --- analytic FSR ---
+FSR_analytic = lam0**2 / (ng_eff * L_ring)
 
-    # --- raw peak candidates ---
+# --- numeric FSR, linewidth, Q from spectrum ---
+
+# Robust peak and dip finder for high-Q resonator spectra
+def find_resonance_regions(T, lam, min_spacing_nm=0.5*FSR_analytic*1e9):
     raw_peaks = np.where((T[1:-1] > T[:-2]) & (T[1:-1] > T[2:]))[0] + 1
 
     if len(raw_peaks) < 2:
-        return np.array([], dtype=int)
+        return np.array([], dtype=int), np.array([], dtype=int)
 
-    # --- enforce minimum spacing between peaks ---
     min_spacing = min_spacing_nm * 1e-9
     peaks = [raw_peaks[0]]
 
@@ -179,34 +177,29 @@ def find_resonance_dips(T, lam, min_spacing_nm=2.0):
         if lam[idx] - lam[peaks[-1]] >= min_spacing:
             peaks.append(idx)
         else:
-            # keep the HIGHER peak (more physical)
             if T[idx] > T[peaks[-1]]:
                 peaks[-1] = idx
 
-    peaks = np.array(peaks)
+    peaks = np.array(peaks, dtype=int)
 
-    # --- now define dip per peak pair ---
     dips = []
-
     for i in range(len(peaks) - 1):
         left = peaks[i]
         right = peaks[i + 1]
-
         window = slice(left, right + 1)
         local_min = np.argmin(T[window])
-        dip_idx = left + local_min
+        dips.append(left + local_min)
 
-        dips.append(dip_idx)
-
-    return np.array(dips, dtype=int)
+    return peaks, np.array(dips, dtype=int)
 
 # --- find all local minima (resonances) ---
-dip_indices = find_resonance_dips(T_bias, lam, min_spacing_nm=3.0)
+peak_indices, dip_indices = find_resonance_regions(T_bias, lam)
 if len(dip_indices) < 2:
     raise RuntimeError("Not enough resonances found to compute FSR.")
 
 # --- pick resonance closest to lam0 ---
-center_idx = dip_indices[np.argmin(np.abs(lam[dip_indices] - lam0))]
+center_dip_idx = np.argmin(np.abs(lam[dip_indices] - lam0))
+center_idx = dip_indices[center_dip_idx]
 lam_res = lam[center_idx]
 
 print(f"Resonance found at λ = {lam_res*1e9:.4f} nm (index {center_idx})")
@@ -231,53 +224,40 @@ else:
 T_min = T_bias[center_idx]
 print(f"Resonance depth (min transmission) = {T_min:.6f}")
 
-# find surrounding peaks
-def find_local_maxima(y):
-    return np.where((y[1:-1] > y[:-2]) & (y[1:-1] > y[2:]))[0] + 1
-
-peak_indices = find_local_maxima(T_bias)
-
-# --- separate left and right of resonance ---
-left_peaks = peak_indices[peak_indices < center_idx]
-right_peaks = peak_indices[peak_indices > center_idx]
-
-# --- pick nearest peak on each side ---
-if len(left_peaks) == 0 or len(right_peaks) == 0:
-    raise RuntimeError("Could not find peaks around resonance")
-
-left_peak_idx = left_peaks[-1]      # closest on left
-right_peak_idx = right_peaks[0]     # closest on right
+# --- pick nearest peak on each side of resonance ---
+left_peak_idx = peak_indices[center_dip_idx]
+right_peak_idx = peak_indices[center_dip_idx + 1]
 
 T_peak = 0.5 * (T_bias[left_peak_idx] + T_bias[right_peak_idx])
 half_level = 0.5 * (T_peak + T_min)
 print(f"Peak transmission = {T_peak:.6f}, Half level = {half_level:.6f}")
 
-# find left crossing
-left_cross = np.where(T_bias[:center_idx] > half_level)[0]
-lam_left = lam[left_cross[-1]] if len(left_cross) > 0 else lam[center_idx]
+# left side crossing inside local window only
+left_segment = T_bias[left_peak_idx:center_idx + 1]
+left_cross_rel = np.where(left_segment > half_level)[0]
+lam_left = lam[left_peak_idx + left_cross_rel[-1]] if len(left_cross_rel) > 0 else lam[center_idx]
 
-# find right crossing
-right_cross = np.where(T_bias[center_idx:] > half_level)[0]
-lam_right = lam[center_idx + right_cross[0]] if len(right_cross) > 0 else lam[center_idx]
+# right side crossing inside local window only
+right_segment = T_bias[center_idx:right_peak_idx + 1]
+right_cross_rel = np.where(right_segment > half_level)[0]
+lam_right = lam[center_idx + right_cross_rel[0]] if len(right_cross_rel) > 0 else lam[center_idx]
 
 print(f"Left crossing at λ = {lam_left*1e9:.4f} nm, Right crossing at λ = {lam_right*1e9:.4f} nm")
 
 linewidth = lam_right - lam_left
 Q_numeric = lam_res / linewidth
 
-# --- analytic FSR ---
-FSR_analytic = lam0**2 / (ng_eff * L_ring)
-
 # ============================================================
 # TRACK SAME RESONANCE FOR MODULATION SHIFT
 # ============================================================
-dip_indices_mod = find_resonance_dips(T_mod, lam, min_spacing_nm=3.0)
+# use SAME peak-to-peak window from biased resonance
+mod_window = slice(left_peak_idx, right_peak_idx + 1)
 
-lam_dips_mod = lam[dip_indices_mod]
+# find dip inside that SAME window
+local_min_mod = np.argmin(T_mod[mod_window])
+lam_res_mod = lam[left_peak_idx + local_min_mod]
 
-# pick closest dip to original resonance
-lam_res_mod = lam_dips_mod[np.argmin(np.abs(lam_dips_mod - lam_res))]
-
+# compute shift
 dlam_numeric = lam_res_mod - lam_res
 
 # --- analytic shift ---
@@ -354,7 +334,7 @@ plt.show()
 # ============================================================
 plt.figure()
 plt.plot(lam_data * 1e9, kappa_data, 'o', label="CSV data")
-plt.plot(lam * 1e9, kappa_lambda, '-', label="Cubic Interp")
+plt.plot(lam * 1e9, kappa_lambda, '-', label="Linear Interp")
 plt.xlabel("Wavelength (nm)")
 plt.ylabel("kappa")
 plt.legend()

@@ -156,6 +156,46 @@ T_bias = ring_through_transmission(t_lambda, a, phi_bias)
 T_mod = ring_through_transmission(t_lambda, a, phi_mod)
 
 # ============================================================
+# PLOT κ vs. GAP
+# ============================================================
+plt.figure()
+plt.plot(gaps * 1e9, kappa_array, 'o-', label="κ(g) from supermode")
+plt.axhline(kappa_target, linestyle='--', label="target κ") # mark optimal point
+plt.scatter(g_opt * 1e9, kappa_opt, s=80)
+plt.xlabel("Gap (nm)")
+plt.ylabel("Coupling coefficient κ")
+plt.title("Coupling vs Gap")
+plt.grid(True)
+plt.legend()
+plt.show()
+
+# ============================================================
+# PLOT κ vs. λ
+# ============================================================
+plt.figure()
+plt.plot(lam_data * 1e9, kappa_data, 'o', label="CSV data")
+plt.plot(lam * 1e9, kappa_lambda, '-', label="Linear Interp")
+plt.xlabel("Wavelength (nm)")
+plt.ylabel("kappa")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+# ============================================================
+# PLOT TRANSMISSION SPECTRUM of perturbed vs. static
+# ============================================================
+plt.figure()
+plt.plot(lam * 1e9, T_unbiased, label="Unbiased")
+plt.plot(lam * 1e9, T_bias, label="DC-biased")
+plt.plot(lam * 1e9, T_mod, "--", label="DC + AC")
+plt.xlabel("Wavelength (nm)")
+plt.ylabel("Transmission")
+plt.title("Ring Resonator")
+plt.legend()
+plt.grid()
+plt.show()
+
+# ============================================================
 # EXTRACT NUMERICAL METRICS FROM SPECTRUM (CLEAN VERSION)
 # ============================================================
 
@@ -316,46 +356,6 @@ print(f"AC Δλ / linewidth = {dlam_numeric/linewidth:.3f}")
 
 print("\n--- Extinction ---")
 print(f"ER (static)    = {ER_static_dB:.2f} dB")
-
-# ============================================================
-# PLOT κ vs. GAP
-# ============================================================
-plt.figure()
-plt.plot(gaps * 1e9, kappa_array, 'o-', label="κ(g) from supermode")
-plt.axhline(kappa_target, linestyle='--', label="target κ") # mark optimal point
-plt.scatter(g_opt * 1e9, kappa_opt, s=80)
-plt.xlabel("Gap (nm)")
-plt.ylabel("Coupling coefficient κ")
-plt.title("Coupling vs Gap")
-plt.grid(True)
-plt.legend()
-plt.show()
-
-# ============================================================
-# PLOT κ vs. λ
-# ============================================================
-plt.figure()
-plt.plot(lam_data * 1e9, kappa_data, 'o', label="CSV data")
-plt.plot(lam * 1e9, kappa_lambda, '-', label="Linear Interp")
-plt.xlabel("Wavelength (nm)")
-plt.ylabel("kappa")
-plt.legend()
-plt.grid(True)
-plt.show()
-
-# ============================================================
-# PLOT TRANSMISSION SPECTRUM of perturbed vs. static
-# ============================================================
-plt.figure()
-plt.plot(lam * 1e9, T_unbiased, label="Unbiased")
-plt.plot(lam * 1e9, T_bias, label="DC-biased")
-plt.plot(lam * 1e9, T_mod, "--", label="DC + AC")
-plt.xlabel("Wavelength (nm)")
-plt.ylabel("Transmission")
-plt.title("Ring Resonator")
-plt.legend()
-plt.grid()
-plt.show()
 
 # ============================================================
 # OPERATING POINT FROM LEFT-SIDE RESONANCE (NO MODIFICATION TO ABOVE CODE)

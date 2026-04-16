@@ -99,6 +99,10 @@ idx = np.argmin(np.abs(kappa_array - kappa_target))
 g_opt = gaps[idx]
 kappa_opt = kappa_array[idx]
 
+print(f"\nOptimal gap for critical coupling at λ0 = {lam0*1e9:.2f} nm:")
+print(f"  g_opt = {g_opt*1e9:.1f} nm")
+print(f"  κ_opt = {kappa_opt:.4f}")
+
 # ============================================================
 # LOAD κ(λ) DATA FROM CSV (PANDAS)
 # ============================================================

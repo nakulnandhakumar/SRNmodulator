@@ -118,6 +118,6 @@ def sweep_kappa_vs_lambda(
 #     Npoints=100,
 #     lsf_path=r"./lumerical/mode/ring_supermode.lsf",
 #     project_path=r"./lumerical/mode/ring_supermode.lms",
-#     output_csv="kappa_vs_lambda.csv",
+#     output_csv="kappa(1550critical)_vs_lambda.csv",
 #     hide=False
 # )

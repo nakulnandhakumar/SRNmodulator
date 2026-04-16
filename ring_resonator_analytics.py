@@ -30,8 +30,9 @@ ng_passive = 3.69967
 dneff_active = 4.278e-06
 static_dneff = 0.0014
 
-alpha_active_dB_cm = 0.39982
-alpha_passive_dB_cm = 0
+alpha_roughness = 3
+alpha_active_dB_cm = 0.39982 + alpha_roughness
+alpha_passive_dB_cm = 0 + alpha_roughness
 
 Vdc = 667.1
 
@@ -68,7 +69,7 @@ with open(r"./lumerical/mode/ring_supermode.lsf") as f:
 # ============================================================
 # SWEEP GAP → EXTRACT κ′
 # ============================================================
-gaps = np.linspace(450e-9, 480e-9, 50)
+gaps = np.linspace(300e-9, 500e-9, 100)
 kappa_prime_list = []
 ring_supermode.putv("lambda", lam0) # set wavelength in MODE session
 
@@ -104,7 +105,7 @@ kappa_opt = kappa_array[idx]
 # Sweep λ at optimal gap to extract kappa(λ), neff_even(λ), neff_odd(λ)
 
 # sweep_kappa_vs_lambda(g_opt=g_opt)
-df = pd.read_csv("ring_resonator/kappa_vs_lambda.csv")
+df = pd.read_csv("ring_resonator/kappa(1550critical)_vs_lambda.csv")
 
 lam_data = df["lambda (m)"].values
 kappa_prime_data = df["kappa_prime (1/m)"].values

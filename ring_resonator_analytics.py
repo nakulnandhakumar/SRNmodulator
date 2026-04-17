@@ -5,6 +5,7 @@ sys.path.append(r"C:\Program Files\Lumerical\v202\api\python")
 import lumapi # pyright: ignore[reportMissingImports]
 import pandas as pd
 from scipy.interpolate import interp1d
+from ring_resonator.sweep_kappa_vs_gap import sweep_kappa_vs_gap
 from ring_resonator.sweep_kappa_vs_lambda import sweep_kappa_vs_lambda
 
 # ============================================================
@@ -69,35 +70,19 @@ with open(r"./lumerical/mode/ring_supermode.lsf") as f:
 # ============================================================
 # SWEEP GAP → EXTRACT κ′
 # ============================================================
-gaps = np.linspace(300e-9, 500e-9, 100)
-kappa_prime_list = []
-ring_supermode.putv("lambda", lam0) # set wavelength in MODE session
-
-for g in gaps:
-    print(f"\nRunning gap = {g*1e9:.1f} nm")
-
-    ring_supermode.putv("g", g)
-    ring_supermode.eval(lsf_script)
-
-    kappa_prime = ring_supermode.getv("kappa_prime")
-    kappa_prime_list.append(kappa_prime)
-
-# ============================================================
-# CONVERT TO ARRAYS
-# ============================================================
-gaps = np.array(gaps)
-kappa_prime_array = np.array(kappa_prime_list)
+sweep_kappa_vs_gap(lambda0=lam0, gap_start=320e-9, gap_end=330e-9, Npoints=20, output_csv=f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_gap.csv")
+df_kvg = pd.read_csv(f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_gap.csv")
 
 # convert to ring coupling
-kappa_array = np.sin(kappa_prime_array * L_cpl)
+kappa_prime_kvg = df_kvg["kappa_prime (1/m)"].values  
+kappa_kvg = np.sin(kappa_prime_kvg * L_cpl)
 
-# ============================================================
-# FIND OPTIMAL GAP (CRITICAL COUPLING)
-# ============================================================
-idx = np.argmin(np.abs(kappa_array - kappa_target))
+# find optimal gap for critical coupling
+idx = np.argmin(np.abs(kappa_kvg - kappa_target))
+gaps_kvg = df_kvg["gap (m)"].values
 
-g_opt = gaps[idx]
-kappa_opt = kappa_array[idx]
+g_opt = gaps_kvg[idx]
+kappa_opt = kappa_kvg[idx]
 
 print(f"\nOptimal gap for critical coupling at λ0 = {lam0*1e9:.2f} nm:")
 print(f"  g_opt = {g_opt*1e9:.1f} nm")
@@ -107,29 +92,28 @@ print(f"  κ_opt = {kappa_opt:.4f}")
 # LOAD κ(λ) DATA FROM CSV (PANDAS)
 # ============================================================
 # Sweep λ at optimal gap to extract kappa(λ), neff_even(λ), neff_odd(λ)
+sweep_kappa_vs_lambda(g_opt=g_opt, output_csv=f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_lambda.csv")
+df_kvl = pd.read_csv(f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_lambda.csv")
 
-# sweep_kappa_vs_lambda(g_opt=g_opt)
-df = pd.read_csv("ring_resonator/kappa(1550critical)_vs_lambda.csv")
-
-lam_data = df["lambda (m)"].values
-kappa_prime_data = df["kappa_prime (1/m)"].values
+lambdas_kvl = df_kvl["lambda (m)"].values
+kappa_prime_kvl = df_kvl["kappa_prime (1/m)"].values
 
 # convert to κ(λ)
-kappa_data = np.sin(kappa_prime_data * L_cpl)
+kappa_kvl = np.sin(kappa_prime_kvl * L_cpl)
 
 # build interpolator
 kappa_interp = interp1d(
-    lam_data,
-    kappa_data,
+    lambdas_kvl,
+    kappa_kvl,
     kind='linear',
     fill_value="extrapolate"
 )
 
 # evaluate on dense wavelength grid
-kappa_lambda = kappa_interp(lam)
+kappa_lam = kappa_interp(lam)
 
 # compute t(λ)
-t_lambda = np.sqrt(1 - kappa_lambda**2)
+t_lam = np.sqrt(1 - kappa_lam**2)
 
 # ============================================================
 # EFFECTIVE INDEX + GROUP INDEX
@@ -155,15 +139,15 @@ phi_mod = (2 * np.pi / lam) * optical_path_mod
 def ring_through_transmission(t, a, phi):
     return np.abs((t - a * np.exp(-1j * phi)) / (1 - t * a * np.exp(-1j * phi)))**2
 
-T_unbiased = ring_through_transmission(t_lambda, a, phi_unbiased)
-T_bias = ring_through_transmission(t_lambda, a, phi_bias)
-T_mod = ring_through_transmission(t_lambda, a, phi_mod)
+T_unbiased = ring_through_transmission(t_lam, a, phi_unbiased)
+T_bias = ring_through_transmission(t_lam, a, phi_bias)
+T_mod = ring_through_transmission(t_lam, a, phi_mod)
 
 # ============================================================
 # PLOT κ vs. GAP
 # ============================================================
 plt.figure()
-plt.plot(gaps * 1e9, kappa_array, 'o-', label="κ(g) from supermode")
+plt.plot(gaps_kvg * 1e9, kappa_kvg, 'o-', label="κ(g) from supermode")
 plt.axhline(kappa_target, linestyle='--', label="target κ") # mark optimal point
 plt.scatter(g_opt * 1e9, kappa_opt, s=80)
 plt.xlabel("Gap (nm)")
@@ -177,8 +161,8 @@ plt.show()
 # PLOT κ vs. λ
 # ============================================================
 plt.figure()
-plt.plot(lam_data * 1e9, kappa_data, 'o', label="CSV data")
-plt.plot(lam * 1e9, kappa_lambda, '-', label="Linear Interp")
+plt.plot(lambdas_kvl * 1e9, kappa_kvl, 'o', label="CSV data")
+plt.plot(lam * 1e9, kappa_lam, '-', label="Linear Interp")
 plt.xlabel("Wavelength (nm)")
 plt.ylabel("kappa")
 plt.legend()

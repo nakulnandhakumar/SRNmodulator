@@ -1,28 +1,28 @@
 import numpy as np
 import csv
-import matplotlib.pyplot as plt
 import sys
 sys.path.append(r"C:\Program Files\Lumerical\v202\api\python")
-import lumapi # pyright: ignore[reportMissingImports]
+import lumapi  # pyright: ignore[reportMissingImports]
 
-def sweep_kappa_vs_lambda(
-    g_opt,
-    lambda_start,
-    lambda_end,
+
+def sweep_kappa_vs_gap(
+    lambda0,
+    gap_start,
+    gap_end,
     Npoints,
     lsf_path=r"./lumerical/mode/ring_supermode.lsf",
     project_path=r"./lumerical/mode/modulator_mode.lms",
-    output_csv="kappa_vs_lambda.csv",
+    output_csv="kappa_vs_gap.csv",
     hide=False
 ):
     """
-    Sweep wavelength in Lumerical MODE to extract kappa_prime, neff_even, neff_odd.
+    Sweep coupling gap in Lumerical MODE to extract kappa_prime.
 
     Parameters:
-        g_opt (float): optimal coupling gap (meters)
-        lambda_start (float): start wavelength (meters)
-        lambda_end (float): end wavelength (meters)
-        Npoints (int): number of wavelength points
+        lambda0 (float): wavelength (meters)
+        gap_start (float): starting gap (meters)
+        gap_end (float): ending gap (meters)
+        Npoints (int): number of gap points
         lsf_path (str): path to LSF script
         project_path (str): path to MODE project file
         output_csv (str): output CSV filename
@@ -41,40 +41,31 @@ def sweep_kappa_vs_lambda(
         lsf_script = f.read()
 
     # ============================================================
-    # WAVELENGTH SWEEP
+    # GAP SWEEP
     # ============================================================
-    lambdas = np.linspace(lambda_start, lambda_end, Npoints)
+    gaps = np.linspace(gap_start, gap_end, Npoints)
 
     kappa_prime_list = []
-    neff_even_list = []
-    neff_odd_list = []
 
-    for lam in lambdas:
-        print(f"Running λ = {lam*1e9:.2f} nm")
+    for g in gaps:
+        print(f"Running gap = {g*1e9:.2f} nm")
 
         # send variables
-        mode.putv("g", g_opt)
-        mode.putv("lambda", lam)
+        mode.putv("g", g)
+        mode.putv("lambda", lambda0)
 
         # run simulation
         mode.eval(lsf_script)
 
-        # extract results
+        # extract result
         kappa_prime = mode.getv("kappa_prime")
-        neff_even = mode.getv("neff_even")
-        neff_odd  = mode.getv("neff_odd")
-
         kappa_prime_list.append(kappa_prime)
-        neff_even_list.append(neff_even)
-        neff_odd_list.append(neff_odd)
 
     # ============================================================
     # CONVERT TO ARRAYS
     # ============================================================
-    lambdas = np.array(lambdas)
+    gaps = np.array(gaps)
     kappa_prime_array = np.array(kappa_prime_list)
-    neff_even_array = np.array(neff_even_list)
-    neff_odd_array = np.array(neff_odd_list)
 
     # ============================================================
     # SAVE TO CSV
@@ -83,40 +74,39 @@ def sweep_kappa_vs_lambda(
         writer = csv.writer(file)
 
         writer.writerow([
-            "lambda (m)",
-            "lambda (nm)",
-            "kappa_prime (1/m)",
-            "neff_even",
-            "neff_odd"
+            "gap (m)",
+            "gap (nm)",
+            "kappa_prime (1/m)"
         ])
 
-        for i in range(len(lambdas)):
+        for i in range(len(gaps)):
             writer.writerow([
-                lambdas[i],
-                lambdas[i]*1e9,
-                kappa_prime_array[i],
-                neff_even_array[i],
-                neff_odd_array[i]
+                gaps[i],
+                gaps[i] * 1e9,
+                kappa_prime_array[i]
             ])
 
     print(f"\nSaved data to {output_csv}")
 
     # ============================================================
-    # RETURN DATA (VERY USEFUL)
+    # RETURN DATA
     # ============================================================
     return {
-        "lambda": lambdas,
-        "kappa_prime": kappa_prime_array,
-        "neff_even": neff_even_array,
-        "neff_odd": neff_odd_array
+        "gap": gaps,
+        "kappa_prime": kappa_prime_array
     }
-    
-# data = sweep_kappa_vs_lambda(
-#     g_opt=467.80e-9,
-#     lambda_start=1.54e-6,
-#     lambda_end=1.56e-6,
-#     Npoints=100,
+
+
+# ============================================================
+# EXAMPLE USAGE
+# ============================================================
+# data = sweep_kappa_vs_gap(
+#     lambda0=1.55e-6,
+#     gap_start=320e-9,
+#     gap_end=330e-9,
+#     Npoints=20,
 #     lsf_path=r"./lumerical/mode/ring_supermode.lsf",
-#     project_path=r"./lumerical/mode/ring_supermode.lms",
+#     project_path=r"./lumerical/mode/modulator_mode.lms",
+#     output_csv="kappa_vs_gap.csv",
 #     hide=False
 # )

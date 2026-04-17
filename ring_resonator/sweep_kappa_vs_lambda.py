@@ -7,9 +7,9 @@ import lumapi # pyright: ignore[reportMissingImports]
 
 def sweep_kappa_vs_lambda(
     g_opt,
-    lambda_start,
-    lambda_end,
-    Npoints,
+    lambda_start = 1.54e-6,
+    lambda_end = 1.56e-6,
+    Npoints = 100,
     lsf_path=r"./lumerical/mode/ring_supermode.lsf",
     project_path=r"./lumerical/mode/modulator_mode.lms",
     output_csv="kappa_vs_lambda.csv",

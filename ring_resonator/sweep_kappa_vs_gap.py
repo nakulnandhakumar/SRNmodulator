@@ -6,10 +6,10 @@ import lumapi  # pyright: ignore[reportMissingImports]
 
 
 def sweep_kappa_vs_gap(
-    lambda0,
-    gap_start,
-    gap_end,
-    Npoints,
+    lambda0 = 1.55e-6,
+    gap_start = 300e-9,
+    gap_end = 500e-9,
+    Npoints = 100,
     lsf_path=r"./lumerical/mode/ring_supermode.lsf",
     project_path=r"./lumerical/mode/modulator_mode.lms",
     output_csv="kappa_vs_gap.csv",

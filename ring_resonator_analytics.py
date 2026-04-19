@@ -1,8 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import sys
-sys.path.append(r"C:\Program Files\Lumerical\v202\api\python")
-import lumapi # pyright: ignore[reportMissingImports]
 import pandas as pd
 from scipy.interpolate import interp1d
 from ring_resonator.sweep_kappa_vs_gap import sweep_kappa_vs_gap
@@ -58,14 +55,6 @@ a = np.exp(-0.5 * (alpha_active * L_active + alpha_passive * L_passive))
 # TARGET COUPLING FOR CRITICAL COUPLING (at λ0)
 # ============================================================
 kappa_target = np.sqrt(1 - a**2)
-
-# ============================================================
-# LUMERICAL SESSION
-# ============================================================
-ring_supermode = lumapi.MODE(hide=False, project=r"./lumerical/mode/modulator_mode.lms")
-
-with open(r"./lumerical/mode/ring_supermode.lsf") as f:
-    lsf_script = f.read()
 
 # ============================================================
 # SWEEP GAP → EXTRACT κ′

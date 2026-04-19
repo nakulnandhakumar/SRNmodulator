@@ -31,9 +31,9 @@ ng_passive = 3.69967
 dneff_active = 4.278e-06
 static_dneff = 0.0014
 
-alpha_roughness = 3
-alpha_active_dB_cm = 0.39982 + alpha_roughness
-alpha_passive_dB_cm = 0 + alpha_roughness
+alpha_roughness_dB_cm = 3
+alpha_active_dB_cm = 0.39982 + alpha_roughness_dB_cm
+alpha_passive_dB_cm = 0 + alpha_roughness_dB_cm
 
 Vdc = 667.1
 
@@ -70,7 +70,7 @@ with open(r"./lumerical/mode/ring_supermode.lsf") as f:
 # ============================================================
 # SWEEP GAP → EXTRACT κ′
 # ============================================================
-sweep_kappa_vs_gap(lambda0=lam0, gap_start=320e-9, gap_end=330e-9, Npoints=20, output_csv=f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_gap.csv")
+# sweep_kappa_vs_gap(lambda0=lam0, gap_start=320e-9, gap_end=330e-9, Npoints=20, output_csv=f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_gap.csv")
 df_kvg = pd.read_csv(f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_gap.csv")
 
 # convert to ring coupling
@@ -92,7 +92,7 @@ print(f"  κ_opt = {kappa_opt:.4f}")
 # LOAD κ(λ) DATA FROM CSV (PANDAS)
 # ============================================================
 # Sweep λ at optimal gap to extract kappa(λ), neff_even(λ), neff_odd(λ)
-sweep_kappa_vs_lambda(g_opt=g_opt, lambda_start=1.54e-6, lambda_end=1.56e-6, Npoints=100, output_csv=f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_lambda.csv")
+# sweep_kappa_vs_lambda(g_opt=g_opt, lambda_start=1.54e-6, lambda_end=1.56e-6, Npoints=100, output_csv=f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_lambda.csv")
 df_kvl = pd.read_csv(f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_lambda.csv")
 
 lambdas_kvl = df_kvl["lambda (m)"].values
@@ -191,7 +191,6 @@ plt.show()
 FSR_analytic = lam0**2 / (ng_eff * L_ring)
 
 # --- numeric FSR, linewidth, Q from spectrum ---
-
 # Robust peak and dip finder for high-Q resonator spectra
 def find_resonance_regions(T, lam, min_spacing_nm=0.5*FSR_analytic*1e9):
     raw_peaks = np.where((T[1:-1] > T[:-2]) & (T[1:-1] > T[2:]))[0] + 1
@@ -394,38 +393,129 @@ ER_mod_candidates_dB = 10 * np.log10(
 deltaT_candidates = np.abs(T_mod_candidates - T_bias_candidates)
 
 # ------------------------------------------------------------
-# 5. Choose optimal point
+# 5. Add realism constraints
 # ------------------------------------------------------------
-idx_opt = np.argmax(ER_mod_candidates_dB)
 
+# baseline transmission floor: reject "two almost-off states"
+T_bias_min_allowed = 0.20
+
+# also require some modulated transmission to avoid absurdly tiny outputs
+T_mod_min_allowed = 0.05
+
+# do not allow operating point too far from lambda0
+# choose a practical shift limit; here I use min(FSR/2, 5*linewidth)
+max_shift_allowed = min(0.5 * FSR_numeric, 5.0 * linewidth)
+
+shift_candidates = lam0 - lam_candidates
+
+valid_mask = (
+    (T_bias_candidates >= T_bias_min_allowed) &
+    (T_mod_candidates  >= T_mod_min_allowed) &
+    (shift_candidates > 0) &                     # must shift resonance to the right
+    (shift_candidates <= max_shift_allowed)
+)
+
+if not np.any(valid_mask):
+    raise RuntimeError(
+        "No realistic operating point found with current constraints. "
+        "Try relaxing T floors or increasing modulation strength."
+    )
+
+# ------------------------------------------------------------
+# 6. Choose operating point with a balanced score
+# ------------------------------------------------------------
+# Score favors:
+#   - large ER
+#   - large transmission swing
+#   - good absolute transmission
+#
+# This avoids picking silly low-power states.
+
+score = (
+    ER_mod_candidates_dB *
+    deltaT_candidates *
+    T_bias_candidates
+)
+
+score[~valid_mask] = -np.inf
+
+# find index of best operating point
+idx_opt = np.argmax(score)
 lam_op = lam_candidates[idx_opt]
-T_bias_op = T_bias_candidates[idx_opt]
-T_mod_op  = T_mod_candidates[idx_opt]
 
-ER_mod_opt_dB = ER_mod_candidates_dB[idx_opt]
-deltaT_opt = deltaT_candidates[idx_opt]
+# ============================================================
+# RECOMPUTE WITH SHIFTED DC BIAS
+# ============================================================
 
-print(f"\n--- Optimal Operating Point (from LEFT resonance) ---")
-print(f"λ_op                  = {lam_op*1e9:.4f} nm")
-print(f"T_bias(λ_op)          = {T_bias_op:.6f}")
-print(f"T_mod(λ_op)           = {T_mod_op:.6f}")
-print(f"Modulation ER         = {ER_mod_opt_dB:.3f} dB")
-print(f"Transmission swing    = {deltaT_opt:.6f}")
-
-# ------------------------------------------------------------
-# 6. Compute required DC shift to align λ_op → λ0
-# ------------------------------------------------------------
+# dc shift moves resonance to lam_op, so recompute all metrics at that point
 dlam_needed = lam0 - lam_op
-
-print(f"\n--- Required Shift to Align to 1550 nm ---")
-print(f"λ0                    = {lam0*1e9:.4f} nm")
-print(f"Δλ needed             = {dlam_needed*1e9:.4f} nm")
-
-# ------------------------------------------------------------
-# 7. Convert to Δneff required
-# ------------------------------------------------------------
 dneff_needed = dlam_needed * ng_eff * L_ring / (lam0 * L_active)
 static_dneff_target = static_dneff + dneff_needed
 
+# recompute optical paths and transmissions with this target static dneff
+optical_path_bias_new = (neff_active + static_dneff_target) * L_active + neff_passive * L_passive
+optical_path_mod_new  = (neff_active + static_dneff_target + dneff_active) * L_active + neff_passive * L_passive
+
+phi_bias_new = (2 * np.pi / lam) * optical_path_bias_new
+phi_mod_new  = (2 * np.pi / lam) * optical_path_mod_new
+
+T_bias_new = ring_through_transmission(t_lam, a, phi_bias_new)
+T_mod_new  = ring_through_transmission(t_lam, a, phi_mod_new)
+
+# extract metrics at lam_op
+idx_1550 = np.argmin(np.abs(lam - lam0))
+
+T_bias_1550 = T_bias_new[idx_1550]
+T_mod_1550  = T_mod_new[idx_1550]
+
+ER_mod_1550_dB = 10 * np.log10(
+    max(T_bias_1550, T_mod_1550) /
+    min(T_bias_1550, T_mod_1550)
+)
+
+deltaT_1550 = abs(T_mod_1550 - T_bias_1550)
+
+# ============================================================
+# STATIC ER AT 1550 (USING PEAK OF SAME RESONANCE)
+# ============================================================
+
+peaks_new, dips_new = find_resonance_regions(T_bias_new, lam)
+center_idx_new = dips_new[np.argmin(np.abs(lam[dips_new] - lam0))]
+
+dip_list_idx_new = np.where(dips_new == center_idx_new)[0][0]
+
+left_peak_new  = peaks_new[dip_list_idx_new]
+right_peak_new = peaks_new[dip_list_idx_new + 1]
+
+T_min = T_bias_new[center_idx_new]
+T_peak = 0.5 * (T_bias_new[left_peak_new] + T_bias_new[right_peak_new])
+
+ER_static_1550_dB = 10 * np.log10(T_peak / T_min)
+
+# ------------------------------------------------------------
+# 7. Compute required DC shift to align λ_op → λ0
+# ------------------------------------------------------------
+print(f"\n--- Required Shift to Align to 1550 nm ---")
+print(f"λ0                    = {lam0*1e9:.4f} nm")
+print(f"Δλ needed             = {dlam_needed*1e9:.4f} nm")
+print(f"Shift / linewidth     = {dlam_needed/linewidth:.3f}")
+print(f"Shift / FSR           = {dlam_needed/FSR_numeric:.3f}")
 print(f"Δneff needed          = {dneff_needed:.6e}")
 print(f"Target static dneff   = {static_dneff_target:.6e}")
+
+# -------------------------------------------------------------
+# 8. Print performance at 1550 nm with this DC shift applied
+# -------------------------------------------------------------
+
+print(f"\n--- Optimal Operating Point (SHIFTED TO 1550) ---")
+print(f"λ_op (original)       = {lam_op*1e9:.4f} nm")
+print(f"Δλ needed             = {dlam_needed*1e9:.4f} nm")
+
+print(f"\n--- Performance at 1550 nm ---")
+print(f"T_bias(1550)          = {T_bias_1550:.6f}")
+print(f"T_mod(1550)           = {T_mod_1550:.6f}")
+print(f"Modulation ER         = {ER_mod_1550_dB:.3f} dB")
+print(f"Transmission swing    = {deltaT_1550:.6f}")
+
+print(f"\n--- Static ER at 1550 ---")
+print(f"ER_static             = {ER_static_1550_dB:.3f} dB")

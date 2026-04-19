@@ -385,51 +385,41 @@ deltaT_candidates = np.abs(T_mod_candidates - T_bias_candidates)
 # 5. Add realism constraints
 # ------------------------------------------------------------
 
-# baseline transmission floor: reject "two almost-off states"
-T_bias_min_allowed = 0.20
+# define ON and OFF states at each candidate point
+T_on_candidates  = np.maximum(T_bias_candidates, T_mod_candidates)
+T_off_candidates = np.minimum(T_bias_candidates, T_mod_candidates)
 
-# also require some modulated transmission to avoid absurdly tiny outputs
-T_mod_min_allowed = 0.05
+# require the "light goes through" state to be realistically high
+T_on_min_allowed = 0.75
 
-# do not allow operating point too far from lambda0
-# choose a practical shift limit; here I use min(FSR/2, 5*linewidth)
+# optional: also reject absurdly tiny OFF states if desired
+# set to 0.0 if you do not want to constrain OFF state
+T_off_min_allowed = 1e-3
+
+# practical DC shift limit
 max_shift_allowed = min(0.5 * FSR_numeric, 5.0 * linewidth)
-
 shift_candidates = lam0 - lam_candidates
 
 valid_mask = (
-    (T_bias_candidates >= T_bias_min_allowed) &
-    (T_mod_candidates  >= T_mod_min_allowed) &
-    (shift_candidates > 0) &                     # must shift resonance to the right
+    (T_on_candidates >= T_on_min_allowed) &
+    (T_off_candidates >= T_off_min_allowed) &
+    (shift_candidates > 0) &
     (shift_candidates <= max_shift_allowed)
 )
 
 if not np.any(valid_mask):
     raise RuntimeError(
-        "No realistic operating point found with current constraints. "
-        "Try relaxing T floors or increasing modulation strength."
+        "No realistic operating point found: no point has ON-state transmission "
+        f">= {T_on_min_allowed:.2f} within the allowed shift range."
     )
 
 # ------------------------------------------------------------
-# 6. Choose operating point with a balanced score
+# 6. Choose best operating point among valid ones
 # ------------------------------------------------------------
-# Score favors:
-#   - large ER
-#   - large transmission swing
-#   - good absolute transmission
-#
-# This avoids picking silly low-power states.
+ER_valid = ER_mod_candidates_dB.copy()
+ER_valid[~valid_mask] = -np.inf
 
-score = (
-    ER_mod_candidates_dB *
-    deltaT_candidates *
-    T_bias_candidates
-)
-
-score[~valid_mask] = -np.inf
-
-# find index of best operating point
-idx_opt = np.argmax(score)
+idx_opt = np.argmax(ER_valid)
 lam_op = lam_candidates[idx_opt]
 
 # ============================================================

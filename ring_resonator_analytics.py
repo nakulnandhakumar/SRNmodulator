@@ -82,7 +82,7 @@ print(f"  κ_opt = {kappa_opt:.4f}")
 # LOAD κ(λ) DATA FROM CSV (PANDAS)
 # ============================================================
 # Sweep λ at optimal gap to extract kappa(λ), neff_even(λ), neff_odd(λ)
-sweep_kappa_vs_lambda(g_opt=g_opt, lambda_start=1.54e-6, lambda_end=1.56e-6, Npoints=100, output_csv=f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_lambda.csv")
+sweep_kappa_vs_lambda(g_opt=g_opt, lambda_start=1.54e-6, lambda_end=1.56e-6, Npoints=50, output_csv=f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_lambda.csv")
 df_kvl = pd.read_csv(f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_lambda.csv")
 
 lambdas_kvl = df_kvl["lambda (m)"].values

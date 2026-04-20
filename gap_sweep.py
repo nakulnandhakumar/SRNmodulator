@@ -1,10 +1,11 @@
 from modulator_analysis.modulator_lumapi import LumericalSession
 from modulator_analysis.modulator_evaluate import evaluate_params
 import matplotlib.pyplot as plt
+import numpy as np
 from config import PARAMS
 
 # Define loop over gap values
-gap_values = [400e-9, 450e-9, 500e-9, 550e-9, 600e-9, 650e-9, 700e-9, 750e-9, 800e-9, 850e-9, 900e-9, 950e-9, 1000e-9]
+gap_values = np.linspace(500e-9, 800e-9, 20)  # 100 nm to 500 nm in 5 steps
 true_VpiL_results = {}
 loss_results = {}
 Vbreak_results = {}

@@ -29,8 +29,9 @@ dneff_active = 4.278e-06
 static_dneff = 0.0014
 
 alpha_roughness_dB_cm = 3
-alpha_active_dB_cm = 0.39982 + alpha_roughness_dB_cm
-alpha_passive_dB_cm = 0 + alpha_roughness_dB_cm
+extra_loss_dB_cm = 1
+alpha_active_dB_cm = 0.39982 + alpha_roughness_dB_cm + extra_loss_dB_cm
+alpha_passive_dB_cm = 0 + alpha_roughness_dB_cm + extra_loss_dB_cm
 
 Vdc = 667.1
 

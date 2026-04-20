@@ -509,3 +509,39 @@ print(f"Transmission swing    = {deltaT_1550:.6f}")
 
 print(f"\n--- Static ER at 1550 ---")
 print(f"ER_static             = {ER_static_1550_dB:.3f} dB")
+
+# ============================================================
+# SIDE BAND PASSING CHECK (AT FINAL OPERATING POINT)
+# ============================================================
+
+f_mod = 10e9   # 10 GHz
+
+c = 3e8
+freq = c / lam
+
+# use shifted spectrum
+T_used = T_bias_new
+
+# carrier at 1550
+idx0 = np.argmin(np.abs(lam - lam0))
+f0 = freq[idx0]
+
+# sidebands
+f_plus = f0 + f_mod
+f_minus = f0 - f_mod
+
+idx_plus = np.argmin(np.abs(freq - f_plus))
+idx_minus = np.argmin(np.abs(freq - f_minus))
+
+T_carrier = T_used[idx0]
+T_plus = T_used[idx_plus]
+T_minus = T_used[idx_minus]
+
+print("\n--- Sideband Transmission Check (POST-SHIFT) ---")
+print(f"T(carrier)     = {T_carrier:.4f}")
+print(f"T(+sideband)   = {T_plus:.4f}")
+print(f"T(-sideband)   = {T_minus:.4f}")
+
+modulation_preservation = min(T_plus, T_minus) / T_carrier
+
+print(f"Sideband preservation ratio = {modulation_preservation:.4f}")

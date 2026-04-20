@@ -511,33 +511,36 @@ print(f"\n--- Static ER at 1550 ---")
 print(f"ER_static             = {ER_static_1550_dB:.3f} dB")
 
 # ============================================================
-# SIDE BAND PASSING CHECK (AT FINAL OPERATING POINT)
+# SIDE BAND PASSING CHECK (CORRECTED - FREQUENCY DOMAIN)
 # ============================================================
 
 f_mod = 10e9   # 10 GHz
-
 c = 3e8
+
+# convert λ → frequency
 freq = c / lam
 
 # use shifted spectrum
 T_used = T_bias_new
 
-# carrier at 1550
-idx0 = np.argmin(np.abs(lam - lam0))
-f0 = freq[idx0]
+# ---- SORT by frequency (CRITICAL) ----
+sort_idx = np.argsort(freq)
+freq_sorted = freq[sort_idx]
+T_sorted = T_used[sort_idx]
 
-# sidebands
-f_plus = f0 + f_mod
-f_minus = f0 - f_mod
+# ---- build interpolator ----
+from scipy.interpolate import interp1d
+T_interp_f = interp1d(freq_sorted, T_sorted, kind='linear', fill_value="extrapolate")
 
-idx_plus = np.argmin(np.abs(freq - f_plus))
-idx_minus = np.argmin(np.abs(freq - f_minus))
+# ---- carrier frequency at λ0 ----
+f0 = c / lam0
 
-T_carrier = T_used[idx0]
-T_plus = T_used[idx_plus]
-T_minus = T_used[idx_minus]
+# ---- evaluate EXACT sidebands ----
+T_carrier = T_interp_f(f0)
+T_plus = T_interp_f(f0 + f_mod)
+T_minus = T_interp_f(f0 - f_mod)
 
-print("\n--- Sideband Transmission Check (POST-SHIFT) ---")
+print("\n--- Sideband Transmission Check (POST-SHIFT, FIXED) ---")
 print(f"T(carrier)     = {T_carrier:.4f}")
 print(f"T(+sideband)   = {T_plus:.4f}")
 print(f"T(-sideband)   = {T_minus:.4f}")

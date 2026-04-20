@@ -261,8 +261,14 @@ lam_right = lam[center_idx + right_cross_rel[0]] if len(right_cross_rel) > 0 els
 
 print(f"Left crossing at λ = {lam_left*1e9:.4f} nm, Right crossing at λ = {lam_right*1e9:.4f} nm")
 
+# compute linewidth, Q
 linewidth = lam_right - lam_left
 Q_numeric = lam_res / linewidth
+
+# compute bandwidth in GHz
+c = 3e8
+f_res = c / lam_res
+bandwidth = f_res / Q_numeric
 
 # ============================================================
 # TRACK SAME RESONANCE FOR MODULATION SHIFT
@@ -295,13 +301,6 @@ Qtotal = 1 / (1 / Qc + 1 / Qint)
 # EXTINCTION RATIO
 # ============================================================
 ER_static_dB = 10 * np.log10(T_peak / T_min)
-
-# ============================================================
-# BANDWIDTH CALCULATION
-# ============================================================
-c = 3e8
-f_res = c / lam_res
-bandwidth = f_res / Q_numeric
 
 # ============================================================
 # PRINT RESULTS

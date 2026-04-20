@@ -80,7 +80,7 @@ kappa_shape = kappa_ref / kappa_ref_1550
 # ============================================================
 # Sweep extra loss and compute performance metrics
 # ============================================================
-alpha_sweep_dB_cm = np.linspace(0, 10, 25)
+alpha_sweep_dB_cm = np.linspace(0, 20, 25)
 results = []
 
 for extra_loss in alpha_sweep_dB_cm:
@@ -235,15 +235,19 @@ f_loss_from_bw = interp1d(
     fill_value="extrapolate"
 )
 
-BW_target = 10  # GHz
-loss_required = float(f_loss_from_bw(BW_target))
+loss_required_10GHz = float(f_loss_from_bw(10))
+loss_required_20GHz = float(f_loss_from_bw(20))
 
 print(f"\n=== Required Loss for ~10 GHz ===")
-print(f"Extra loss ≈ {loss_required:.3f} dB/cm")
+print(f"Extra loss required ≈ {loss_required_10GHz:.3f} dB/cm")
+
+print(f"\n=== Required Loss for ~20 GHz ===")
+print(f"Extra loss required ≈ {loss_required_20GHz:.3f} dB/cm")
 
 plt.figure()
 plt.plot(loss, BW_vals, 'o-')
 plt.axhline(10, linestyle='--')  # target 10 GHz
+plt.axhline(20, linestyle='--')  # target 20 GHz
 plt.xlabel("Extra Loss (dB/cm)")
 plt.ylabel("Bandwidth (GHz)")
 plt.title("Bandwidth vs Extra Loss")

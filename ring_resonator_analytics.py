@@ -490,12 +490,9 @@ ER_static_1550_dB = 10 * np.log10(T_peak / T_min)
 print(f"\n--- Required Shift to Align to 1550 nm ---")
 print(f"λ0                    = {lam0*1e9:.4f} nm")
 print(f"Δλ needed             = {dlam_needed*1e9:.4f} nm")
-print(f"Shift / linewidth     = {dlam_needed/linewidth:.3f}")
-print(f"Shift / FSR           = {dlam_needed/FSR_numeric:.3f}")
-print(f"Δneff needed          = {dneff_needed_numeric:.6e}")
-print(f"Target static dneff   = {static_dneff_target:.6e}")
 print(f"Numeric Δneff         = {dneff_needed_numeric:.6e}")
 print(f"Analytic Δneff        = {dneff_needed_analytic:.6e}")
+
 # -------------------------------------------------------------
 # 8. Print performance at 1550 nm with this DC shift applied
 # -------------------------------------------------------------

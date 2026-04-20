@@ -47,7 +47,7 @@ def dBcm_to_nepers_per_m(alpha_dB_cm):
 # ============================================================
 
 # first sweep kappa vs gap
-sweep_kappa_vs_gap(lambda0=lam0, gap_start=300e-9, gap_end=500e-9, Npoints=50, output_csv=f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_gap.csv")
+# sweep_kappa_vs_gap(lambda0=lam0, gap_start=300e-9, gap_end=500e-9, Npoints=50, output_csv=f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_gap.csv")
 df_kvg = pd.read_csv(f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_gap.csv")
 
 kappa_prime_kvg = df_kvg["kappa_prime (1/m)"].values  
@@ -225,6 +225,21 @@ loss = df_results["extra_loss_dB_cm"].values
 Q_vals = df_results["Q_numeric"].values
 linewidth_vals = df_results["linewidth_nm"].values
 BW_vals = df_results["bandwidth_GHz"].values
+
+
+# Build interpolation function: BW(loss)
+f_loss_from_bw = interp1d(
+    BW_vals,
+    loss,
+    kind='linear',
+    fill_value="extrapolate"
+)
+
+BW_target = 10  # GHz
+loss_required = float(f_loss_from_bw(BW_target))
+
+print(f"\n=== Required Loss for ~10 GHz ===")
+print(f"Extra loss ≈ {loss_required:.3f} dB/cm")
 
 plt.figure()
 plt.plot(loss, BW_vals, 'o-')

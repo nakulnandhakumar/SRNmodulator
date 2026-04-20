@@ -219,3 +219,18 @@ for extra_loss in alpha_sweep_dB_cm:
         "bandwidth_GHz": bandwidth / 1e9
     })
     
+df_results = pd.DataFrame(results)
+
+loss = df_results["extra_loss_dB_cm"].values
+Q_vals = df_results["Q_numeric"].values
+linewidth_vals = df_results["linewidth_nm"].values
+BW_vals = df_results["bandwidth_GHz"].values
+
+plt.figure()
+plt.plot(loss, BW_vals, 'o-')
+plt.axhline(10, linestyle='--')  # target 10 GHz
+plt.xlabel("Extra Loss (dB/cm)")
+plt.ylabel("Bandwidth (GHz)")
+plt.title("Bandwidth vs Extra Loss")
+plt.grid(True)
+plt.show()

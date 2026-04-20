@@ -9,7 +9,7 @@ Central configuration for SRN modulator optimization experiments.
 # Device + geometry parameters
 # ============================================================
 
-g0 = 800e-9
+g0 = 550e-9
 
 PARAMS = {
     # ---------------- region materials ----------------
@@ -57,7 +57,7 @@ PARAMS = {
 # ============================================================
 
 OPT_KEYS = [
-    "g",
+    #"g",
     "t_shield_core",
     "t_shield_gapL",
     "t_shield_gapR",
@@ -85,7 +85,7 @@ OBJECTIVE_WEIGHTS = {
 
 OBJECTIVE_TARGETS = {
     "VpiL_true_Vcm": 10.0,        # desired electro-optic efficiency (Vdc = breakdown operating voltage)
-    "loss_dB_per_cm": 5.0,    # maximum acceptable optical loss
+    "loss_dB_per_cm": 10.0,    # maximum acceptable optical loss
 }
 
 # ============================================================

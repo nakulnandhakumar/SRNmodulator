@@ -420,19 +420,38 @@ lam_op = lam_candidates[idx_opt]
 # RECOMPUTE WITH SHIFTED DC BIAS
 # ============================================================
 
-# dc shift moves resonance to lam_op, so recompute all metrics at that point
+# numerially compute required shift in resonance to align to λ0
 dlam_needed = lam0 - lam_op
-dneff_needed = dlam_needed * ng_eff * L_ring / (lam0 * L_active)
-static_dneff_target = static_dneff + dneff_needed
+T_target = T_bias_candidates[idx_opt]
+idx_1550 = np.argmin(np.abs(lam - lam0))
+
+def compute_T1550(static_shift):
+    optical_path = (neff_active + static_shift) * L_active + neff_passive * L_passive
+    phi = (2 * np.pi / lam) * optical_path
+    T = ring_through_transmission(t_lam, a, phi)
+    return T[idx_1550], T
+
+static_sweep = np.linspace(static_dneff - 0.02, static_dneff + 0.02, 200)
+
+best_idx = None
+best_error = np.inf
+
+for i, sd in enumerate(static_sweep):
+    T1550, _ = compute_T1550(sd)
+    error = abs(T1550 - T_target)
+
+    if error < best_error:
+        best_error = error
+        best_idx = i
+
+static_dneff_target = static_sweep[best_idx]
+dneff_needed_numeric = static_dneff_target - static_dneff
+dneff_needed_analytic = (dlam_needed / lam0) * (ng_eff * L_ring) / L_active
 
 # recompute optical paths and transmissions with this target static dneff
-optical_path_bias_new = (neff_active + static_dneff_target) * L_active + neff_passive * L_passive
-optical_path_mod_new  = (neff_active + static_dneff_target + dneff_active) * L_active + neff_passive * L_passive
-
-phi_bias_new = (2 * np.pi / lam) * optical_path_bias_new
+_, T_bias_new = compute_T1550(static_dneff_target)
+optical_path_mod_new = (neff_active + static_dneff_target + dneff_active) * L_active + neff_passive * L_passive
 phi_mod_new  = (2 * np.pi / lam) * optical_path_mod_new
-
-T_bias_new = ring_through_transmission(t_lam, a, phi_bias_new)
 T_mod_new  = ring_through_transmission(t_lam, a, phi_mod_new)
 
 # extract metrics at lam_op
@@ -473,9 +492,10 @@ print(f"λ0                    = {lam0*1e9:.4f} nm")
 print(f"Δλ needed             = {dlam_needed*1e9:.4f} nm")
 print(f"Shift / linewidth     = {dlam_needed/linewidth:.3f}")
 print(f"Shift / FSR           = {dlam_needed/FSR_numeric:.3f}")
-print(f"Δneff needed          = {dneff_needed:.6e}")
+print(f"Δneff needed          = {dneff_needed_numeric:.6e}")
 print(f"Target static dneff   = {static_dneff_target:.6e}")
-
+print(f"Numeric Δneff         = {dneff_needed_numeric:.6e}")
+print(f"Analytic Δneff        = {dneff_needed_analytic:.6e}")
 # -------------------------------------------------------------
 # 8. Print performance at 1550 nm with this DC shift applied
 # -------------------------------------------------------------

@@ -396,15 +396,9 @@ T_on_min_allowed = 0.75
 # set to 0.0 if you do not want to constrain OFF state
 T_off_min_allowed = 1e-3
 
-# practical DC shift limit
-max_shift_allowed = min(0.5 * FSR_numeric, 5.0 * linewidth)
-shift_candidates = lam0 - lam_candidates
-
 valid_mask = (
     (T_on_candidates >= T_on_min_allowed) &
-    (T_off_candidates >= T_off_min_allowed) &
-    (shift_candidates > 0) &
-    (shift_candidates <= max_shift_allowed)
+    (T_off_candidates >= T_off_min_allowed)
 )
 
 if not np.any(valid_mask):

@@ -60,7 +60,7 @@ kappa_target = np.sqrt(1 - a**2)
 # ============================================================
 # SWEEP GAP → EXTRACT κ′
 # ============================================================
-# sweep_kappa_vs_gap(lambda0=lam0, gap_start=300e-9, gap_end=500e-9, Npoints=50, output_csv=f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_gap.csv")
+sweep_kappa_vs_gap(lambda0=lam0, gap_start=100e-9, gap_end=200e-9, Npoints=25, output_csv=f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_gap.csv")
 df_kvg = pd.read_csv(f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_gap.csv")
 
 # convert to ring coupling

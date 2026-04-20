@@ -29,7 +29,7 @@ dneff_active = 4.278e-06
 static_dneff = 0.0014
 
 alpha_roughness_dB_cm = 3
-extra_loss_dB_cm = 1
+extra_loss_dB_cm = 7.539
 alpha_active_dB_cm = 0.39982 + alpha_roughness_dB_cm + extra_loss_dB_cm
 alpha_passive_dB_cm = 0 + alpha_roughness_dB_cm + extra_loss_dB_cm
 
@@ -60,7 +60,7 @@ kappa_target = np.sqrt(1 - a**2)
 # ============================================================
 # SWEEP GAP → EXTRACT κ′
 # ============================================================
-# sweep_kappa_vs_gap(lambda0=lam0, gap_start=320e-9, gap_end=330e-9, Npoints=20, output_csv=f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_gap.csv")
+# sweep_kappa_vs_gap(lambda0=lam0, gap_start=300e-9, gap_end=500e-9, Npoints=50, output_csv=f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_gap.csv")
 df_kvg = pd.read_csv(f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_gap.csv")
 
 # convert to ring coupling
@@ -82,7 +82,7 @@ print(f"  κ_opt = {kappa_opt:.4f}")
 # LOAD κ(λ) DATA FROM CSV (PANDAS)
 # ============================================================
 # Sweep λ at optimal gap to extract kappa(λ), neff_even(λ), neff_odd(λ)
-# sweep_kappa_vs_lambda(g_opt=g_opt, lambda_start=1.54e-6, lambda_end=1.56e-6, Npoints=100, output_csv=f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_lambda.csv")
+sweep_kappa_vs_lambda(g_opt=g_opt, lambda_start=1.54e-6, lambda_end=1.56e-6, Npoints=100, output_csv=f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_lambda.csv")
 df_kvl = pd.read_csv(f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_lambda.csv")
 
 lambdas_kvl = df_kvl["lambda (m)"].values

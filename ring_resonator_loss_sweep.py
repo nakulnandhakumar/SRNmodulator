@@ -83,7 +83,9 @@ kappa_shape = kappa_ref / kappa_ref_1550
 alpha_sweep_dB_cm = np.linspace(0, 20, 25)
 results = []
 
-for extra_loss in alpha_sweep_dB_cm: 
+for extra_loss in alpha_sweep_dB_cm:
+    print(f"Evaluating extra loss = {extra_loss:.2f} dB/cm")
+    
     alpha_roughness_dB_cm = 3
     alpha_active_dB_cm = 0.39982 + alpha_roughness_dB_cm + extra_loss
     alpha_passive_dB_cm = 0 + alpha_roughness_dB_cm + extra_loss

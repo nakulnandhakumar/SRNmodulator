@@ -146,7 +146,7 @@ for extra_loss in alpha_sweep_dB_cm:
     FSR_analytic = lam0**2 / (ng_eff * L_ring)
 
     # Helper function to find resonance peaks and dips
-    def find_resonance_regions(T, lam, FSR_analytic):
+    def find_resonance_regions(T, lam, FSR_analytic=FSR_analytic):
         # --------------------------------------------------
         # 1. Smooth slightly to remove numerical noise
         # --------------------------------------------------

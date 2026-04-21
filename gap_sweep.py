@@ -5,7 +5,7 @@ import numpy as np
 from config import PARAMS
 
 # Define loop over gap values
-gap_values = np.linspace(500e-9, 800e-9, 20)  # 100 nm to 500 nm in 5 steps
+gap_values = np.linspace(500e-9, 800e-9, 50)
 true_VpiL_results = {}
 loss_results = {}
 Vbreak_results = {}
@@ -92,3 +92,8 @@ plt.ylabel("Breakdown Voltage (V)")
 plt.title("Breakdown Voltage vs Gap")
 plt.grid()
 plt.show()
+
+# print the loss values for each gap
+print("\n=== Loss values for each gap ===")
+for g, loss in loss_results.items():
+    print(f"Gap = {g*1e9:.0f} nm: Loss = {loss:.3f} dB/cm")

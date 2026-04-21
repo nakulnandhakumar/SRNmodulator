@@ -21,7 +21,7 @@ def nepers_per_m_to_dBcm(alpha_np):
     return alpha_np * (10 * np.log10(np.e)) / 100
 
 alpha_roughness_dB_cm = 3
-active_loss_old = 18.01
+active_loss_old = 19.57
 passive_loss_old = 0
 
 # baseline (no extra loss)
@@ -41,6 +41,7 @@ alpha_passive_base = dBcm_to_nepers_per_m(alpha_passive_base_dB_cm)
 
 # invariance condition: total loss around ring must be same for old and new geometries
 S_old = alpha_active_old * L_active_old + alpha_passive_old * L_passive
+alpha_avg_old = S_old / L_ring_old
 
 # ============================================================
 # NEW RING GEOMETRY
@@ -66,8 +67,11 @@ for R_new in R_new_list:
     #    = ( (S_old - (alpha_passive_base + alpha_passive_new) * L_passive) / L_active_new ) - alpha_active_base
     #
     alpha_passive_new = 0
-    alpha_active_new = ((S_old - (alpha_passive_base + alpha_passive_new) * L_passive) / L_active_new) - alpha_active_base
-
+    
+    # enforce constant alpha_avg (=> constant Q_int)
+    S_new = alpha_avg_old * L_ring_new
+    
+    alpha_active_new = ((S_new - (alpha_passive_base + alpha_passive_new) * L_passive) / L_active_new) - alpha_active_base
     active_loss_dB_cm_new = nepers_per_m_to_dBcm(alpha_active_new)
 
     # total new losses for reference

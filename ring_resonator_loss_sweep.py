@@ -9,7 +9,7 @@ from scipy.signal import find_peaks
 # ============================================================
 # RACETRACK GEOMETRY
 # ============================================================
-R = 20e-6
+R = 50e-6
 L_cpl = 3e-6
 L_straight_total = 2 * L_cpl
 
@@ -241,6 +241,9 @@ loss = df_results["active_loss_dB_cm"].values
 Q_vals = df_results["Q_numeric"].values
 linewidth_vals = df_results["linewidth_nm"].values
 BW_vals = df_results["bandwidth_GHz"].values
+
+print(f"Min BW = {BW_vals.min():.3f} GHz")
+print(f"Max BW = {BW_vals.max():.3f} GHz")
 
 
 # Build interpolation function: BW(loss)

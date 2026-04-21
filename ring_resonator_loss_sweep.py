@@ -54,7 +54,7 @@ kappa_prime_kvg = df_kvg["kappa_prime (1/m)"].values
 kappa_kvg = np.sin(kappa_prime_kvg * L_cpl)
 
 # then sweep kappa vs wavelength at optimal gap for critical coupling
-# sweep_kappa_vs_lambda(g_opt=g_opt, lambda_start=1.54e-6, lambda_end=1.56e-6, Npoints=100, output_csv=f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_lambda.csv")
+# sweep_kappa_vs_lambda(g_opt=g_opt, lambda_start=1.54e-6, lambda_end=1.56e-6, Npoints=50, output_csv=f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_lambda.csv")
 df_kvl = pd.read_csv(f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_lambda.csv")
 lambdas_kvl = df_kvl["lambda (m)"].values
 kappa_prime_kvl = df_kvl["kappa_prime (1/m)"].values
@@ -83,7 +83,7 @@ kappa_shape = kappa_ref / kappa_ref_1550
 alpha_sweep_dB_cm = np.linspace(0, 20, 25)
 results = []
 
-for extra_loss in alpha_sweep_dB_cm:
+for extra_loss in alpha_sweep_dB_cm: 
     alpha_roughness_dB_cm = 3
     alpha_active_dB_cm = 0.39982 + alpha_roughness_dB_cm + extra_loss
     alpha_passive_dB_cm = 0 + alpha_roughness_dB_cm + extra_loss

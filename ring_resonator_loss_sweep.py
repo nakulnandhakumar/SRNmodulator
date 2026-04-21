@@ -84,12 +84,13 @@ kappa_shape = kappa_ref / kappa_ref_1550
 alpha_sweep_dB_cm = np.linspace(0, 20, 25)
 results = []
 
-for extra_loss in alpha_sweep_dB_cm:
-    print(f"Evaluating extra loss = {extra_loss:.2f} dB/cm")
+for active_loss in alpha_sweep_dB_cm:
+    print(f"Evaluating active ring loss = {active_loss:.2f} dB/cm")
     
     alpha_roughness_dB_cm = 3
-    alpha_active_dB_cm = 0.39982 + alpha_roughness_dB_cm + extra_loss
-    alpha_passive_dB_cm = 0 + alpha_roughness_dB_cm + extra_loss
+    passive_loss = 0
+    alpha_active_dB_cm = alpha_roughness_dB_cm + active_loss
+    alpha_passive_dB_cm = alpha_roughness_dB_cm + passive_loss
 
     alpha_active = dBcm_to_nepers_per_m(alpha_active_dB_cm)
     alpha_passive = dBcm_to_nepers_per_m(alpha_passive_dB_cm)
@@ -228,7 +229,7 @@ for extra_loss in alpha_sweep_dB_cm:
     bandwidth = f_res / Q_numeric
     
     results.append({
-        "extra_loss_dB_cm": extra_loss,
+        "active_loss_dB_cm": active_loss,
         "Q_numeric": Q_numeric,
         "linewidth_nm": linewidth * 1e9,
         "bandwidth_GHz": bandwidth / 1e9
@@ -236,7 +237,7 @@ for extra_loss in alpha_sweep_dB_cm:
     
 df_results = pd.DataFrame(results)
 
-loss = df_results["extra_loss_dB_cm"].values
+loss = df_results["active_loss_dB_cm"].values
 Q_vals = df_results["Q_numeric"].values
 linewidth_vals = df_results["linewidth_nm"].values
 BW_vals = df_results["bandwidth_GHz"].values
@@ -254,17 +255,17 @@ loss_required_10GHz = float(f_loss_from_bw(10))
 loss_required_20GHz = float(f_loss_from_bw(20))
 
 print(f"\n=== Required Loss for ~10 GHz ===")
-print(f"Extra loss required ≈ {loss_required_10GHz:.3f} dB/cm")
+print(f"Active loss required ≈ {loss_required_10GHz:.3f} dB/cm")
 
 print(f"\n=== Required Loss for ~20 GHz ===")
-print(f"Extra loss required ≈ {loss_required_20GHz:.3f} dB/cm")
+print(f"Active loss required ≈ {loss_required_20GHz:.3f} dB/cm")
 
 plt.figure()
 plt.plot(loss, BW_vals, 'o-')
 plt.axhline(10, linestyle='--')  # target 10 GHz
 plt.axhline(20, linestyle='--')  # target 20 GHz
-plt.xlabel("Extra Loss (dB/cm)")
+plt.xlabel("Active Loss (dB/cm)")
 plt.ylabel("Bandwidth (GHz)")
-plt.title("Bandwidth vs Extra Loss")
+plt.title("Bandwidth vs Active Loss")
 plt.grid(True)
 plt.show()

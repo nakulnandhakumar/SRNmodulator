@@ -4,6 +4,7 @@ import pandas as pd
 from scipy.interpolate import interp1d
 from ring_resonator.sweep_kappa_vs_gap import sweep_kappa_vs_gap
 from ring_resonator.sweep_kappa_vs_lambda import sweep_kappa_vs_lambda
+from scipy.signal import find_peaks
 
 # ============================================================
 # RACETRACK GEOMETRY
@@ -145,33 +146,45 @@ for extra_loss in alpha_sweep_dB_cm:
     FSR_analytic = lam0**2 / (ng_eff * L_ring)
 
     # Helper function to find resonance peaks and dips
-    def find_resonance_regions(T, lam, min_spacing_nm=0.5*FSR_analytic*1e9):
-        raw_peaks = np.where((T[1:-1] > T[:-2]) & (T[1:-1] > T[2:]))[0] + 1
+    def find_resonance_regions(T, lam, FSR_analytic):
+        # --------------------------------------------------
+        # 1. Smooth slightly to remove numerical noise
+        # --------------------------------------------------
+        window = 51  # must be odd
+        T_smooth = np.convolve(T, np.ones(window)/window, mode='same')
 
-        if len(raw_peaks) < 2:
+        # --------------------------------------------------
+        # 2. Use prominence-based peak detection
+        # --------------------------------------------------
+        min_spacing = 0.5 * FSR_analytic
+
+        # convert spacing to index distance
+        dlam = lam[1] - lam[0]
+        min_distance_pts = int(min_spacing / dlam)
+
+        peaks, props = find_peaks(
+            T_smooth,
+            distance=min_distance_pts,
+            prominence=1e-5  # tune if needed
+        )
+
+        # --------------------------------------------------
+        # 3. If still not enough peaks → fallback
+        # --------------------------------------------------
+        if len(peaks) < 2:
             return np.array([], dtype=int), np.array([], dtype=int)
 
-        min_spacing = min_spacing_nm * 1e-9
-        peaks = [raw_peaks[0]]
-
-        for idx in raw_peaks[1:]:
-            if lam[idx] - lam[peaks[-1]] >= min_spacing:
-                peaks.append(idx)
-            else:
-                if T[idx] > T[peaks[-1]]:
-                    peaks[-1] = idx
-
-        peaks = np.array(peaks, dtype=int)
-
+        # --------------------------------------------------
+        # 4. Find dips between peaks (this part is good already)
+        # --------------------------------------------------
         dips = []
         for i in range(len(peaks) - 1):
             left = peaks[i]
             right = peaks[i + 1]
-            window = slice(left, right + 1)
-            local_min = np.argmin(T[window])
+            local_min = np.argmin(T[left:right+1])
             dips.append(left + local_min)
 
-        return peaks, np.array(dips, dtype=int)
+        return peaks, np.array(dips)
 
     # --- find all local minima (resonances) ---
     peak_indices, dip_indices = find_resonance_regions(T_bias, lam)

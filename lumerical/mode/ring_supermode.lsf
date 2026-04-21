@@ -94,8 +94,6 @@ findmodes;
 
 # ===================== EXTRACT MODES (ROBUST) =========================
 
-# ===================== EXTRACT MODES (ROBUST) =========================
-
 nmodes = 4;   # should match "number of trial modes"
 
 neff_list   = zeros(nmodes);

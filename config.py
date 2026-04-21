@@ -104,7 +104,7 @@ OPT_SETTINGS = {
 
 EXPERIMENT = {
     "random_starts": 3,
-    "num_iterations": 10,
+    "num_iterations": 5,
 }
 
 # ============================================================

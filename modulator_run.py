@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from config import PARAMS
 
 # Define loop over gap values
-g = 550e-9
+g = 500e-9
 
 print(f"\n=== Evaluating gap g = {g*1e9:.0f} nm ===")
 

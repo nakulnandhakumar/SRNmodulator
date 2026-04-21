@@ -103,7 +103,7 @@ OPT_SETTINGS = {
 # ============================================================
 
 EXPERIMENT = {
-    "random_starts": 1,
+    "random_starts": 3,
     "num_iterations": 10,
 }
 
@@ -113,9 +113,9 @@ EXPERIMENT = {
 
 RANDOM_KEYS = {
     #"g",
-    #"t_shield_core",
-    #"t_shield_gapR",
-    #"t_shield_gapL",
+    "t_shield_core",
+    "t_shield_gapR",
+    "t_shield_gapL",
 }
 
 PARAM_BOUNDS = {

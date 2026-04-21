@@ -37,11 +37,8 @@ def objective_function(results):
     # VpiL term
     V_term = VpiL_true_Vcm / V_target
 
-    # loss penalty
-    if loss_dB_per_cm <= loss_target:
-        loss_penalty = 0.0
-    else:
-        loss_penalty = ((loss_dB_per_cm - loss_target) / loss_target) ** 2
+    # symmetric penalty: penalize being above OR below target loss
+    loss_penalty = ((loss_dB_per_cm - loss_target) / loss_target) ** 2
 
     J = (weight_VpiL * V_term) + (weight_loss * loss_penalty)
 

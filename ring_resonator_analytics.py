@@ -25,15 +25,15 @@ neff_passive = 2.2659
 ng_active = 3.3753
 ng_passive = 3.69967
 
-dneff_active = 4.278e-06
+dneff_active = 5.949e-06
 static_dneff = 0.0014
 
 alpha_roughness_dB_cm = 3
-extra_loss_dB_cm = 7.539
+extra_loss_dB_cm = 18.01
 alpha_active_dB_cm = 0.39982 + alpha_roughness_dB_cm + extra_loss_dB_cm
 alpha_passive_dB_cm = 0 + alpha_roughness_dB_cm + extra_loss_dB_cm
 
-Vdc = 667.1
+Vdc = 449.4
 
 # ============================================================
 # WAVELENGTH SWEEP

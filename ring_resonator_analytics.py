@@ -8,7 +8,7 @@ from ring_resonator.sweep_kappa_vs_lambda import sweep_kappa_vs_lambda
 # ============================================================
 # RACETRACK GEOMETRY
 # ============================================================
-R = 20e-6
+R = 30e-6
 L_cpl = 3e-6
 L_straight_total = 2 * L_cpl
 
@@ -25,13 +25,14 @@ neff_passive = 2.2659
 ng_active = 3.3753
 ng_passive = 3.69967
 
-dneff_active = 5.949e-06
+dneff_active = 5.722e-06
 static_dneff = 0.0014
 
 alpha_roughness_dB_cm = 3
-extra_loss_dB_cm = 18.01
-alpha_active_dB_cm = 0.39982 + alpha_roughness_dB_cm + extra_loss_dB_cm
-alpha_passive_dB_cm = 0 + alpha_roughness_dB_cm + extra_loss_dB_cm
+active_loss = 11.612
+passive_loss = 0
+alpha_active_dB_cm = active_loss + alpha_roughness_dB_cm
+alpha_passive_dB_cm = passive_loss + alpha_roughness_dB_cm
 
 Vdc = 449.4
 

@@ -5,14 +5,14 @@ sys.path.append(r"C:\Program Files\Lumerical\v202\api\python")
 import lumapi  # pyright: ignore[reportMissingImports]
 
 
-def sweep_kappa_vs_gap(
+def sweep_kappa_vs_gap_modulator(
     lambda0 = 1.55e-6,
     gap_start = 300e-9,
     gap_end = 500e-9,
     Npoints = 100,
     lsf_path=r"./lumerical/mode/ring_modulator_supermode.lsf",
     project_path=r"./lumerical/mode/modulator_mode.lms",
-    output_csv="kappa_vs_gap.csv",
+    output_csv="kappa_vs_gap_modulator.csv",
     hide=False
 ):
     """
@@ -100,13 +100,13 @@ def sweep_kappa_vs_gap(
 # ============================================================
 # EXAMPLE USAGE
 # ============================================================
-# data = sweep_kappa_vs_gap(
+# data = sweep_kappa_vs_gap_modulator(
 #     lambda0=1.55e-6,
 #     gap_start=320e-9,
 #     gap_end=330e-9,
 #     Npoints=20,
 #     lsf_path=r"./lumerical/mode/ring_modulator_supermode.lsf",
-#     project_path=r"./lumerical/mode/modulator_mode.lms",
-#     output_csv="kappa_vs_gap.csv",
+#     project_path=r"./lumerical/mode/ring_supermode.lms",
+#     output_csv="kappa_vs_gap_modulator.csv",
 #     hide=False
 # )

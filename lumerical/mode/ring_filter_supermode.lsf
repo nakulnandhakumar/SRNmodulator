@@ -1,0 +1,199 @@
+# ============================================================
+# Coupled Waveguide Supermode Solver (MODE)
+# ============================================================
+switchtolayout;
+deleteall;
+
+# ===================== PARAMETERS ============================
+W = 450e-9;
+H = 350e-9;
+?g;          # get coupling gap from python script
+?lambda;    # get wavelength from python script
+
+# PCM material
+# Change this from Python depending on state:
+# pcm_mat = "SBS Amorphous";
+# pcm_mat = "SBS Crystalline";
+?pcm_mat;
+
+# PCM geometry
+pcm_w = g;          # fills the gap between waveguides
+pcm_h = H;          # same height as SRN core, adjust if desired
+pcm_y = 0;
+
+# Materials
+core_mat = "SRN 3.1 (Silicon Rich Nitride)";
+clad_mat = "SiO2 (Glass) - Palik";
+
+# Simulation region
+x_span = 3e-6;
+y_span = 3e-6;
+
+# ===================== GEOMETRY ==============================
+
+# Background (cladding)
+addrect;
+set("name","clad");
+set("material", clad_mat);
+set("x",0);
+set("x span", x_span);
+set("y",0);
+set("y span", y_span);
+
+# Left waveguide
+addrect;
+set("name","wg_left");
+set("material", core_mat);
+set("x", -(W/2 + g/2));
+set("x span", W);
+set("y", 0);
+set("y span", H);
+
+# Right waveguide
+addrect;
+set("name","wg_right");
+set("material", core_mat);
+set("x", (W/2 + g/2));
+set("x span", W);
+set("y", 0);
+set("y span", H);
+
+# Phase change material in coupling gap
+addrect;
+set("name","pcm_gap");
+set("material", pcm_mat);
+set("x", 0);
+set("x span", pcm_w);
+set("y", pcm_y);
+set("y span", pcm_h);
+
+# ===================== MODE SOLVER ===========================
+
+addfde;
+select("FDE");
+
+set("solver type","2D Z normal");
+set("x",0);
+set("x span", x_span);
+set("y",0);
+set("y span", y_span);
+
+set("wavelength", lambda);
+set("number of trial modes", 4);
+set("search","near n");
+
+# Global mesh (coarse baseline)
+set("mesh cells x", 200);
+set("mesh cells y", 200);
+
+# ===================== MESH OVERRIDE =========================
+
+addmesh;
+set("name","mesh_coupler");
+
+set("x", 0);
+set("x span", W + 2*g + 1e-6);   # include both waveguides + margin
+
+set("y", 0);
+set("y span", H + 1e-6);         # include evanescent region
+
+set("z", 0);
+set("z span", 0.5e-6);
+
+# Fine resolution
+set("dx", 5e-9);
+set("dy", 5e-9);
+
+set("enabled", 1);
+
+
+# ===================== SOLVE ================================
+
+findmodes;
+
+# ===================== EXTRACT MODES (ROBUST) =========================
+
+nmodes = 4;   # should match "number of trial modes"
+
+neff_list   = zeros(nmodes);
+TEfrac_list = zeros(nmodes);
+
+# ---- collect data from all trial modes ----
+for (i=1:nmodes) {
+    mode_name = "mode" + num2str(i);
+
+    neff_list(i)   = real(getdata(mode_name, "neff"));
+    TEfrac_list(i) = getdata(mode_name, "TE polarization fraction");
+}
+
+# ---- debug print ----
+?"---- MODE SUMMARY ----";
+for (i=1:nmodes) {
+    ?"mode " + num2str(i) + 
+      " | neff = " + num2str(neff_list(i)) + 
+      " | TE frac = " + num2str(TEfrac_list(i));
+}
+
+# ---- keep only TE-like modes ----
+TE_threshold = 0.90;
+neff_TE = zeros(nmodes);
+nTE = 0;
+
+for (i=1:nmodes) {
+    if (TEfrac_list(i) > TE_threshold) {
+        nTE = nTE + 1;
+        neff_TE(nTE) = neff_list(i);
+    }
+}
+
+# ---- safety check ----
+if (nTE < 2) {
+    ? "ERROR: fewer than 2 TE-like modes found.";
+    break;
+}
+
+# ---- trim unused zeros and sort ascending ----
+neff_TE = neff_TE(1:nTE);
+neff_TE = sort(neff_TE);
+
+# sort() is ascending, so highest neff is last
+neff_even = neff_TE(nTE);
+neff_odd  = neff_TE(nTE-1);
+
+?"--------------------------------------";
+?"Selected TE supermodes:";
+?"neff_even = " + num2str(neff_even);
+?"neff_odd  = " + num2str(neff_odd);
+
+# ===================== COUPLING ==============================
+
+# Δneff
+dneff = neff_even - neff_odd;
+
+# Δβ
+dBeta = (2*pi/lambda) * dneff;
+
+# κ' (per meter)
+kappa_prime = dBeta / 2;
+
+# 100% coupling length
+L_100 = pi / (2*kappa_prime);
+
+# ===================== PRINT ================================
+
+?"======================================";
+?"SUPERMODE RESULTS";
+?"======================================";
+
+?"neff_even = " + num2str(neff_even);
+?"neff_odd  = " + num2str(neff_odd);
+
+?"--------------------------------------";
+?"delta neff     = " + num2str(dneff);
+?"delta β        = " + num2str(dBeta);
+
+?"--------------------------------------";
+?"kappa' [1/m] = " + num2str(kappa_prime);
+?"L_100 [um]   = " + num2str(L_100*1e6);
+
+?"======================================";

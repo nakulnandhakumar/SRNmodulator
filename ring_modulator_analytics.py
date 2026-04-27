@@ -2,8 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from scipy.interpolate import interp1d
-from ring_resonator.sweep_kappa_vs_gap import sweep_kappa_vs_gap
-from ring_resonator.sweep_kappa_vs_lambda import sweep_kappa_vs_lambda
+from ring_resonator.sweep_kappa_vs_gap import sweep_kappa_vs_gap_modulator
+from ring_resonator.sweep_kappa_vs_lambda import sweep_kappa_vs_lambda_modulator
 
 # ============================================================
 # RACETRACK GEOMETRY
@@ -61,8 +61,8 @@ kappa_target = np.sqrt(1 - a**2)
 # ============================================================
 # SWEEP GAP → EXTRACT κ′
 # ============================================================
-# sweep_kappa_vs_gap(lambda0=lam0, gap_start=100e-9, gap_end=500e-9, Npoints=125, output_csv=f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_gap.csv")
-df_kvg = pd.read_csv(f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_gap.csv")
+sweep_kappa_vs_gap_modulator(lambda0=lam0, gap_start=100e-9, gap_end=500e-9, Npoints=125, output_csv=f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_gap_modulator.csv")
+df_kvg = pd.read_csv(f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_gap_modulator.csv")
 
 # convert to ring coupling
 kappa_prime_kvg = df_kvg["kappa_prime (1/m)"].values  
@@ -83,8 +83,8 @@ print(f"  κ_opt = {kappa_opt:.4f}")
 # LOAD κ(λ) DATA FROM CSV (PANDAS)
 # ============================================================
 # Sweep λ at optimal gap to extract kappa(λ), neff_even(λ), neff_odd(λ)
-sweep_kappa_vs_lambda(g_opt=g_opt, lambda_start=1.54e-6, lambda_end=1.56e-6, Npoints=50, output_csv=f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_lambda.csv")
-df_kvl = pd.read_csv(f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_lambda.csv")
+sweep_kappa_vs_lambda_modulator(g_opt=g_opt, lambda_start=1.54e-6, lambda_end=1.56e-6, Npoints=50, output_csv=f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_lambda_modulator.csv")
+df_kvl = pd.read_csv(f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_lambda_modulator.csv")
 
 lambdas_kvl = df_kvl["lambda (m)"].values
 kappa_prime_kvl = df_kvl["kappa_prime (1/m)"].values

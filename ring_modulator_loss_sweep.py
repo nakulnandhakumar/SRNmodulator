@@ -2,14 +2,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from scipy.interpolate import interp1d
-from ring_resonator.sweep_kappa_vs_gap import sweep_kappa_vs_gap
-from ring_resonator.sweep_kappa_vs_lambda import sweep_kappa_vs_lambda
+from ring_resonator.sweep_kappa_vs_gap import sweep_kappa_vs_gap_modulator
+from ring_resonator.sweep_kappa_vs_lambda import sweep_kappa_vs_lambda_modulator
 from scipy.signal import find_peaks
 
 # ============================================================
 # RACETRACK GEOMETRY
 # ============================================================
-R = 50e-6
+R = 30e-6
 L_cpl = 3e-6
 L_straight_total = 2 * L_cpl
 
@@ -48,15 +48,32 @@ def dBcm_to_nepers_per_m(alpha_dB_cm):
 # ============================================================
 
 # first sweep kappa vs gap
-# sweep_kappa_vs_gap(lambda0=lam0, gap_start=300e-9, gap_end=500e-9, Npoints=50, output_csv=f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_gap.csv")
-df_kvg = pd.read_csv(f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_gap.csv")
+#sweep_kappa_vs_gap_modulator(lambda0=lam0, gap_start=300e-9, gap_end=500e-9, Npoints=50, output_csv=f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_gap_modulator.csv")
+df_kvg = pd.read_csv(f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_gap_modulator.csv")
 
 kappa_prime_kvg = df_kvg["kappa_prime (1/m)"].values  
 kappa_kvg = np.sin(kappa_prime_kvg * L_cpl)
 
+# find optimal gap for critical coupling
+alpha_roughness_dB_cm = 3
+passive_loss = 0
+active_loss = 0     # sweep later
+alpha_active_dB_cm = alpha_roughness_dB_cm + active_loss
+alpha_passive_dB_cm = alpha_roughness_dB_cm + passive_loss
+alpha_active = dBcm_to_nepers_per_m(alpha_active_dB_cm)
+alpha_passive = dBcm_to_nepers_per_m(alpha_passive_dB_cm)
+a = np.exp(-0.5 * (alpha_active * L_active + alpha_passive * L_passive))
+
+kappa_target = np.sqrt(1 - a**2)
+idx = np.argmin(np.abs(kappa_kvg - kappa_target))
+gaps_kvg = df_kvg["gap (m)"].values
+
+g_opt = gaps_kvg[idx]
+kappa_opt = kappa_kvg[idx]
+
 # then sweep kappa vs wavelength at optimal gap for critical coupling
-# sweep_kappa_vs_lambda(g_opt=g_opt, lambda_start=1.54e-6, lambda_end=1.56e-6, Npoints=50, output_csv=f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_lambda.csv")
-df_kvl = pd.read_csv(f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_lambda.csv")
+# sweep_kappa_vs_lambda_modulator(g_opt=g_opt, lambda_start=1.54e-6, lambda_end=1.56e-6, Npoints=50, output_csv=f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_lambda_modulator.csv")
+df_kvl = pd.read_csv(f"ring_resonator/kappa({lam0*1e9:.0f}nmcritical)_vs_lambda_modulator.csv")
 lambdas_kvl = df_kvl["lambda (m)"].values
 kappa_prime_kvl = df_kvl["kappa_prime (1/m)"].values
 
@@ -116,7 +133,7 @@ for active_loss in alpha_sweep_dB_cm:
     # ============================================================
     # EFFECTIVE INDEX + GROUP INDEX
     # ============================================================
-    ng_eff = (ng_active * L_active + ng_passive * L_passive) / L_ring
+    ng_eff_analytic = (ng_active * L_active + ng_passive * L_passive) / L_ring
 
     # unbiased
     optical_path_unbiased = neff_active * L_active + neff_passive * L_passive
@@ -146,7 +163,7 @@ for active_loss in alpha_sweep_dB_cm:
     # ============================================================
 
     # analytic FSR needed for resonance finding to find linewidth and Q
-    FSR_analytic = lam0**2 / (ng_eff * L_ring)
+    FSR_analytic = lam0**2 / (ng_eff_analytic * L_ring)
 
     # Helper function to find resonance peaks and dips
     def find_resonance_regions(T, lam, FSR_analytic=FSR_analytic):

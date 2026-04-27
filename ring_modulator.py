@@ -8,7 +8,7 @@ from ring_resonator.sweep_kappa_vs_lambda import sweep_kappa_vs_lambda_modulator
 # ============================================================
 # RACETRACK GEOMETRY
 # ============================================================
-R = 40e-6
+R = 20e-6
 L_cpl = 3e-6
 L_straight_total = 2 * L_cpl
 
@@ -29,8 +29,8 @@ dneff_active = 5.586e-06
 static_dneff = 0.0012
 
 alpha_roughness_dB_cm = 3
-active_loss = 19.54
-passive_loss = 0
+active_loss = 19.54     # modulating region is active loss
+passive_loss = 0        # coupling region loss is passive loss
 alpha_active_dB_cm = active_loss + alpha_roughness_dB_cm
 alpha_passive_dB_cm = passive_loss + alpha_roughness_dB_cm
 

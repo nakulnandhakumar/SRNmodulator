@@ -16,8 +16,8 @@ Loss penalty:
         penalty = ((loss - loss_target)/loss_target)^2
 """
 
-from config import OBJECTIVE_TARGETS
-from config import OBJECTIVE_WEIGHTS
+from modulator_optimize_config import OBJECTIVE_TARGETS
+from modulator_optimize_config import OBJECTIVE_WEIGHTS
 
 def objective_function(results):
     """

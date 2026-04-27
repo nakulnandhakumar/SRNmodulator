@@ -1,6 +1,5 @@
 import numpy as np
 import csv
-import matplotlib.pyplot as plt
 import sys
 sys.path.append(r"C:\Program Files\Lumerical\v202\api\python")
 import lumapi # pyright: ignore[reportMissingImports]
@@ -11,7 +10,7 @@ def sweep_kappa_vs_lambda_modulator(
     lambda_end = 1.56e-6,
     Npoints = 100,
     lsf_path=r"./lumerical/mode/ring_modulator_supermode.lsf",
-    project_path=r"./lumerical/mode/modulator_mode.lms",
+    project_path=r"./lumerical/mode/ring_supermode.lms",
     output_csv="kappa_vs_lambda_modulator.csv",
     hide=False
 ):
@@ -110,13 +109,3 @@ def sweep_kappa_vs_lambda_modulator(
         "neff_even": neff_even_array,
         "neff_odd": neff_odd_array
     }
-    
-# data = sweep_kappa_vs_lambda(
-#     g_opt=467.80e-9,
-#     lambda_start=1.54e-6,
-#     lambda_end=1.56e-6,
-#     Npoints=100,
-#     lsf_path=r"./lumerical/mode/ring_modulator_supermode.lsf",
-#     project_path=r"./lumerical/mode/ring_supermode.lms",
-#     hide=False
-# )

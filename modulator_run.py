@@ -1,7 +1,7 @@
 from modulator_analysis.modulator_lumapi import LumericalSession
 from modulator_analysis.modulator_evaluate import evaluate_params
 import matplotlib.pyplot as plt
-from config import PARAMS
+from modulator_optimize_config import PARAMS
 
 # Define loop over gap values
 g = 535e-9

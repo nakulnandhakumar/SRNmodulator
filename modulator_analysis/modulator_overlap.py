@@ -46,7 +46,7 @@ import numpy as np
 import pandas as pd
 from scipy.interpolate import griddata
 from material_properties import MATERIAL_DB
-from config import PARAMS
+from modulator_optimize_config import PARAMS
 
 
 def compute_modulator_overlap(params):

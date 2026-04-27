@@ -41,7 +41,7 @@ from modulator_analysis.modulator_lumapi import LumericalSession
 from modulator_analysis.modulator_evaluate import evaluate_params
 from modulator_analysis.modulator_fd_optimization import FDOptimizer
 from modulator_analysis.modulator_objective import objective_function
-from config import PARAMS, OPT_KEYS, OPT_SETTINGS, EXPERIMENT, PARAM_BOUNDS, RANDOM_KEYS
+from modulator_optimize_config import PARAMS, OPT_KEYS, OPT_SETTINGS, EXPERIMENT, PARAM_BOUNDS, RANDOM_KEYS
 
 opt_keys = OPT_KEYS.copy()
 random_keys = RANDOM_KEYS.copy()

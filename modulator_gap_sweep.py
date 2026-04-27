@@ -2,7 +2,7 @@ from modulator_analysis.modulator_lumapi import LumericalSession
 from modulator_analysis.modulator_evaluate import evaluate_params
 import matplotlib.pyplot as plt
 import numpy as np
-from config import PARAMS
+from modulator_optimize_config import PARAMS
 
 # Define loop over gap values
 gap_values = np.linspace(500e-9, 800e-9, 50)

@@ -1,0 +1,312 @@
+# ============================================
+#  Parametric SRN modulator cross-section
+# ============================================
+
+# ---- Clean start ----
+switchtolayout;
+deleteall;
+
+# ---- Global parameters (geometry) ----
+
+# All units are in meters
+W            = 0.450e-6;    # SRN core width
+H            = 0.350e-6;    # SRN core height 
+g            = 0.700e-6;    # electrode–sidewall gap (sweep later)
+metal_t      = 0.100e-6;    # metal electrode height
+t_shield_gapR = 0.5 * g;    # thickness of the shield within the right gap
+t_shield_gapL = 0.5 * g;    # thickness of the shield within the left gap
+t_shield_core = 0.5 * g;   # thickness of the shield above the core
+t_shield_metal = 0.5 * g;  # thickness of the shield above the metal electrodes
+
+dt_shield_gapR_1 = 0;
+dt_shield_gapR_2 = 0;
+dt_shield_gapR_3 = 0;
+
+dt_shield_gapL_1 = 0;
+dt_shield_gapL_2 = 0;
+dt_shield_gapL_3 = 0;
+
+# ---- Global parameters ----
+tBOX         = 3e-6;
+tCLAD        = 2e-6;
+metal_w      = 1e-6;
+Xext         = 4e-6;
+Ytop_margin  = 2e-6;
+Ybot_margin  = 2e-6;
+
+# ============================================================
+# Actual segment heights = base + delta
+# ============================================================
+
+# Left gap shield segments
+t_gapL_1 = t_shield_gapL + dt_shield_gapL_1;
+t_gapL_2 = t_shield_gapL + dt_shield_gapL_2;
+t_gapL_3 = t_shield_gapL + dt_shield_gapL_3;
+
+# Right gap shield segments
+t_gapR_1 = t_shield_gapR + dt_shield_gapR_1;
+t_gapR_2 = t_shield_gapR + dt_shield_gapR_2;
+t_gapR_3 = t_shield_gapR + dt_shield_gapR_3;
+
+# ---- Derived positions ----
+y_core_center = tBOX + H/2;
+y_core_bottom = tBOX;
+y_core_top = tBOX + H;
+
+y_metal_center     = y_core_bottom + metal_t/2;
+y_metal_top        = y_core_bottom + metal_t;
+
+y_topshield_center = tBOX + H + t_shield_core/2;
+y_metshield_center = y_metal_top + t_shield_metal/2;
+
+# Segment centers in y
+y_gapL_1 = tBOX + t_gapL_1/2;
+y_gapL_2 = tBOX + t_gapL_2/2;
+y_gapL_3 = tBOX + t_gapL_3/2;
+
+y_gapR_1 = tBOX + t_gapR_1/2;
+y_gapR_2 = tBOX + t_gapR_2/2;
+y_gapR_3 = tBOX + t_gapR_3/2;
+
+# Segment widths / x locations
+seg_gap  = g/3;
+
+# Left gap segments span x in [-(W/2+g), -(W/2)]
+x_gapL_1 = -(W/2 + g) + seg_gap/2;
+x_gapL_2 = x_gapL_1 + seg_gap;
+x_gapL_3 = x_gapL_2 + seg_gap;
+
+# Right gap segments span x in [W/2, W/2+g]
+x_gapR_1 =  (W/2) + seg_gap/2;
+x_gapR_2 =  x_gapR_1 + seg_gap;
+x_gapR_3 =  x_gapR_2 + seg_gap;
+
+y_span_SiO2 = tBOX + H + t_shield_core + tCLAD + Ytop_margin + Ybot_margin;
+y_SiO2_center = -Ybot_margin + y_span_SiO2/2;
+
+x_metal_L  = -(W/2 + g + metal_w/2);
+x_metal_R  = (W/2 + g + metal_w/2);
+
+# ---------------------------------------------
+# Set region materials
+# ---------------------------------------------
+# Check if python script has set these variables in the workspace
+core_material_mode;
+shield_material_mode;
+BOX_cladding_material_mode;
+
+# --------------------------------------------
+# 1) Big SiO2 slab (BOX + cladding + margins)
+# --------------------------------------------
+addrect;
+set("name", "BOX/Cladding");
+set("material", BOX_cladding_material_mode);
+set("x", 0);
+set("x span", 2*Xext);
+set("y", y_SiO2_center);
+set("y span", y_span_SiO2);
+set("z", 0);
+set("z span", 1e-6);    # arbitrary thickness for 2D FDE
+
+# ----------------
+# 2) SRN core
+# ----------------
+addrect;
+set("name", "core_SRN");
+set("material", core_material_mode);
+set("x", 0);
+set("x span", W);
+set("y", y_core_center);
+set("y span", H);
+set("z", 0);
+set("z span", 1e-6);
+
+# ----------------
+# 3a) Left side shield: 3 segments
+# ----------------
+addrect;
+set("name", "shield_left_1");
+set("material", shield_material_mode);
+set("x", x_gapL_1);
+set("x span", seg_gap);
+set("y", y_gapL_1);
+set("y span", t_gapL_1);
+set("z", 0);
+set("z span", 1e-6);
+
+addrect;
+set("name", "shield_left_2");
+set("material", shield_material_mode);
+set("x", x_gapL_2);
+set("x span", seg_gap);
+set("y", y_gapL_2);
+set("y span", t_gapL_2);
+set("z", 0);
+set("z span", 1e-6);
+
+addrect;
+set("name", "shield_left_3");
+set("material", shield_material_mode);
+set("x", x_gapL_3);
+set("x span", seg_gap);
+set("y", y_gapL_3);
+set("y span", t_gapL_3);
+set("z", 0);
+set("z span", 1e-6);
+
+# ----------------
+# 3b) Right side shield: 3 segments
+# ----------------
+addrect;
+set("name", "shield_right_1");
+set("material", shield_material_mode);
+set("x", x_gapR_1);
+set("x span", seg_gap);
+set("y", y_gapR_1);
+set("y span", t_gapR_1);
+set("z", 0);
+set("z span", 1e-6);
+
+addrect;
+set("name", "shield_right_2");
+set("material", shield_material_mode);
+set("x", x_gapR_2);
+set("x span", seg_gap);
+set("y", y_gapR_2);
+set("y span", t_gapR_2);
+set("z", 0);
+set("z span", 1e-6);
+
+addrect;
+set("name", "shield_right_3");
+set("material", shield_material_mode);
+set("x", x_gapR_3);
+set("x span", seg_gap);
+set("y", y_gapR_3);
+set("y span", t_gapR_3);
+set("z", 0);
+set("z span", 1e-6);
+
+# ----------------------
+# 4) Top shield slab
+# ----------------------
+addrect;
+set("name", "shield_top");
+set("material", shield_material_mode);
+set("x", 0);
+set("x span", W);          
+set("y", y_topshield_center);
+set("y span", t_shield_core);
+set("z", 0);
+set("z span", 1e-6);
+
+# -------------------------
+# 5) Metal electrodes
+# -------------------------
+# Left metal
+addrect;
+set("name", "metal_left");
+set("material", "Au (Gold) - Palik");
+set("x", x_metal_L);
+set("x span", metal_w);
+set("y", y_metal_center);
+set("y span", metal_t);
+set("z", 0);
+set("z span", 1e-6);
+
+# Right metal
+addrect;
+set("name", "metal_right");
+set("material", "Au (Gold) - Palik");
+set("x", x_metal_R);
+set("x span", metal_w);
+set("y", y_metal_center);
+set("y span", metal_t);
+set("z", 0);
+set("z span", 1e-6);
+
+# -------------------------
+# 5b) Shield slabs above metal electrodes
+# -------------------------
+# Left metal-top shield
+addrect;
+set("name", "shield_metal_left_top");
+set("material", shield_material_mode);     # match your shield material
+set("x", x_metal_L);
+set("x span", metal_w);
+set("y", y_metshield_center);   # bottom touches metal top
+set("y span", t_shield_metal);
+set("z", 0);
+set("z span", 1e-6);
+
+# Right metal-top shield
+addrect;
+set("name", "shield_metal_right_top");
+set("material", shield_material_mode);
+set("x", x_metal_R);
+set("x span", metal_w);
+set("y", y_metshield_center);
+set("y span", t_shield_metal);
+set("z", 0);
+set("z span", 1e-6);
+
+# -------------------------
+# 6) FDE mode solver region
+# -------------------------
+addfde;
+select("FDE");
+set("solver type", "2D Z normal");               # 2D cross-section
+set("x", 0);
+set("x span", 2*Xext);
+set("y", y_SiO2_center);
+set("y span", y_span_SiO2);
+set("z", 0);
+set("wavelength", 1.55e-6);
+set("number of trial modes", 2);
+set("search", "near n");    # searching near max n
+set("mesh cells x", 251);   # adjust for accuracy vs. time
+set("mesh cells y", 201);
+
+# --- add mesh override object ---
+addmesh;
+set("name", "mesh_core");
+
+# --- position & size of override box ---
+# x: centered at 0, spanning core + gaps + metal + margins
+set("x", 0);
+set("x span", W + 2*g + 2*metal_w);
+
+# y: centered on core, spanning core height + margins
+set("y", y_core_center);
+set("y span", H + 500e-9);
+
+# For 2D Z-normal FDE, z doesn’t matter but we can still set something small:
+set("z", 0);
+set("z span", 0.5e-6);      # any nonzero span is fine in 2D
+
+# 2 nm steps (0.002 µm). Go to 0.001µm if you want even finer near metals.
+set("dx", 0.005e-6);        # 5 nm
+set("dy", 0.005e-6);        # 5 nm
+
+# (optional) make sure it’s enabled
+set("enabled", 1);
+
+# Solve for modes
+select("FDE");
+findmodes;
+
+# ----- EXPORT OPTICAL MODE FIELD -----
+
+mode = 1;   # fundamental TE mode
+
+x = getdata("FDE::data::mode"+num2str(mode),"x");
+y = getdata("FDE::data::mode"+num2str(mode),"y");
+
+Ex = getdata("FDE::data::mode"+num2str(mode),"Ex");
+Ey = getdata("FDE::data::mode"+num2str(mode),"Ey");
+Ez = getdata("FDE::data::mode"+num2str(mode),"Ez");
+
+E2 = abs(Ex)^2 + abs(Ey)^2 + abs(Ez)^2;
+
+loss = getdata("FDE::data::mode"+num2str(mode), "loss");   # dB/m
+

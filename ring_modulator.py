@@ -109,7 +109,7 @@ t_lam = np.sqrt(1 - kappa_lam**2)
 # ============================================================
 # EFFECTIVE INDEX + GROUP INDEX
 # ============================================================
-ng_eff = (ng_active * L_active + ng_passive * L_passive) / L_ring
+ng_eff_analytic = (ng_active * L_active + ng_passive * L_passive) / L_ring
 
 # unbiased
 optical_path_unbiased = neff_active * L_active + neff_passive * L_passive
@@ -179,7 +179,7 @@ plt.show()
 # ============================================================
 
 # --- analytic FSR ---
-FSR_analytic = lam0**2 / (ng_eff * L_ring)
+FSR_analytic = lam0**2 / (ng_eff_analytic * L_ring)
 
 # --- numeric FSR, linewidth, Q from spectrum ---
 # Robust peak and dip finder for high-Q resonator spectra
@@ -286,16 +286,16 @@ lam_res_mod = lam[left_peak_idx + local_min_mod]
 dlam_numeric = lam_res_mod - lam_res
 
 # --- analytic shift ---
-dlam_analytic = lam0 * (dneff_active * L_active) / (ng_eff * L_ring)
+dlam_analytic = lam0 * (dneff_active * L_active) / (ng_eff_analytic * L_ring)
 
 # ============================================================
 # Q FACTORS (Analytic)
 # ============================================================
 kappa0 = kappa_interp(lam0)
-Qc = (2 * np.pi * L_ring * ng_eff) / (lam0 * (-np.log(1 - kappa0**2)))
+Qc = (2 * np.pi * L_ring * ng_eff_analytic) / (lam0 * (-np.log(1 - kappa0**2)))
 
 alpha_avg = (alpha_active * L_active + alpha_passive * L_passive) / L_ring
-Qint = (2 * np.pi * ng_eff) / (alpha_avg * lam0)
+Qint = (2 * np.pi * ng_eff_analytic) / (alpha_avg * lam0)
 
 Qtotal = 1 / (1 / Qc + 1 / Qint)
 
@@ -447,7 +447,7 @@ for i, sd in enumerate(static_sweep):
 
 static_dneff_target = static_sweep[best_idx]
 dneff_needed_numeric = static_dneff_target - static_dneff
-dneff_needed_analytic = (dlam_needed / lam0) * (ng_eff * L_ring) / L_active
+dneff_needed_analytic = (dlam_needed / lam0) * (ng_eff_analytic * L_ring) / L_active
 
 # recompute optical paths and transmissions with this target static dneff
 _, T_bias_new = compute_T1550(static_dneff_target)

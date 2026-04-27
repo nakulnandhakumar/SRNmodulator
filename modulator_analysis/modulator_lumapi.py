@@ -34,7 +34,7 @@ sys.path.append(r"C:\Program Files\Lumerical\v202\api\python")
 import lumapi # pyright: ignore[reportMissingImports]
 import numpy as np
 import time
-from config import PARAM_BOUNDS
+from modulator_optimize_config import PARAM_BOUNDS
 
 # ============================================================
 # Parameter clamping for physical feasibility

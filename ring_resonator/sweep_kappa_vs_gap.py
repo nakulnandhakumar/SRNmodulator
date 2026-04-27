@@ -10,7 +10,7 @@ def sweep_kappa_vs_gap(
     gap_start = 300e-9,
     gap_end = 500e-9,
     Npoints = 100,
-    lsf_path=r"./lumerical/mode/ring_supermode.lsf",
+    lsf_path=r"./lumerical/mode/ring_modulator_supermode.lsf",
     project_path=r"./lumerical/mode/modulator_mode.lms",
     output_csv="kappa_vs_gap.csv",
     hide=False
@@ -105,7 +105,7 @@ def sweep_kappa_vs_gap(
 #     gap_start=320e-9,
 #     gap_end=330e-9,
 #     Npoints=20,
-#     lsf_path=r"./lumerical/mode/ring_supermode.lsf",
+#     lsf_path=r"./lumerical/mode/ring_modulator_supermode.lsf",
 #     project_path=r"./lumerical/mode/modulator_mode.lms",
 #     output_csv="kappa_vs_gap.csv",
 #     hide=False

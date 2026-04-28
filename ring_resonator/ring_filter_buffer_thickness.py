@@ -133,7 +133,7 @@ for t_buffer in t_buffer_values:
             "neff": neff,
             "eta_srn": eta_srn,
             "eta_pcm": eta_pcm,
-            "loss_dB_cm": loss_dB_cm,
+            "loss_dB_cm": loss,
             "TEfrac": TEfrac
         })
         

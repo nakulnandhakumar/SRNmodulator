@@ -18,7 +18,7 @@ ring_supermode = lumapi.MODE(
 with open(r"./lumerical/mode/ring_filter_waveguide_run.lsf") as f:
     eta_sweep_script = f.read()
     
-t_buffer_values = np.linspace(100e-9, 200e-9, 20)  # Sweep buffer thickness from 0 to 100 nm
+t_buffer_values = np.linspace(185e-9, 195e-9, 5)  # Sweep buffer thickness from 0 to 100 nm
 
 material_params = {
     "core_material_mode": "SRN 3.1 (Silicon Rich Nitride)",

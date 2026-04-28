@@ -301,19 +301,19 @@ merged = merged[
     (merged["P_cross_lossy_on"] < 0.3)      # weak coupling
 ]
 if merged.empty:
-    raise RuntimeError("No designs passed the OFF > 0.7 and ON < 0.3 filter.")
+    print("No designs passed the OFF > 0.7 and ON < 0.3 filter.")
+else:
+    # Find best design (max ER)
+    best = merged.sort_values("ER_dB", ascending=False).iloc[0]
 
-# Find best design (max ER)
-best = merged.sort_values("ER_dB", ascending=False).iloc[0]
-
-print("\n================ BEST SWITCHING DESIGN ================")
-print(f"PCM width = {best['pcm_w_nm']:.1f} nm")
-print(f"P_cross OFF = {best['P_cross_lossy_off']:.4f}")
-print(f"P_cross ON  = {best['P_cross_lossy_on']:.4f}")
-print(f"Extinction Ratio = {best['ER_dB']:.2f} dB")
-print(f"loss OFF = {best['loss_coupler_dB_off']:.3f} dB")
-print(f"loss ON  = {best['loss_coupler_dB_on']:.3f} dB")
-print("======================================================")
+    print("\n================ BEST SWITCHING DESIGN ================")
+    print(f"PCM width = {best['pcm_w_nm']:.1f} nm")
+    print(f"P_cross OFF = {best['P_cross_lossy_off']:.4f}")
+    print(f"P_cross ON  = {best['P_cross_lossy_on']:.4f}")
+    print(f"Extinction Ratio = {best['ER_dB']:.2f} dB")
+    print(f"loss OFF = {best['loss_coupler_dB_off']:.3f} dB")
+    print(f"loss ON  = {best['loss_coupler_dB_on']:.3f} dB")
+    print("======================================================")
 
 plt.figure(figsize=(10,6))
 plt.plot(merged["pcm_w_nm"], merged["P_cross_lossy_off"], label="OFF (Amorphous)")

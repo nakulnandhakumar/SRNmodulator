@@ -32,7 +32,7 @@ tCLAD = 2e-6
 y_core_center = 0
 
 lam = 1.55e-6
-Lc = 5e-6
+Lc = 3e-6
 margin = 20e-9
 
 # ============================================================
@@ -309,6 +309,15 @@ plt.plot(merged["pcm_w_nm"], merged["ER_dB"])
 plt.xlabel("PCM width (nm)")
 plt.ylabel("Extinction Ratio (dB)")
 plt.title("Switching Contrast vs PCM Width")
+plt.grid()
+
+plt.figure(figsize=(10,6))
+plt.plot(results_amorphous["pcm_w_nm"], results_amorphous["kappa_L"], label="kappa_L (Amorphous)")
+plt.plot(results_crystalline["pcm_w_nm"], results_crystalline["kappa_L"], label="kappa_L (Crystalline)")
+plt.xlabel("PCM width (nm)")
+plt.ylabel("Coupling coefficient")
+plt.title("Switching Behavior vs PCM Width")
+plt.legend()
 plt.grid()
 
 plt.show()

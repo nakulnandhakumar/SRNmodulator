@@ -27,12 +27,12 @@ ring_supermode.putv("lambda", 1.55e-6)
 # Geometry (constant)
 W = 0.450e-6
 H = 0.350e-6
-t_buffer = 50e-9
+t_buffer = 30e-9
 tCLAD = 2e-6
 y_core_center = 0
 
 lam = 1.55e-6
-Lc = 3e-6
+Lc = 5e-6
 margin = 20e-9
 
 # ============================================================

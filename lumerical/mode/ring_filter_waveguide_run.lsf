@@ -148,7 +148,7 @@ findmodes;
 
 # ===================== EXTRACT FUNDAMENTAL TE MODE =====================
 
-nmodes = 4;
+nmodes = 8;
 
 neff_list   = zeros(nmodes);
 TEfrac_list = zeros(nmodes);

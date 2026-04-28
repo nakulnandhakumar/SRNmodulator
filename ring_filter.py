@@ -27,7 +27,7 @@ ring_supermode.putv("lambda", 1.55e-6)
 # Geometry (constant)
 W = 0.450e-6
 H = 0.350e-6
-t_buffer = 30e-9
+t_buffer = 10e-9
 tCLAD = 2e-6
 y_core_center = 0
 
@@ -295,6 +295,24 @@ merged["contrast_linear"] = (
 )
 merged["ER_dB"] = 10 * np.log10(merged["contrast_linear"])
 
+plt.figure(figsize=(10,6))
+plt.plot(merged["pcm_w_nm"], merged["P_cross_lossy_off"], label="OFF (Amorphous)")
+plt.plot(merged["pcm_w_nm"], merged["P_cross_lossy_on"], label="ON (Crystalline)")
+plt.xlabel("PCM width (nm)")
+plt.ylabel("Cross power")
+plt.title("Directional Coupler Switching")
+plt.legend()
+plt.grid()
+
+plt.figure(figsize=(10,6))
+plt.plot(merged["pcm_w_nm"], merged["ER_dB"])
+plt.xlabel("PCM width (nm)")
+plt.ylabel("Extinction Ratio (dB)")
+plt.title("Switching Contrast vs PCM Width")
+plt.grid()
+
+plt.show()
+
 # Filter for strong switching behavior: high coupling in OFF state, low coupling in ON state
 merged = merged[
     (merged["P_cross_lossy_off"] > 0.7) &   # strong coupling
@@ -314,21 +332,3 @@ else:
     print(f"loss OFF = {best['loss_coupler_dB_off']:.3f} dB")
     print(f"loss ON  = {best['loss_coupler_dB_on']:.3f} dB")
     print("======================================================")
-
-plt.figure(figsize=(10,6))
-plt.plot(merged["pcm_w_nm"], merged["P_cross_lossy_off"], label="OFF (Amorphous)")
-plt.plot(merged["pcm_w_nm"], merged["P_cross_lossy_on"], label="ON (Crystalline)")
-plt.xlabel("PCM width (nm)")
-plt.ylabel("Cross power")
-plt.title("Directional Coupler Switching")
-plt.legend()
-plt.grid()
-
-plt.figure(figsize=(10,6))
-plt.plot(merged["pcm_w_nm"], merged["ER_dB"])
-plt.xlabel("PCM width (nm)")
-plt.ylabel("Extinction Ratio (dB)")
-plt.title("Switching Contrast vs PCM Width")
-plt.grid()
-
-plt.show()

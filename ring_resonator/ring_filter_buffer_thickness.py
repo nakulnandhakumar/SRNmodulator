@@ -97,7 +97,8 @@ for t_buffer in t_buffer_values:
             Ez = np.squeeze(ring_supermode.getv("Ez_temp"))
 
         except:
-            print(f"WARNING: Mode {mode_name} not found, skipping...")
+            print(f"WARNING: Mode {mode_name} not found")
+            input("Press Enter to continue...")
             continue  # skip missing modes safely
 
         # --- grids ---

@@ -73,30 +73,32 @@ def run_sweep(pcm_material_name):
             mode_name = f"mode{m}"
 
             try:
-                # --- basic properties ---
-                ring_supermode.eval(f'neff_temp = real(getdata("{mode_name}", "neff"));')
+                # --- scalar properties ---
+                ring_supermode.eval(f'neff_temp = real(getdata("FDE::data::{mode_name}", "neff"));')
                 neff = ring_supermode.getv("neff_temp")
 
-                ring_supermode.eval(f'TEfrac_temp = getdata("{mode_name}", "TE polarization fraction");')
+                ring_supermode.eval(f'TEfrac_temp = getdata("FDE::data::{mode_name}", "TE polarization fraction");')
                 TEfrac = ring_supermode.getv("TEfrac_temp")
 
-                ring_supermode.eval(f'loss_temp = getdata("{mode_name}", "loss");')
-                supermode_loss = ring_supermode.getv("loss_temp") # dB/m
+                ring_supermode.eval(f'loss_temp = getdata("FDE::data::{mode_name}", "loss");')
+                supermode_loss = ring_supermode.getv("loss_temp")
                 supermode_loss_dB_cm = supermode_loss / 100
 
-                ring_supermode.eval(f'x_temp = getdata("FDE::data::{mode_name}","x");')
+                # --- grid ---
+                ring_supermode.eval(f'x_temp = getdata("FDE::data::{mode_name}", "x");')
                 x = np.squeeze(ring_supermode.getv("x_temp"))
-                
-                ring_supermode.eval(f'y_temp = getdata("FDE::data::{mode_name}","y");')
+
+                ring_supermode.eval(f'y_temp = getdata("FDE::data::{mode_name}", "y");')
                 y = np.squeeze(ring_supermode.getv("y_temp"))
 
-                ring_supermode.eval(f'Ex_temp = getdata("{mode_name}", "Ex");')
+                # --- fields ---
+                ring_supermode.eval(f'Ex_temp = getdata("FDE::data::{mode_name}", "Ex");')
                 Ex = np.squeeze(ring_supermode.getv("Ex_temp"))
 
-                ring_supermode.eval(f'Ey_temp = getdata("{mode_name}", "Ey");')
+                ring_supermode.eval(f'Ey_temp = getdata("FDE::data::{mode_name}", "Ey");')
                 Ey = np.squeeze(ring_supermode.getv("Ey_temp"))
 
-                ring_supermode.eval(f'Ez_temp = getdata("{mode_name}", "Ez");')
+                ring_supermode.eval(f'Ez_temp = getdata("FDE::data::{mode_name}", "Ez");')
                 Ez = np.squeeze(ring_supermode.getv("Ez_temp"))
 
             except:
@@ -165,6 +167,8 @@ def run_sweep(pcm_material_name):
                 "supermode_loss_dB_cm": supermode_loss_dB_cm,
                 "TEfrac": TEfrac
             })
+            
+            print(f"Mode {m}: neff={neff:.4f}, TEfrac={TEfrac:.3f}, eta_srn={eta_srn_total:.3f}, eta_pcm={eta_pcm_total:.3f}, loss={supermode_loss_dB_cm:.3f} dB/cm")
             
         # Select valid TE modes where SRN dominates PCM
         TE_threshold = 0.90

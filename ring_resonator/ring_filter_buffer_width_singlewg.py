@@ -71,30 +71,32 @@ for t_buffer in t_buffer_values:
         mode_name = f"mode{m}"
 
         try:
-            # --- basic properties ---
-            ring_supermode.eval(f'neff_temp = real(getdata("{mode_name}", "neff"));')
+            # --- scalar properties ---
+            ring_supermode.eval(f'neff_temp = real(getdata("FDE::data::{mode_name}", "neff"));')
             neff = ring_supermode.getv("neff_temp")
 
-            ring_supermode.eval(f'TEfrac_temp = getdata("{mode_name}", "TE polarization fraction");')
+            ring_supermode.eval(f'TEfrac_temp = getdata("FDE::data::{mode_name}", "TE polarization fraction");')
             TEfrac = ring_supermode.getv("TEfrac_temp")
 
-            ring_supermode.eval(f'loss_temp = getdata("{mode_name}", "loss");')
-            loss = ring_supermode.getv("loss_temp") # dB/m
+            ring_supermode.eval(f'loss_temp = getdata("FDE::data::{mode_name}", "loss");')
+            loss = ring_supermode.getv("loss_temp")
             loss_dB_cm = loss / 100
 
-            ring_supermode.eval(f'x_temp = getdata("FDE::data::{mode_name}","x");')
+            # --- grid ---
+            ring_supermode.eval(f'x_temp = getdata("FDE::data::{mode_name}", "x");')
             x = np.squeeze(ring_supermode.getv("x_temp"))
-            
-            ring_supermode.eval(f'y_temp = getdata("FDE::data::{mode_name}","y");')
+
+            ring_supermode.eval(f'y_temp = getdata("FDE::data::{mode_name}", "y");')
             y = np.squeeze(ring_supermode.getv("y_temp"))
 
-            ring_supermode.eval(f'Ex_temp = getdata("{mode_name}", "Ex");')
+            # --- fields ---
+            ring_supermode.eval(f'Ex_temp = getdata("FDE::data::{mode_name}", "Ex");')
             Ex = np.squeeze(ring_supermode.getv("Ex_temp"))
 
-            ring_supermode.eval(f'Ey_temp = getdata("{mode_name}", "Ey");')
+            ring_supermode.eval(f'Ey_temp = getdata("FDE::data::{mode_name}", "Ey");')
             Ey = np.squeeze(ring_supermode.getv("Ey_temp"))
 
-            ring_supermode.eval(f'Ez_temp = getdata("{mode_name}", "Ez");')
+            ring_supermode.eval(f'Ez_temp = getdata("FDE::data::{mode_name}", "Ez");')
             Ez = np.squeeze(ring_supermode.getv("Ez_temp"))
 
         except:

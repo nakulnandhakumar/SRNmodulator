@@ -64,7 +64,7 @@ def run_sweep(pcm_material_name):
         ring_supermode.putv("pcm_w", pcm_w)
         ring_supermode.eval(eta_sweep_script)
 
-        nmodes = 6  # should match Lumerical trial modes
+        nmodes = 4  # should match Lumerical trial modes
 
         mode_data = []
 

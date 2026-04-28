@@ -23,7 +23,7 @@ t_buffer_values = np.linspace(100e-9, 200e-9, 20)  # Sweep buffer thickness from
 material_params = {
     "core_material_mode": "SRN 3.1 (Silicon Rich Nitride)",
     "clad_left_material": "SiO2 (Glass) - Palik",
-    "clad_right_material": "SBS Crystalline",
+    "clad_right_material": "SBS Amorphous",
     "BOX_cladding_material_mode": "SiO2 (Glass) - Palik",
 }
 

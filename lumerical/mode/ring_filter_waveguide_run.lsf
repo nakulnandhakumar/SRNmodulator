@@ -12,6 +12,7 @@ g = 0.700e-6;
 
 tBOX = 3e-6;
 tCLAD = 2e-6;
+?t_buffer;
 
 Xext = 4e-6;
 Ytop_margin = 2e-6;
@@ -73,13 +74,30 @@ set("z", 0);
 set("z span", 1e-6);
 
 # =============================================
-# 4) Right cladding block (gap region)
+# 4a) Right SiO2 buffer (adjacent to core)
 # =============================================
 addrect;
-set("name", "clad_right");
+set("name", "buffer_right");
+set("material", BOX_cladding_material_mode);   # SiO2
+set("x", (W/2 + t_buffer/2));
+set("x span", t_buffer);
+set("y", y_core_center);
+set("y span", H);
+set("z", 0);
+set("z span", 1e-6);
+
+# =============================================
+# 4b) Right outer cladding (PCM or other)
+# =============================================
+addrect;
+set("name", "clad_right_outer");
 set("material", clad_right_material);
-set("x", x_right);
-set("x span", g);
+
+# remaining gap after buffer
+remaining_gap = g - t_buffer;
+
+set("x", (W/2 + t_buffer + remaining_gap/2));
+set("x span", remaining_gap);
 set("y", y_core_center);
 set("y span", H);
 set("z", 0);
@@ -190,3 +208,13 @@ loss_TE_dB_cm = loss_TE_dB_m / 100; # dB/cm
 ?"mode index = " + num2str(mode_TE_index);
 ?"neff_TE    = " + num2str(neff_TE);
 ?"loss_TE    = " + num2str(loss_TE_dB_cm) + " dB/cm";
+
+x = getdata("FDE::data::mode"+num2str(mode_TE_index),"x");
+y = getdata("FDE::data::mode"+num2str(mode_TE_index),"y");
+
+Ex = getdata("FDE::data::mode"+num2str(mode_TE_index),"Ex");
+Ey = getdata("FDE::data::mode"+num2str(mode_TE_index),"Ey");
+Ez = getdata("FDE::data::mode"+num2str(mode_TE_index),"Ez");
+
+E2 = abs(Ex)^2 + abs(Ey)^2 + abs(Ez)^2;
+

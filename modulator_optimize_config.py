@@ -14,11 +14,13 @@ g0 = 490e-9
 PARAMS = {
     # ---------------- region materials ----------------
     "core_material_elect": "SRN_n3p1",
-    "shield_material_elect": "HfO2",
+    # "shield_material_elect": "HfO2",
+    "shield_material_elect": "TiO2",
     "BOX_cladding_material_elect": "SiO2",
     
     "core_material_mode": "SRN 3.1 (Silicon Rich Nitride)",
-    "shield_material_mode": "HfO2",
+    # "shield_material_mode": "HfO2",
+    "shield_material_mode": "TiO2",
     "BOX_cladding_material_mode": "SiO2 (Glass) - Palik",
 
     # ---------------- electrostatics ----------------

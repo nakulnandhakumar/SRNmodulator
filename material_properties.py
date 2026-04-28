@@ -29,4 +29,10 @@ MATERIAL_DB = {
         "chi3": 1.56e-19,
         "Ebreak": 6e8
     },
+    
+    "TiO2": {
+        "n": 2.2,
+        "chi3": 0,
+        "Ebreak": 5e8
+    }
 }

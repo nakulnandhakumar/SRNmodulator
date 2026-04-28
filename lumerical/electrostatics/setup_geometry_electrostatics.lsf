@@ -139,6 +139,10 @@ set("name", "HfO2");
 addmaterialproperties("CT", "HfO2 (Hafnium oxide) - Robertson");
 
 addmodelmaterial;
+set("name", "TiO2");
+addmaterialproperties("CT", "TiO2 (Titanium oxide) - Robertson");
+
+addmodelmaterial;
 set("name", "Au");
 addmaterialproperties("CT", "Au (Gold) - CRC");
 

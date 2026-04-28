@@ -6,34 +6,14 @@ sys.path.append(r"C:\Program Files\Lumerical\v202\api\python")
 import lumapi # pyright: ignore[reportMissingImports]
 
 # ============================================================
-# Plot the n and k data for the SBS amorphous phase change material
+# Sweep buffer thickness and observe mode profiles
 # ============================================================
-
-# Read the CSV file
-df = pd.read_csv("ring_resonator/n_k_sbs.csv")
-
-# Plot n and k vs wavelength
-plt.figure(figsize=(12, 5))
-plt.plot(df["wavelength"] * 1e9, df["n_amorphous"], label="n (amorphous)")
-plt.plot(df["wavelength"] * 1e9, df["n_crystalline"], label="n (crystalline)")
-plt.plot(df["wavelength"] * 1e9, df["k_amorphous"], label="k (amorphous)")
-plt.plot(df["wavelength"] * 1e9, df["k_crystalline"], label="k (crystalline)")
-plt.xlabel("Wavelength (nm)")
-plt.ylabel("Refractive Index (n) / Extinction Coefficient (k)")
-plt.title("Refractive Index and Extinction Coefficient vs Wavelength")
-plt.legend()
-plt.grid()
-# plt.show()
 
 # Initialize Lumerical MODE for the ring filter waveguide
 ring_supermode = lumapi.MODE(
             hide=False,
             project=r"./lumerical/mode/ring_supermode.lms"
         )
-
-# ============================================================
-# Sweep buffer thickness and observe mode profiles
-# ============================================================
 
 with open(r"./lumerical/mode/ring_filter_waveguide_run.lsf") as f:
     eta_sweep_script = f.read()
@@ -90,15 +70,24 @@ remaining_gap = g - t_buffer
 # ============================================================
 
 # SRN core region
+
+# find peak of field (this is your true mode center)
+ix, iy = np.unravel_index(np.argmax(E2), E2.shape)
+
+x_center = x[ix]
+y_center = y[iy]
+
+print("Detected mode center:", x_center, y_center)
+
 mask_srn = (
-    (X >= -W/2) & (X <= W/2) &
-    (Y >= y_core_center - H/2) & (Y <= y_core_center + H/2)
+    (X >= x_center-W/2) & (X <= x_center+W/2) &
+    (Y >= y_center - H/2) & (Y <= y_center + H/2)
 )
 
 # PCM region (right side AFTER buffer)
 mask_pcm = (
-    (X >= W/2 + t_buffer) & (X <= W/2 + g) &
-    (Y >= y_core_center - H/2) & (Y <= y_core_center + H/2)
+    (X >= x_center + W/2 + t_buffer) & (X <= x_center + W/2 + g) &
+    (Y >= y_center - H/2) & (Y <= y_center + H/2)
 )
 
 # ============================================================

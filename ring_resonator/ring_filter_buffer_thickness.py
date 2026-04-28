@@ -72,27 +72,35 @@ for t_buffer in t_buffer_values:
 
         try:
             # --- basic properties ---
+            print("Here 1")
             ring_supermode.eval(f'neff_temp = real(getdata("{mode_name}", "neff"))')
             neff = ring_supermode.getv("neff_temp")
 
+            print("Here 2")
             ring_supermode.eval(f'TEfrac_temp = getdata("{mode_name}", "TE polarization fraction")')
             TEfrac = ring_supermode.getv("TEfrac_temp")
 
+            print("Here 3")
             ring_supermode.eval(f'loss_temp = getdata("{mode_name}", "loss")')
             loss = ring_supermode.getv("loss_temp")
 
+            print("Here 4")
             ring_supermode.eval(f'x_temp = getdata("FDE::data::{mode_name}","x")')
             x = np.squeeze(ring_supermode.getv("x_temp"))
             
+            print("Here 5")
             ring_supermode.eval(f'y_temp = getdata("FDE::data::{mode_name}","y")')
             y = np.squeeze(ring_supermode.getv("y_temp"))
 
+            print("Here 6")
             ring_supermode.eval(f'Ex_temp = getdata("{mode_name}", "Ex")')
             Ex = np.squeeze(ring_supermode.getv("Ex_temp"))
 
+            print("Here 7")
             ring_supermode.eval(f'Ey_temp = getdata("{mode_name}", "Ey")')
             Ey = np.squeeze(ring_supermode.getv("Ey_temp"))
 
+            print("Here 8")
             ring_supermode.eval(f'Ez_temp = getdata("{mode_name}", "Ez")')
             Ez = np.squeeze(ring_supermode.getv("Ez_temp"))
 

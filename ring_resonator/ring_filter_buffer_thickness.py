@@ -81,10 +81,10 @@ for t_buffer in t_buffer_values:
             ring_supermode.eval(f'loss_temp = getdata("{mode_name}", "loss")')
             loss = ring_supermode.getv("loss_temp")
 
-            ring_supermode.eval(f'x_temp = getdata("FDE::data::{mode_name},"x")')
+            ring_supermode.eval(f'x_temp = getdata("FDE::data::{mode_name}","x")')
             x = np.squeeze(ring_supermode.getv("x_temp"))
             
-            ring_supermode.eval(f'y_temp = getdata("FDE::data::{mode_name},"y")')
+            ring_supermode.eval(f'y_temp = getdata("FDE::data::{mode_name}","y")')
             y = np.squeeze(ring_supermode.getv("y_temp"))
 
             ring_supermode.eval(f'Ex_temp = getdata("{mode_name}", "Ex")')

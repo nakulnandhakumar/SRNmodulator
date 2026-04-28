@@ -35,7 +35,7 @@ ring_supermode = lumapi.MODE(
 # Sweep buffer thickness and observe mode profiles
 # ============================================================
 
-with open(r"./lumerical/electrostatics/ring_filter_waveguide_run.lsf") as f:
+with open(r"./lumerical/mode/ring_filter_waveguide_run.lsf") as f:
     eta_sweep_script = f.read()
     
 t_buffer = 150e-9

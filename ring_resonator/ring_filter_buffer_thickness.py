@@ -79,7 +79,8 @@ for t_buffer in t_buffer_values:
             TEfrac = ring_supermode.getv("TEfrac_temp")
 
             ring_supermode.eval(f'loss_temp = getdata("{mode_name}", "loss");')
-            loss = ring_supermode.getv("loss_temp")
+            loss = ring_supermode.getv("loss_temp") # dB/m
+            loss_dB_cm = loss / 100
 
             ring_supermode.eval(f'x_temp = getdata("FDE::data::{mode_name}","x");')
             x = np.squeeze(ring_supermode.getv("x_temp"))
@@ -133,7 +134,7 @@ for t_buffer in t_buffer_values:
             "neff": neff,
             "eta_srn": eta_srn,
             "eta_pcm": eta_pcm,
-            "loss_dB_cm": loss,
+            "loss_dB_cm": loss_dB_cm,
             "TEfrac": TEfrac
         })
         

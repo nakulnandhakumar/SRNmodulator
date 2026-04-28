@@ -7,65 +7,80 @@ deleteall;
 # ===================== PARAMETERS ============================
 W = 450e-9;
 H = 350e-9;
-?g;          # get coupling gap from python script
-?lambda;    # get wavelength from python script
 
-# PCM material
-# Change this from Python depending on state:
-# pcm_mat = "SBS Amorphous";
-# pcm_mat = "SBS Crystalline";
+?t_buffer;     # e.g. 185e-9
+?pcm_w;        # remaining PCM width in middle
+?lambda;
 ?pcm_mat;
 
-# PCM geometry
-pcm_w = g;          # fills the gap between waveguides
-pcm_h = H;          # same height as SRN core, adjust if desired
-pcm_y = 0;
+g = 2*t_buffer + pcm_w;
 
-# Materials
 core_mat = "SRN 3.1 (Silicon Rich Nitride)";
 clad_mat = "SiO2 (Glass) - Palik";
 
-# Simulation region
 x_span = 3e-6;
 y_span = 3e-6;
 
+if (pcm_w <= 0) {
+    ? "ERROR: pcm_w must be > 0";
+    break;
+}
+
 # ===================== GEOMETRY ==============================
 
-# Background (cladding)
+# Background SiO2
 addrect;
-set("name","clad");
+set("name","cladding_background");
 set("material", clad_mat);
 set("x",0);
 set("x span", x_span);
 set("y",0);
 set("y span", y_span);
 
-# Left waveguide
+# Left SRN waveguide
 addrect;
-set("name","wg_left");
+set("name","wg_left_SRN");
 set("material", core_mat);
 set("x", -(W/2 + g/2));
 set("x span", W);
 set("y", 0);
 set("y span", H);
 
-# Right waveguide
+# Right SRN waveguide
 addrect;
-set("name","wg_right");
+set("name","wg_right_SRN");
 set("material", core_mat);
 set("x", (W/2 + g/2));
 set("x span", W);
 set("y", 0);
 set("y span", H);
 
-# Phase change material in coupling gap
+# Left SiO2 buffer inside gap
 addrect;
-set("name","pcm_gap");
+set("name","buffer_left_SiO2");
+set("material", clad_mat);
+set("x", -g/2 + t_buffer/2);
+set("x span", t_buffer);
+set("y", 0);
+set("y span", H);
+
+# Right SiO2 buffer inside gap
+addrect;
+set("name","buffer_right_SiO2");
+set("material", clad_mat);
+set("x", g/2 - t_buffer/2);
+set("x span", t_buffer);
+set("y", 0);
+set("y span", H);
+
+# PCM region in middle of gap
+addrect;
+set("name","pcm_middle");
 set("material", pcm_mat);
 set("x", 0);
 set("x span", pcm_w);
-set("y", pcm_y);
-set("y span", pcm_h);
+set("y", 0);
+set("y span", H);
 
 # ===================== MODE SOLVER ===========================
 

@@ -29,7 +29,11 @@ material_params = {
 
 for param, value in material_params.items():
     ring_supermode.putv(param, value)
-    
+
+pcm_confinement_results = []
+good_confinement_results = []
+loss_results = []
+
 for t_buffer in t_buffer_values:
     ring_supermode.putv("t_buffer", t_buffer)
 
@@ -100,3 +104,18 @@ for t_buffer in t_buffer_values:
     print(f"Good confinement eta_good = {eta_good:.4f}")
     print(f"Loss (dB/cm) = {loss_dB_cm:.4f}")
     print("====================================")
+    
+    pcm_confinement_results.append(eta_pcm)
+    good_confinement_results.append(eta_good)
+    loss_results.append(loss_dB_cm)
+    
+# Plot all the results on the same figure
+plt.figure(figsize=(10, 6))
+plt.plot(t_buffer_values*1e9, pcm_confinement_results, label='PCM Confinement (eta_pcm)', marker='o')
+plt.plot(t_buffer_values*1e9, good_confinement_results, label='Good Confinement (eta_good)', marker='o')
+plt.plot(t_buffer_values*1e9, loss_results, label='Loss (dB/cm)', marker='o')
+plt.xlabel('Buffer Thickness (nm)')
+plt.title('Effect of Buffer Thickness on Confinement and Loss')
+plt.legend()
+plt.grid()
+plt.show()

@@ -15,10 +15,9 @@ with open(r"./lumerical/mode/ring_filter_supermode.lsf") as f:
     eta_sweep_script = f.read()
 
 material_params = {
-    "core_material_mode": "SRN 3.1 (Silicon Rich Nitride)",
-    "clad_left_material": "SiO2 (Glass) - Palik",
-    "clad_right_material": "SBS Amorphous",
-    "BOX_cladding_material_mode": "SiO2 (Glass) - Palik",
+    "core_mat": "SRN 3.1 (Silicon Rich Nitride)",
+    "clad_mat": "SiO2 (Glass) - Palik",
+    "pcm_mat": "SBS Amorphous",
 }
 
 for param, value in material_params.items():

@@ -118,3 +118,8 @@ print("SRN confinement eta_srn =", eta_srn)
 print("PCM confinement eta_pcm =", eta_pcm)
 print("Other energy            =", eta_other)
 print("====================================")
+
+plt.imshow(E2.T, origin='lower')
+plt.contour(mask_srn.T, colors='white')
+plt.contour(mask_pcm.T, colors='red')
+plt.show()

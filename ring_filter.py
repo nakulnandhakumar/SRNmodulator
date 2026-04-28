@@ -119,7 +119,19 @@ print("PCM confinement eta_pcm =", eta_pcm)
 print("Other energy            =", eta_other)
 print("====================================")
 
+plt.figure(figsize=(6,5))
+
+# field
 plt.imshow(E2.T, origin='lower')
-plt.contour(mask_srn.T, colors='white')
-plt.contour(mask_pcm.T, colors='red')
+
+# SRN mask as black dots
+ys, xs = np.where(mask_srn.T)
+plt.scatter(xs, ys, s=2, c='black', alpha=0.6, label='SRN')
+
+# PCM mask as red dots
+ys, xs = np.where(mask_pcm.T)
+plt.scatter(xs, ys, s=2, c='red', alpha=0.6, label='PCM')
+
+plt.legend()
+plt.title("E2 with mask points")
 plt.show()

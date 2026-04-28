@@ -114,7 +114,7 @@ set("x span", 2*Xext);
 set("y", y_SiO2_center);
 set("y span", y_span_SiO2);
 set("wavelength", 1.55e-6);
-set("number of trial modes", 4);
+set("number of trial modes", 8);
 set("search", "near n");
 
 set("mesh cells x", 251);

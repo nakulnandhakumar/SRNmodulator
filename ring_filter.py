@@ -68,26 +68,18 @@ remaining_gap = g - t_buffer
 # ============================================================
 # Define masks
 # ============================================================
+margin = 20e-9  # 20 nm tolerance
 
 # SRN core region
-
-# find peak of field (this is your true mode center)
-ix, iy = np.unravel_index(np.argmax(E2), E2.shape)
-
-x_center = x[ix]
-y_center = y[iy]
-
-print("Detected mode center:", x_center, y_center)
-
 mask_srn = (
-    (X >= x_center-W/2) & (X <= x_center+W/2) &
-    (Y >= y_center - H/2) & (Y <= y_center + H/2)
+    (X >= -W/2 + margin) & (X <= W/2 - margin) &
+    (Y >= y_core_center - H/2 + margin) & (Y <= y_core_center + H/2 - margin)
 )
 
 # PCM region (right side AFTER buffer)
 mask_pcm = (
-    (X >= x_center + W/2 + t_buffer) & (X <= x_center + W/2 + g) &
-    (Y >= y_center - H/2) & (Y <= y_center + H/2)
+    (X >= W/2 + t_buffer) & (X <= W/2 + g) &
+    (Y >= y_core_center - H/2) & (Y <= y_core_center + H/2)
 )
 
 # ============================================================

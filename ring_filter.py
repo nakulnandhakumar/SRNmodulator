@@ -60,7 +60,7 @@ def run_sweep(pcm_material_name):
     pcm_w_values = np.linspace(50e-9, 500e-9, 25)
     for pcm_w in pcm_w_values:
 
-        y_core_center = tBOX + H/2
+        y_core_center = 0
         
         ring_supermode.putv("pcm_w", pcm_w)
         ring_supermode.eval(eta_sweep_script)
@@ -168,7 +168,7 @@ def run_sweep(pcm_material_name):
                 "TEfrac": TEfrac
             })
             
-            print(f"Mode {m}: neff={neff:.4f}, TEfrac={TEfrac:.3f}, eta_srn={eta_srn_total:.3f}, eta_pcm={eta_pcm_total:.3f}, loss={supermode_loss_dB_cm:.3f} dB/cm")
+            print(f"Mode {m}: neff={neff:.4f}, TEfrac={TEfrac:.3f}, E2={E_total:.3f}, eta_srn={eta_srn_total:.3f}, eta_pcm={eta_pcm_total:.3f}, loss={supermode_loss_dB_cm:.3f} dB/cm")
             
         # Select valid TE modes where SRN dominates PCM
         TE_threshold = 0.90

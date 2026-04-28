@@ -72,7 +72,6 @@ for t_buffer in t_buffer_values:
 
         try:
             # --- basic properties ---
-            print("Here 1")
             ring_supermode.eval(f'neff_temp = real(getdata("{mode_name}", "neff"));')
             neff = ring_supermode.getv("neff_temp")
 

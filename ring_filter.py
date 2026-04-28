@@ -32,7 +32,7 @@ tCLAD = 2e-6
 y_core_center = 0
 
 lam = 1.55e-6
-Lc = 3e-6
+Lc = 2e-6
 margin = 20e-9
 
 # ============================================================
@@ -270,6 +270,7 @@ def run_sweep(pcm_material_name):
         print("====================================")
         print(f"PCM width = {pcm_w*1e9:.1f} nm")
         print(f"kappa_L = {kappa_L:.4f} (target ~1.57)")
+        print(f"kappa prime = {kappa_prime:.4e} 1/m")
         print(f"P_cross (ideal) = {P_cross_ideal:.3f}")
         print(f"P_cross (lossy) = {P_cross_lossy:.3f}")
         print(f"L_100 = {L_100*1e6:.2f} um")
@@ -317,6 +318,15 @@ plt.plot(results_crystalline["pcm_w_nm"], results_crystalline["kappa_L"], label=
 plt.xlabel("PCM width (nm)")
 plt.ylabel("Coupling coefficient")
 plt.title("Switching Behavior vs PCM Width")
+plt.legend()
+plt.grid()
+
+plt.figure(figsize=(10,6))
+plt.plot(results_amorphous["pcm_w_nm"], results_amorphous["kappa_prime"], label="κ' (Amorphous)")
+plt.plot(results_crystalline["pcm_w_nm"], results_crystalline["kappa_prime"], label="κ' (Crystalline)")
+plt.xlabel("PCM width (nm)")
+plt.ylabel("kappa_prime (1/m)")
+plt.title("Coupling strength vs PCM width")
 plt.legend()
 plt.grid()
 

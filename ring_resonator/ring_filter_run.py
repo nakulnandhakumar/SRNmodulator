@@ -24,7 +24,7 @@ t_buffer = 190e-9
 material_params = {
     "core_material_mode": "SRN 3.1 (Silicon Rich Nitride)",
     "clad_left_material": "SiO2 (Glass) - Palik",
-    "clad_right_material": "SBS Amorphous",
+    "clad_right_material": "SBS Crystalline",
     "BOX_cladding_material_mode": "SiO2 (Glass) - Palik",
 }
 

@@ -128,8 +128,6 @@ for t_buffer in t_buffer_values:
         eta_srn = E_srn / E_total
         eta_pcm = E_pcm / E_total
 
-        neff = np.real(ring_supermode.getv(f"{mode_name}.neff"))
-
         mode_data.append({
             "mode": m,
             "neff": neff,

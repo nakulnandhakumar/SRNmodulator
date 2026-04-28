@@ -29,8 +29,8 @@ W = 0.450e-6
 H = 0.350e-6
 g = 0.700e-6
 t_buffer = 185e-9
-tBOX = 3e-6
 tCLAD = 2e-6
+y_core_center = 0
 
 lam = 1.55e-6
 Lc = 3e-6
@@ -59,8 +59,6 @@ def run_sweep(pcm_material_name):
     
     pcm_w_values = np.linspace(50e-9, 500e-9, 25)
     for pcm_w in pcm_w_values:
-
-        y_core_center = 0
         
         ring_supermode.putv("pcm_w", pcm_w)
         ring_supermode.eval(eta_sweep_script)

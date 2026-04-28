@@ -35,7 +35,7 @@ tBOX = 3e-6
 tCLAD = 2e-6
 
 lam = 1.55e-6
-Lc = 5e-6
+Lc = 3e-6
 margin = 20e-9
 k_pcm = 0.00216
 
@@ -44,7 +44,7 @@ alpha_pcm_dB_cm = alpha_pcm_m * (10/np.log(10)) / 100
 
 results = []
 
-pcm_w_values = np.linspace(50e-9, 400e-9, 25)
+pcm_w_values = np.linspace(50e-9, 200e-9, 25)
 for pcm_w in pcm_w_values:
 
     y_core_center = tBOX + H/2
@@ -266,3 +266,73 @@ for pcm_w in pcm_w_values:
     print(f"L_100 = {L_100*1e6:.2f} um")
     print(f"loss_coupler = {loss_coupler_dB:.3f} dB")
     print("====================================")
+    
+# ============================================================
+# Post-process sweep results
+# ============================================================
+
+results_df = pd.DataFrame(results)
+
+if results_df.empty:
+    raise RuntimeError("No valid results found. Check mode filtering or Lumerical outputs.")
+
+# Pick best design for OFF/amorphous state:
+# prioritize lossy cross power, but you can also sort by coupling_error
+best = results_df.sort_values("P_cross_lossy", ascending=False).iloc[0]
+
+print("\n================ BEST OFF/AMORPHOUS DESIGN ================")
+print(f"PCM width = {best['pcm_w_nm']:.1f} nm")
+print(f"kappa_L = {best['kappa_L']:.4f}")
+print(f"L_100 = {best['L_100_um']:.3f} um")
+print(f"P_cross ideal = {best['P_cross_ideal']:.4f}")
+print(f"P_cross lossy = {best['P_cross_lossy']:.4f}")
+print(f"P_through lossy = {best['P_through_lossy']:.4f}")
+print(f"loss_coupler = {best['loss_coupler_dB']:.4f} dB")
+print(f"eta_pcm_ring = {best['eta_pcm_ring']:.4f}")
+print("============================================================")
+
+# Save results for crystalline comparison later
+results_df.to_csv("ring_filter_amorphous_pcm_width_sweep.csv", index=False)
+
+# ============================================================
+# Plots
+# ============================================================
+
+plt.figure(figsize=(10, 6))
+plt.plot(results_df["pcm_w_nm"], results_df["P_cross_ideal"], marker="o", label="P_cross ideal")
+plt.plot(results_df["pcm_w_nm"], results_df["P_cross_lossy"], marker="o", label="P_cross lossy")
+plt.plot(results_df["pcm_w_nm"], results_df["P_through_ideal"], marker="o", label="P_through ideal")
+plt.axhline(1.0, linestyle="--", linewidth=1)
+plt.xlabel("PCM width (nm)")
+plt.ylabel("Power fraction")
+plt.title(f"Directional Coupler Transfer vs PCM Width, Lc = {Lc*1e6:.1f} µm")
+plt.legend()
+plt.grid()
+
+plt.figure(figsize=(10, 6))
+plt.plot(results_df["pcm_w_nm"], results_df["kappa_L"], marker="o", label="κL")
+plt.axhline(np.pi/2, linestyle="--", label="π/2 target")
+plt.xlabel("PCM width (nm)")
+plt.ylabel("κL")
+plt.title("Coupling Phase vs PCM Width")
+plt.legend()
+plt.grid()
+
+plt.figure(figsize=(10, 6))
+plt.plot(results_df["pcm_w_nm"], results_df["L_100_um"], marker="o", label="L_100")
+plt.axhline(Lc*1e6, linestyle="--", label=f"Chosen Lc = {Lc*1e6:.1f} µm")
+plt.xlabel("PCM width (nm)")
+plt.ylabel("Length (µm)")
+plt.title("100% Coupling Length vs PCM Width")
+plt.legend()
+plt.grid()
+
+plt.figure(figsize=(10, 6))
+plt.plot(results_df["pcm_w_nm"], results_df["loss_coupler_dB"], marker="o", label="Coupler loss")
+plt.xlabel("PCM width (nm)")
+plt.ylabel("Loss (dB)")
+plt.title("Coupler Loss vs PCM Width")
+plt.legend()
+plt.grid()
+
+plt.show()

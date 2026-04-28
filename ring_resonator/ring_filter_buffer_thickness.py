@@ -85,34 +85,13 @@ mask_pcm = (
 # ============================================================
 # Compute energy fractions
 # ============================================================
-
 E_total = np.sum(E2)
-E_srn   = np.sum(E2 * mask_srn)
 E_pcm   = np.sum(E2 * mask_pcm)
 
-eta_srn = E_srn / E_total
 eta_pcm = E_pcm / E_total
-eta_other = 1 - eta_srn - eta_pcm
+eta_good = 1 - eta_pcm
 
 print("====================================")
-print("SRN confinement eta_srn =", eta_srn)
 print("PCM confinement eta_pcm =", eta_pcm)
-print("Other energy            =", eta_other)
+print("Good confinement eta_good =", eta_good)
 print("====================================")
-
-plt.figure(figsize=(6,5))
-
-# field
-plt.imshow(E2.T, origin='lower')
-
-# SRN mask as black dots
-ys, xs = np.where(mask_srn.T)
-plt.scatter(xs, ys, s=2, c='black', alpha=0.6, label='SRN')
-
-# PCM mask as red dots
-ys, xs = np.where(mask_pcm.T)
-plt.scatter(xs, ys, s=2, c='red', alpha=0.6, label='PCM')
-
-plt.legend()
-plt.title("E2 with mask points")
-plt.show()

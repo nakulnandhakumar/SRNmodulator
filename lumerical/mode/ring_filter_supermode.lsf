@@ -8,7 +8,7 @@ deleteall;
 W = 450e-9;
 H = 350e-9;
 
-?t_buffer;     # e.g. 185e-9
+t_buffer = 185e-9;     # e.g. 185e-9
 ?pcm_w;        # remaining PCM width in middle
 ?lambda;
 ?pcm_mat;
@@ -94,7 +94,7 @@ set("y",0);
 set("y span", y_span);
 
 set("wavelength", lambda);
-set("number of trial modes", 4);
+set("number of trial modes", 6);
 set("search","near n");
 
 # Global mesh (coarse baseline)
@@ -125,90 +125,3 @@ set("enabled", 1);
 # ===================== SOLVE ================================
 
 findmodes;
-
-# ===================== EXTRACT MODES (ROBUST) =========================
-
-nmodes = 4;   # should match "number of trial modes"
-
-neff_list   = zeros(nmodes);
-TEfrac_list = zeros(nmodes);
-
-# ---- collect data from all trial modes ----
-for (i=1:nmodes) {
-    mode_name = "mode" + num2str(i);
-
-    neff_list(i)   = real(getdata(mode_name, "neff"));
-    TEfrac_list(i) = getdata(mode_name, "TE polarization fraction");
-}
-
-# ---- debug print ----
-?"---- MODE SUMMARY ----";
-for (i=1:nmodes) {
-    ?"mode " + num2str(i) + 
-      " | neff = " + num2str(neff_list(i)) + 
-      " | TE frac = " + num2str(TEfrac_list(i));
-}
-
-# ---- keep only TE-like modes ----
-TE_threshold = 0.90;
-neff_TE = zeros(nmodes);
-nTE = 0;
-
-for (i=1:nmodes) {
-    if (TEfrac_list(i) > TE_threshold) {
-        nTE = nTE + 1;
-        neff_TE(nTE) = neff_list(i);
-    }
-}
-
-# ---- safety check ----
-if (nTE < 2) {
-    ? "ERROR: fewer than 2 TE-like modes found.";
-    break;
-}
-
-# ---- trim unused zeros and sort ascending ----
-neff_TE = neff_TE(1:nTE);
-neff_TE = sort(neff_TE);
-
-# sort() is ascending, so highest neff is last
-neff_even = neff_TE(nTE);
-neff_odd  = neff_TE(nTE-1);
-
-?"--------------------------------------";
-?"Selected TE supermodes:";
-?"neff_even = " + num2str(neff_even);
-?"neff_odd  = " + num2str(neff_odd);
-
-# ===================== COUPLING ==============================
-
-# Δneff
-dneff = neff_even - neff_odd;
-
-# Δβ
-dBeta = (2*pi/lambda) * dneff;
-
-# κ' (per meter)
-kappa_prime = dBeta / 2;
-
-# 100% coupling length
-L_100 = pi / (2*kappa_prime);
-
-# ===================== PRINT ================================
-
-?"======================================";
-?"SUPERMODE RESULTS";
-?"======================================";
-
-?"neff_even = " + num2str(neff_even);
-?"neff_odd  = " + num2str(neff_odd);
-
-?"--------------------------------------";
-?"delta neff     = " + num2str(dneff);
-?"delta β        = " + num2str(dBeta);
-
-?"--------------------------------------";
-?"kappa' [1/m] = " + num2str(kappa_prime);
-?"L_100 [um]   = " + num2str(L_100*1e6);
-
-?"======================================";

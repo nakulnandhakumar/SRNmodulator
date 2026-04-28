@@ -27,7 +27,6 @@ ring_supermode.putv("lambda", 1.55e-6)
 # Geometry (constant)
 W = 0.450e-6
 H = 0.350e-6
-g = 0.700e-6
 t_buffer = 185e-9
 tCLAD = 2e-6
 y_core_center = 0
@@ -59,6 +58,8 @@ def run_sweep(pcm_material_name):
     
     pcm_w_values = np.linspace(50e-9, 500e-9, 25)
     for pcm_w in pcm_w_values:
+        
+        g = 2*t_buffer + pcm_w  # total gap must accommodate buffer + PCM + buffer
         
         ring_supermode.putv("pcm_w", pcm_w)
         ring_supermode.eval(eta_sweep_script)

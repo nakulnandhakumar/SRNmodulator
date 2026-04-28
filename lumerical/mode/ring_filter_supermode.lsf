@@ -8,7 +8,7 @@ deleteall;
 W = 450e-9;
 H = 350e-9;
 
-t_buffer = 0e-9;     # e.g. 185e-9
+t_buffer = 10e-9;     # e.g. 185e-9
 ?pcm_w;        # remaining PCM width in middle
 ?lambda;
 ?pcm_mat;

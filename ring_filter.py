@@ -27,7 +27,7 @@ ring_supermode.putv("lambda", 1.55e-6)
 # Geometry (constant)
 W = 0.450e-6
 H = 0.350e-6
-t_buffer = 0e-9
+t_buffer = 10e-9
 tCLAD = 2e-6
 y_core_center = 0
 
@@ -56,7 +56,7 @@ def run_sweep(pcm_material_name):
     # Sweep PCM width from 50 nm to 500 nm
     results = []
     
-    pcm_w_values = np.linspace(10e-9, 100e-9, 10)
+    pcm_w_values = np.linspace(50e-9, 300e-9, 10)
     for pcm_w in pcm_w_values:
         
         g = 2*t_buffer + pcm_w  # total gap must accommodate buffer + PCM + buffer

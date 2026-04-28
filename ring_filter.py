@@ -41,6 +41,8 @@ margin = 20e-9
 # ============================================================
 def run_sweep(pcm_material_name):
     
+    lam = 1.55e-6
+    
     # PCM absorption coefficient (dB/cm) depends on material state
     if pcm_material_name == "SBS Amorphous":
         k_pcm = 0.00216   # your value

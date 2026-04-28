@@ -41,6 +41,8 @@ for t_buffer in t_buffer_values:
     E2 = np.squeeze(ring_supermode.getv("E2"))
 
     X, Y = np.meshgrid(x, y, indexing='ij')
+    
+    loss_dB_cm = ring_supermode.getv("loss_TE_dB_cm")
 
     # Define geometric parameters
     W = 0.450e-6
@@ -96,4 +98,5 @@ for t_buffer in t_buffer_values:
     print(f"Buffer thickness t_buffer = {t_buffer*1e9:.1f} nm")
     print(f"PCM confinement eta_pcm = {eta_pcm:.4f}")
     print(f"Good confinement eta_good = {eta_good:.4f}")
+    print(f"Loss (dB/cm) = {loss_dB_cm:.4f}")
     print("====================================")

@@ -101,7 +101,7 @@ def sweep_kappa_vs_gap_filter(
     gap_end = 500e-9,
     Npoints = 100,
     lsf_path=r"./lumerical/mode/ring_modulator_supermode.lsf",
-    project_path=r"./lumerical/mode/ring_supermode.lms",
+    project_path=r"./lumerical/mode/supermode.lms",
     output_csv="kappa_vs_gap_filter.csv",
     hide=False
 ):

@@ -6,12 +6,12 @@ sys.path.append(r"C:\Program Files\Lumerical\v202\api\python")
 import lumapi # pyright: ignore[reportMissingImports]
 
 # Initialize Lumerical MODE for the ring filter waveguide
-ring_supermode = lumapi.MODE(
+supermode = lumapi.MODE(
             hide=False,
-            project=r"./lumerical/mode/ring_supermode.lms"
+            project=r"./lumerical/mode/supermode.lms"
         )
 
-with open(r"./lumerical/mode/ring_filter_supermode.lsf") as f:
+with open(r"./lumerical/mode/coupler_switch_supermode.lsf") as f:
     eta_sweep_script = f.read()
 
 material_params = {
@@ -20,9 +20,9 @@ material_params = {
 }
 
 for param, value in material_params.items():
-    ring_supermode.putv(param, value)
+    supermode.putv(param, value)
     
-ring_supermode.putv("lambda", 1.55e-6)
+supermode.putv("lambda", 1.55e-6)
 
 # Geometry (constant)
 W = 0.450e-6
@@ -51,7 +51,7 @@ def run_sweep(pcm_material_name):
     alpha_pcm_dB_cm = alpha_pcm_m * (10/np.log(10)) / 100
     
     # Set PCM material in Lumerical
-    ring_supermode.putv("pcm_mat", pcm_material_name)
+    supermode.putv("pcm_mat", pcm_material_name)
     
     # Sweep PCM width from 50 nm to 500 nm
     results = []
@@ -61,8 +61,8 @@ def run_sweep(pcm_material_name):
         
         g = 2*t_buffer + pcm_w  # total gap must accommodate buffer + PCM + buffer
         
-        ring_supermode.putv("pcm_w", pcm_w)
-        ring_supermode.eval(eta_sweep_script)
+        supermode.putv("pcm_w", pcm_w)
+        supermode.eval(eta_sweep_script)
 
         nmodes = 4  # should match Lumerical trial modes
 
@@ -73,32 +73,32 @@ def run_sweep(pcm_material_name):
 
             try:
                 # --- scalar properties ---
-                ring_supermode.eval(f'neff_temp = real(getdata("FDE::data::{mode_name}", "neff"));')
-                neff = ring_supermode.getv("neff_temp")
+                supermode.eval(f'neff_temp = real(getdata("FDE::data::{mode_name}", "neff"));')
+                neff = supermode.getv("neff_temp")
 
-                ring_supermode.eval(f'TEfrac_temp = getdata("FDE::data::{mode_name}", "TE polarization fraction");')
-                TEfrac = ring_supermode.getv("TEfrac_temp")
+                supermode.eval(f'TEfrac_temp = getdata("FDE::data::{mode_name}", "TE polarization fraction");')
+                TEfrac = supermode.getv("TEfrac_temp")
 
-                ring_supermode.eval(f'loss_temp = getdata("FDE::data::{mode_name}", "loss");')
-                supermode_loss = ring_supermode.getv("loss_temp")
+                supermode.eval(f'loss_temp = getdata("FDE::data::{mode_name}", "loss");')
+                supermode_loss = supermode.getv("loss_temp")
                 supermode_loss_dB_cm = supermode_loss / 100
 
                 # --- grid ---
-                ring_supermode.eval(f'x_temp = getdata("FDE::data::{mode_name}", "x");')
-                x = np.squeeze(ring_supermode.getv("x_temp"))
+                supermode.eval(f'x_temp = getdata("FDE::data::{mode_name}", "x");')
+                x = np.squeeze(supermode.getv("x_temp"))
 
-                ring_supermode.eval(f'y_temp = getdata("FDE::data::{mode_name}", "y");')
-                y = np.squeeze(ring_supermode.getv("y_temp"))
+                supermode.eval(f'y_temp = getdata("FDE::data::{mode_name}", "y");')
+                y = np.squeeze(supermode.getv("y_temp"))
 
                 # --- fields ---
-                ring_supermode.eval(f'Ex_temp = getdata("FDE::data::{mode_name}", "Ex");')
-                Ex = np.squeeze(ring_supermode.getv("Ex_temp"))
+                supermode.eval(f'Ex_temp = getdata("FDE::data::{mode_name}", "Ex");')
+                Ex = np.squeeze(supermode.getv("Ex_temp"))
 
-                ring_supermode.eval(f'Ey_temp = getdata("FDE::data::{mode_name}", "Ey");')
-                Ey = np.squeeze(ring_supermode.getv("Ey_temp"))
+                supermode.eval(f'Ey_temp = getdata("FDE::data::{mode_name}", "Ey");')
+                Ey = np.squeeze(supermode.getv("Ey_temp"))
 
-                ring_supermode.eval(f'Ez_temp = getdata("FDE::data::{mode_name}", "Ez");')
-                Ez = np.squeeze(ring_supermode.getv("Ez_temp"))
+                supermode.eval(f'Ez_temp = getdata("FDE::data::{mode_name}", "Ez");')
+                Ez = np.squeeze(supermode.getv("Ez_temp"))
 
             except:
                 print(f"WARNING: Mode {mode_name} not found")

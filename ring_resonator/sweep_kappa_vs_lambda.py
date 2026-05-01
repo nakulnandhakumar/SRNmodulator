@@ -10,7 +10,7 @@ def sweep_kappa_vs_lambda_modulator(
     lambda_end = 1.56e-6,
     Npoints = 100,
     lsf_path=r"./lumerical/mode/ring_modulator_supermode.lsf",
-    project_path=r"./lumerical/mode/ring_supermode.lms",
+    project_path=r"./lumerical/mode/supermode.lms",
     output_csv="kappa_vs_lambda_modulator.csv",
     hide=False
 ):

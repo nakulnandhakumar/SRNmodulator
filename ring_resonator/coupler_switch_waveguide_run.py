@@ -7,12 +7,12 @@ import lumapi  # pyright: ignore
 # Initialize MODE
 # ============================================================
 
-ring_supermode = lumapi.MODE(
+supermode = lumapi.MODE(
     hide=False,
-    project=r"./lumerical/mode/ring_supermode.lms"
+    project=r"./lumerical/mode/supermode.lms"
 )
 
-with open(r"./lumerical/mode/ring_filter_waveguide_run.lsf") as f:
+with open(r"./lumerical/mode/coupler_switch_waveguide_run.lsf") as f:
     script = f.read()
 
 # ============================================================
@@ -29,10 +29,10 @@ material_params = {
 }
 
 for param, value in material_params.items():
-    ring_supermode.putv(param, value)
+    supermode.putv(param, value)
 
-ring_supermode.putv("t_buffer", t_buffer)
-ring_supermode.eval(script)
+supermode.putv("t_buffer", t_buffer)
+supermode.eval(script)
 
 # ============================================================
 # GEOMETRY (must match LSF)
@@ -59,32 +59,32 @@ for m in range(1, nmodes+1):
 
     try:
         # --- scalar properties ---
-        ring_supermode.eval(f'neff_temp = real(getdata("FDE::data::{mode_name}", "neff"));')
-        neff = ring_supermode.getv("neff_temp")
+        supermode.eval(f'neff_temp = real(getdata("FDE::data::{mode_name}", "neff"));')
+        neff = supermode.getv("neff_temp")
 
-        ring_supermode.eval(f'TEfrac_temp = getdata("FDE::data::{mode_name}", "TE polarization fraction");')
-        TEfrac = ring_supermode.getv("TEfrac_temp")
+        supermode.eval(f'TEfrac_temp = getdata("FDE::data::{mode_name}", "TE polarization fraction");')
+        TEfrac = supermode.getv("TEfrac_temp")
 
-        ring_supermode.eval(f'loss_temp = getdata("FDE::data::{mode_name}", "loss");')
-        loss = ring_supermode.getv("loss_temp")
+        supermode.eval(f'loss_temp = getdata("FDE::data::{mode_name}", "loss");')
+        loss = supermode.getv("loss_temp")
         loss_dB_cm = loss / 100
 
         # --- grid ---
-        ring_supermode.eval(f'x_temp = getdata("FDE::data::{mode_name}", "x");')
-        x = np.squeeze(ring_supermode.getv("x_temp"))
+        supermode.eval(f'x_temp = getdata("FDE::data::{mode_name}", "x");')
+        x = np.squeeze(supermode.getv("x_temp"))
 
-        ring_supermode.eval(f'y_temp = getdata("FDE::data::{mode_name}", "y");')
-        y = np.squeeze(ring_supermode.getv("y_temp"))
+        supermode.eval(f'y_temp = getdata("FDE::data::{mode_name}", "y");')
+        y = np.squeeze(supermode.getv("y_temp"))
 
         # --- fields ---
-        ring_supermode.eval(f'Ex_temp = getdata("FDE::data::{mode_name}", "Ex");')
-        Ex = np.squeeze(ring_supermode.getv("Ex_temp"))
+        supermode.eval(f'Ex_temp = getdata("FDE::data::{mode_name}", "Ex");')
+        Ex = np.squeeze(supermode.getv("Ex_temp"))
 
-        ring_supermode.eval(f'Ey_temp = getdata("FDE::data::{mode_name}", "Ey");')
-        Ey = np.squeeze(ring_supermode.getv("Ey_temp"))
+        supermode.eval(f'Ey_temp = getdata("FDE::data::{mode_name}", "Ey");')
+        Ey = np.squeeze(supermode.getv("Ey_temp"))
 
-        ring_supermode.eval(f'Ez_temp = getdata("FDE::data::{mode_name}", "Ez");')
-        Ez = np.squeeze(ring_supermode.getv("Ez_temp"))
+        supermode.eval(f'Ez_temp = getdata("FDE::data::{mode_name}", "Ez");')
+        Ez = np.squeeze(supermode.getv("Ez_temp"))
 
     except:
         print(f"WARNING: Mode {mode_name} not found")

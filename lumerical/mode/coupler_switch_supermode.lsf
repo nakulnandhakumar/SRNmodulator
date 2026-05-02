@@ -1,5 +1,6 @@
 # ============================================================
 # Coupled Waveguide Supermode Solver (MODE)
+# Asymmetric PCM-on-top directional coupler
 # ============================================================
 switchtolayout;
 deleteall;
@@ -8,12 +9,11 @@ deleteall;
 W = 450e-9;
 H = 350e-9;
 
-t_buffer = 10e-9;     # e.g. 185e-9
-?pcm_w;        # remaining PCM width in middle
+?g;             # waveguide-to-waveguide gap
+?t_gap_pcm;     # vertical SiO2 gap between SRN and PCM
+?t_pcm;         # PCM thickness
 ?lambda;
 ?pcm_mat;
-
-g = 2*t_buffer + pcm_w;
 
 core_mat = "SRN 3.1 (Silicon Rich Nitride)";
 clad_mat = "SiO2 (Glass) - Palik";
@@ -21,8 +21,18 @@ clad_mat = "SiO2 (Glass) - Palik";
 x_span = 3e-6;
 y_span = 3e-6;
 
-if (pcm_w <= 0) {
-    ? "ERROR: pcm_w must be > 0";
+if (g <= 0) {
+    ? "ERROR: g must be > 0";
+    break;
+}
+
+if (t_pcm <= 0) {
+    ? "ERROR: t_pcm must be > 0";
+    break;
+}
+
+if (t_gap_pcm < 0) {
+    ? "ERROR: t_gap_pcm must be >= 0";
     break;
 }
 
@@ -37,7 +47,7 @@ set("x span", x_span);
 set("y",0);
 set("y span", y_span);
 
-# Left SRN waveguide
+# Left / bus SRN waveguide
 addrect;
 set("name","wg_left_SRN");
 set("material", core_mat);
@@ -46,7 +56,7 @@ set("x span", W);
 set("y", 0);
 set("y span", H);
 
-# Right SRN waveguide
+# Right / coupler SRN waveguide
 addrect;
 set("name","wg_right_SRN");
 set("material", core_mat);
@@ -55,32 +65,25 @@ set("x span", W);
 set("y", 0);
 set("y span", H);
 
-# Left SiO2 buffer inside gap
+# PCM film on top of LEFT waveguide
 addrect;
-set("name","buffer_left_SiO2");
-set("material", clad_mat);
-set("x", -g/2 + t_buffer/2);
-set("x span", t_buffer);
-set("y", 0);
-set("y span", H);
-
-# Right SiO2 buffer inside gap
-addrect;
-set("name","buffer_right_SiO2");
-set("material", clad_mat);
-set("x", g/2 - t_buffer/2);
-set("x span", t_buffer);
-set("y", 0);
-set("y span", H);
-
-# PCM region in middle of gap
-addrect;
-set("name","pcm_middle");
+set("name","pcm_top_left");
 set("material", pcm_mat);
-set("x", 0);
-set("x span", pcm_w);
-set("y", 0);
-set("y span", H);
+set("x", -(W/2 + g/2));   # <-- moved to LEFT WG
+set("x span", W);
+set("y", H/2 + t_gap_pcm + t_pcm/2);
+set("y span", t_pcm);
+
+# Optional SiO2 spacer between LEFT SRN and PCM
+if (t_gap_pcm > 0) {
+    addrect;
+    set("name","pcm_gap_SiO2");
+    set("material", clad_mat);
+    set("x", -(W/2 + g/2));   # <-- also moved LEFT
+    set("x span", W);
+    set("y", H/2 + t_gap_pcm/2);
+    set("y span", t_gap_pcm);
+}
 
 # ===================== MODE SOLVER ===========================
 
@@ -94,10 +97,10 @@ set("y",0);
 set("y span", y_span);
 
 set("wavelength", lambda);
-set("number of trial modes", 4);
+set("number of trial modes", 6);
 set("search","near n");
 
-# Global mesh (coarse baseline)
+# Global mesh
 set("mesh cells x", 200);
 set("mesh cells y", 200);
 
@@ -107,20 +110,19 @@ addmesh;
 set("name","mesh_coupler");
 
 set("x", 0);
-set("x span", W + 2*g + 1e-6);   # include both waveguides + margin
+set("x span", 2*W + g + 1e-6);
 
-set("y", 0);
-set("y span", H + 1e-6);         # include evanescent region
+# include both SRN waveguides + PCM above right guide
+set("y", H/2 + t_gap_pcm/2 + t_pcm/2);
+set("y span", H + t_gap_pcm + t_pcm + 1e-6);
 
 set("z", 0);
 set("z span", 0.5e-6);
 
-# Fine resolution
 set("dx", 5e-9);
 set("dy", 5e-9);
 
 set("enabled", 1);
-
 
 # ===================== SOLVE ================================
 

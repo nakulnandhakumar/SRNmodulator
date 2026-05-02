@@ -5,7 +5,7 @@ import numpy as np
 from modulator_optimize_config import PARAMS
 
 # Define loop over gap values
-gap_values = np.linspace(500e-9, 800e-9, 50)
+gap_values = np.linspace(500e-9, 800e-9, 10)
 true_VpiL_results = {}
 loss_results = {}
 Vbreak_results = {}

@@ -159,6 +159,7 @@ def run_single(pcm_material):
             "TEfrac": TEfrac,
             "eta_left": eta_left,
             "eta_right": eta_right,
+            "eta_srn_total": eta_srn_total,
             "eta_pcm": eta_pcm
         })
         

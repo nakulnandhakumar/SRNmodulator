@@ -12,7 +12,7 @@ supermode = lumapi.MODE(
     project=r"./lumerical/mode/supermode.lms"
 )
 
-with open(r"./lumerical/mode/coupler_switch_waveguide_run.lsf") as f:
+with open(r"./lumerical/mode/coupler_switch_single_waveguide_run.lsf") as f:
     script = f.read()
 
 # ============================================================

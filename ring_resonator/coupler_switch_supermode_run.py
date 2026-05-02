@@ -114,7 +114,7 @@ def run_single(pcm_material):
             y_mask_top = min(y_mask_top_candidate, y_pcm_limit)
 
         # =====================
-        # Final masks
+        # SRN masks
         # =====================
 
         mask_left = (
@@ -129,23 +129,56 @@ def run_single(pcm_material):
             (Y <= y_mask_top)
         )
 
+        # =====================
+        # Add PCM mask
+        # =====================
+
+        y_pcm_top = y_pcm_bottom + t_pcm
+
+        mask_pcm = (
+            (X >= x_left - W/2 - margin) & (X <= x_left + W/2 + margin) &
+            (Y >= y_pcm_bottom) &
+            (Y <= y_pcm_top)
+        )
+
+        # =====================
+        # Energy fractions
+        # =====================
+
         E_total = np.sum(E2)
-        eta_left = np.sum(E2 * mask_left) / E_total
+
+        eta_left  = np.sum(E2 * mask_left)  / E_total
         eta_right = np.sum(E2 * mask_right) / E_total
+        eta_pcm   = np.sum(E2 * mask_pcm)   / E_total
+
+        eta_srn_total = eta_left + eta_right
 
         mode_data.append({
             "mode": m,
             "neff": neff,
             "TEfrac": TEfrac,
             "eta_left": eta_left,
-            "eta_right": eta_right
+            "eta_right": eta_right,
+            "eta_pcm": eta_pcm
         })
+        
+        print(f"\nMode {m}")
+        print(f"neff = {neff:.6f}")
+        print(f"TEfrac = {TEfrac:.3f}")
+        print(f"eta_left  = {eta_left:.3f}")
+        print(f"eta_right = {eta_right:.3f}")
+        print(f"eta_pcm   = {eta_pcm:.3f}")
+        print(f"eta_srn_total = {eta_srn_total:.3f}")
 
     # =====================
     # MODE SELECTION
     # =====================
 
-    valid = [md for md in mode_data if md["TEfrac"] > 0.9]
+    valid = []
+    for md in mode_data:
+        if md["TEfrac"] > 0.9:
+            if md["eta_srn_total"] > 0.7:   # <-- critical filter
+                valid.append(md)
 
     if len(valid) < 2:
         print("ERROR: not enough valid modes")

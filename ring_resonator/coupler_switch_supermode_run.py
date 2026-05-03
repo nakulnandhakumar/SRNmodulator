@@ -221,10 +221,19 @@ on  = run_single("SBS Crystalline")
 print("\n========== RESULTS ==========")
 
 print("\nOFF (Amorphous)")
-print(off)
+for key, value in off.items():
+    if isinstance(value, float):
+        print(f"{key} = {value:.6f}")
+    else:
+        print(f"{key} = {value}")
 
 print("\nON (Crystalline)")
 print(on)
+for key, value in on.items():
+    if isinstance(value, float):
+        print(f"{key} = {value:.6f}")
+    else:
+        print(f"{key} = {value}")
 
 if off and on:
     print("\n========== SWITCHING ==========")

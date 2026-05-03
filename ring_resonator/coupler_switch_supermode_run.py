@@ -178,7 +178,7 @@ def run_single(pcm_material):
     valid = []
     for md in mode_data:
         if md["TEfrac"] > 0.9:
-            if md["eta_srn_total"] > 0.7:   # <-- critical filter
+            if md["eta_pcm"] < 0.15:   # <-- critical filter
                 valid.append(md)
 
     if len(valid) < 2:

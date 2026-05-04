@@ -26,7 +26,8 @@ results = []
 
 for t_pcm in t_pcm_values:
     for t_gap_pcm in t_gap_values:
-
+        
+        # Run both states for the current parameter combination
         off = run_single("SBS Amorphous", g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, 
                          lum_project=supermode, lsf_script=coupler_switch_supermode_script)
         on  = run_single("SBS Crystalline", g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, 
@@ -34,7 +35,20 @@ for t_pcm in t_pcm_values:
 
         if off is None or on is None:
             continue
+        
+        # Check mode ordering consistency
+        if off["mode1"] != 1 or off["mode2"] != 2:
+            print("WARNING: mode ordering changed (OFF)")
 
+        if on["mode1"] != 1 or on["mode2"] != 2:
+            print("WARNING: mode ordering changed (ON)")
+            
+        # If PCM overlap is too high, results may be inaccurate due to non-perturbative effects
+        if on["eta_pcm_avg"] > 0.25:
+            print("WARNING: PCM overlap too high, results may be inaccurate")
+            continue
+
+        # Store results in a list of dictionaries
         results.append({
             "g_nm": g * 1e9,
             "t_pcm_nm": t_pcm * 1e9,
@@ -58,6 +72,9 @@ for t_pcm in t_pcm_values:
             "on_mode2": on["mode2"],
             "off_mode1": off["mode1"],
             "off_mode2": off["mode2"],
+            
+            "Lmax_off_um": np.pi / (2 * off["Omega"]) * 1e6,
+            "Lmax_on_um": np.pi / (2 * on["Omega"]) * 1e6,
         })
 
 results_df = pd.DataFrame(results)

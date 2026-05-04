@@ -1,0 +1,397 @@
+############################################################
+# 3D FDTD: dual-PCM directional coupler switch
+# Ring-arc S-bends + straight coupling region
+############################################################
+
+switchtolayout;
+deleteall;
+
+############################################################
+# PARAMETERS
+############################################################
+
+lambda0 = 1.55e-6;
+lambda_start = 1.54e-6;
+lambda_stop  = 1.56e-6;
+
+W = 450e-9;
+H = 350e-9;
+
+gap_cpl = 250e-9;
+gap_io  = 1.5e-6;
+
+t_pcm = 50e-9;
+t_gap_pcm = 0e-9;
+
+Lc = 31.27e-6;
+Ls = 10e-6;
+
+overlap_safe = 10e-9;
+
+mat_core = "SRN (Silicon Rich Nitride)";
+mat_clad = "SiO2 (Glass) - Palik";
+
+pcm_mat_left  = "SBS Amorphous";
+pcm_mat_right = "SBS Crystalline";
+
+x_pad_in  = 2e-6;
+x_pad_out = 2e-6;
+y_pad = 2.5e-6;
+z_pad_top = 2e-6;
+z_pad_bot = 2e-6;
+
+############################################################
+# DERIVED GEOMETRY
+############################################################
+
+# lateral positions
+y_left_cpl  = -(gap_cpl/2 + W/2);
+y_right_cpl =  (gap_cpl/2 + W/2);
+
+y_left_io  = -(gap_io/2 + W/2);
+y_right_io =  (gap_io/2 + W/2);
+
+# propagation positions
+x_cpl_start = -Lc/2;
+x_cpl_stop  =  Lc/2;
+
+x_in_start  = x_cpl_start - Ls;
+x_in_stop   = x_cpl_start;
+
+x_out_start = x_cpl_stop;
+x_out_stop  = x_cpl_stop + Ls;
+
+x_total_min = x_in_start - x_pad_in;
+x_total_max = x_out_stop + x_pad_out;
+x_total = 0.5*(x_total_min + x_total_max);
+x_span_total = x_total_max - x_total_min;
+
+y_span_total = gap_io + 2*W + 2*y_pad;
+
+z_core = 0;
+z_pcm = H/2 + t_gap_pcm + t_pcm/2;
+z_span_total = H + t_gap_pcm + t_pcm + z_pad_top + z_pad_bot;
+
+############################################################
+# BACKGROUND
+############################################################
+
+addrect;
+set("name","cladding");
+set("material",mat_clad);
+set("x",x_total);
+set("x span",x_span_total);
+set("y",0);
+set("y span",y_span_total);
+set("z",0);
+set("z span",z_span_total);
+
+############################################################
+# HELPER FUNCTION: S-BEND USING TWO RING ARCS
+############################################################
+
+function add_sbend(prefix,x0,y0,y1,Lbend,W,H,mat_core,z_core) {
+
+    dy = y1-y0;
+    s = sign(dy);
+    dy_abs = abs(dy);
+
+    theta = 2*atan(dy_abs/Lbend);
+    theta_deg = theta*180/pi;
+
+    R = Lbend/(2*sin(theta));
+
+    r_in  = R - W/2;
+    r_out = R + W/2;
+
+    # midpoint lateral position
+    y_mid = y0 + s*R*(1-cos(theta));
+
+    ########################################################
+    # First arc
+    ########################################################
+
+    addring;
+    set("name",prefix+"_arc1");
+    set("material",mat_core);
+    set("x",x0);
+    set("y",y0 + s*R);
+    set("z",z_core);
+    set("z span",H);
+    set("inner radius",r_in);
+    set("outer radius",r_out);
+
+    if (s > 0) {
+        set("theta start",-90);
+        set("theta stop",-90+theta_deg);
+    } else {
+        set("theta start",90-theta_deg);
+        set("theta stop",90);
+    }
+
+    ########################################################
+    # Second arc
+    ########################################################
+
+    addring;
+    set("name",prefix+"_arc2");
+    set("material",mat_core);
+    set("x",x0+Lbend);
+    set("y",y_mid - s*R*cos(theta));
+    set("z",z_core);
+    set("z span",H);
+    set("inner radius",r_in);
+    set("outer radius",r_out);
+
+    if (s > 0) {
+        set("theta start",90);
+        set("theta stop",90+theta_deg);
+    } else {
+        set("theta start",-90-theta_deg);
+        set("theta stop",-90);
+    }
+}
+
+############################################################
+# STRAIGHT INPUT WAVEGUIDES
+############################################################
+
+addrect;
+set("name","right_input");
+set("material",mat_core);
+set("x",(x_total_min + x_in_start)/2);
+set("x span",x_in_start - x_total_min + overlap_safe);
+set("y",y_right_io);
+set("y span",W);
+set("z",z_core);
+set("z span",H);
+
+addrect;
+set("name","left_input");
+set("material",mat_core);
+set("x",(x_total_min + x_in_start)/2);
+set("x span",x_in_start - x_total_min + overlap_safe);
+set("y",y_left_io);
+set("y span",W);
+set("z",z_core);
+set("z span",H);
+
+############################################################
+# INPUT S-BENDS
+############################################################
+
+add_sbend("right_input_sbend",x_in_start,y_right_io,y_right_cpl,Ls,W,H,mat_core,z_core);
+add_sbend("left_input_sbend",x_in_start,y_left_io,y_left_cpl,Ls,W,H,mat_core,z_core);
+
+############################################################
+# STRAIGHT COUPLING REGION
+############################################################
+
+addrect;
+set("name","right_coupler_SRN");
+set("material",mat_core);
+set("x",0);
+set("x span",Lc + 2*overlap_safe);
+set("y",y_right_cpl);
+set("y span",W);
+set("z",z_core);
+set("z span",H);
+
+addrect;
+set("name","left_coupler_SRN");
+set("material",mat_core);
+set("x",0);
+set("x span",Lc + 2*overlap_safe);
+set("y",y_left_cpl);
+set("y span",W);
+set("z",z_core);
+set("z span",H);
+
+############################################################
+# PCM FILMS ONLY OVER STRAIGHT COUPLER
+############################################################
+
+addrect;
+set("name","pcm_left");
+set("material",pcm_mat_left);
+set("x",0);
+set("x span",Lc);
+set("y",y_left_cpl);
+set("y span",W);
+set("z",z_pcm);
+set("z span",t_pcm);
+
+addrect;
+set("name","pcm_right_fixed");
+set("material",pcm_mat_right);
+set("x",0);
+set("x span",Lc);
+set("y",y_right_cpl);
+set("y span",W);
+set("z",z_pcm);
+set("z span",t_pcm);
+
+############################################################
+# OUTPUT S-BENDS
+############################################################
+
+add_sbend("right_output_sbend",x_out_start,y_right_cpl,y_right_io,Ls,W,H,mat_core,z_core);
+add_sbend("left_output_sbend", x_out_start,y_left_cpl, y_left_io,Ls,W,H,mat_core,z_core);
+
+############################################################
+# STRAIGHT OUTPUT WAVEGUIDES
+############################################################
+
+addrect;
+set("name","right_output");
+set("material",mat_core);
+set("x",(x_out_stop + x_total_max)/2);
+set("x span",x_total_max - x_out_stop + overlap_safe);
+set("y",y_right_io);
+set("y span",W);
+set("z",z_core);
+set("z span",H);
+
+addrect;
+set("name","left_output");
+set("material",mat_core);
+set("x",(x_out_stop + x_total_max)/2);
+set("x span",x_total_max - x_out_stop + overlap_safe);
+set("y",y_left_io);
+set("y span",W);
+set("z",z_core);
+set("z span",H);
+
+############################################################
+# FDTD REGION
+############################################################
+
+addfdtd;
+set("dimension","3D");
+set("x",x_total);
+set("x span",x_span_total);
+set("y",0);
+set("y span",y_span_total);
+set("z",0);
+set("z span",z_span_total);
+
+set("x min bc","PML");
+set("x max bc","PML");
+set("y min bc","PML");
+set("y max bc","PML");
+set("z min bc","PML");
+set("z max bc","PML");
+
+set("mesh accuracy",2);
+set("simulation wavelength min",lambda_start);
+set("simulation wavelength max",lambda_stop);
+
+############################################################
+# MESH OVERRIDE AROUND COUPLING REGION
+############################################################
+
+addmesh;
+set("name","mesh_coupler_pcm");
+set("x",0);
+set("x span",Lc + 1e-6);
+set("y",0);
+set("y span",2*W + gap_cpl + 1e-6);
+set("z",H/2 + t_gap_pcm/2 + t_pcm/2);
+set("z span",H + t_gap_pcm + t_pcm + 0.8e-6);
+set("dx",20e-9);
+set("dy",10e-9);
+set("dz",10e-9);
+
+############################################################
+# MODE SOURCE: inject into RIGHT input waveguide
+############################################################
+
+x_src = x_total_min + 0.8e-6;
+
+addmode;
+set("name","source_right");
+set("injection axis","x");
+set("direction","forward");
+
+set("x",x_src);
+set("y",y_right_io);
+set("y span",1.2e-6);
+set("z",0);
+set("z span",1.2e-6);
+
+set("center wavelength",lambda0);
+set("wavelength span",lambda_stop-lambda_start);
+set("mode selection","fundamental TE mode");
+
+############################################################
+# OUTPUT MONITORS AFTER OUTPUT S-BENDS
+############################################################
+
+x_mon = x_out_stop + 0.8e-6;
+
+# through port = right output
+addprofile;
+set("name","through_field");
+set("monitor type","2D X-normal");
+set("x",x_mon);
+set("y",y_right_io);
+set("y span",1.2e-6);
+set("z",0);
+set("z span",1.2e-6);
+
+addmodeexpansion;
+set("name","through_exp");
+set("monitor type","2D X-normal");
+set("x",x_mon);
+set("y",y_right_io);
+set("y span",1.2e-6);
+set("z",0);
+set("z span",1.2e-6);
+set("mode selection","fundamental TE mode");
+
+# cross port = left output
+addprofile;
+set("name","cross_field");
+set("monitor type","2D X-normal");
+set("x",x_mon);
+set("y",y_left_io);
+set("y span",1.2e-6);
+set("z",0);
+set("z span",1.2e-6);
+
+addmodeexpansion;
+set("name","cross_exp");
+set("monitor type","2D X-normal");
+set("x",x_mon);
+set("y",y_left_io);
+set("y span",1.2e-6);
+set("z",0);
+set("z span",1.2e-6);
+set("mode selection","fundamental TE mode");
+
+############################################################
+# FIELD MONITORS
+############################################################
+
+addprofile;
+set("name","field_xy_top");
+set("monitor type","2D Z-normal");
+set("x",0);
+set("x span",Lc + 2*Ls);
+set("y",0);
+set("y span",gap_io + 2*W + 0.5e-6);
+set("z",0);
+
+addprofile;
+set("name","field_xz_mid");
+set("monitor type","2D Y-normal");
+set("x",0);
+set("x span",Lc + 2*Ls);
+set("y",0);
+set("z",0);
+set("z span",H + t_gap_pcm + t_pcm + 0.8e-6);
+
+############################################################
+# RUN
+############################################################
+run;

@@ -163,13 +163,13 @@ def run_single(pcm_material):
             "eta_pcm": eta_pcm
         })
         
-        print(f"\nMode {m}")
-        print(f"neff = {neff:.6f}")
-        print(f"TEfrac = {TEfrac:.3f}")
-        print(f"eta_left  = {eta_left:.3f}")
-        print(f"eta_right = {eta_right:.3f}")
-        print(f"eta_pcm   = {eta_pcm:.3f}")
-        print(f"eta_srn_total = {eta_srn_total:.3f}")
+        # print(f"\nMode {m}")
+        # print(f"neff = {neff:.6f}")
+        # print(f"TEfrac = {TEfrac:.3f}")
+        # print(f"eta_left  = {eta_left:.3f}")
+        # print(f"eta_right = {eta_right:.3f}")
+        # print(f"eta_pcm   = {eta_pcm:.3f}")
+        # print(f"eta_srn_total = {eta_srn_total:.3f}")
 
     # =====================
     # MODE SELECTION

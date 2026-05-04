@@ -17,9 +17,9 @@ with open(r"./lumerical/mode/coupler_switch_supermode.lsf") as f:
 
 # ===================== SWEEP PARAMETERS =====================
 
-g = 200e-9
+g = 250e-9
 
-t_pcm_values = np.array([5, 10, 15, 20, 25, 30, 40]) * 1e-9
+t_pcm_values = np.array([10, 15, 20, 25, 30, 40, 50]) * 1e-9
 t_gap_values = np.array([0, 2, 5, 10, 15, 20, 30]) * 1e-9
 
 results = []

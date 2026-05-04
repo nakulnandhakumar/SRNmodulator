@@ -262,50 +262,50 @@ t_pcm = 15e-9
 
 # ===================== RUN BOTH STATES =====================
 
-off = run_single(pcm_material="SBS Amorphous", g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, lum_project=supermode, lsf_script=coupler_switch_supermode_script)
-on  = run_single(pcm_material="SBS Crystalline", g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, lum_project=supermode, lsf_script=coupler_switch_supermode_script)
+antisym = run_single(pcm_material="SBS Amorphous", g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, lum_project=supermode, lsf_script=coupler_switch_supermode_script)
+sym  = run_single(pcm_material="SBS Crystalline", g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, lum_project=supermode, lsf_script=coupler_switch_supermode_script)
 
 # ===================== RESULTS =====================
 
 print("\n========== RESULTS ==========")
 
-print("\nOFF (Amorphous)")
-for key, value in off.items():
+print("\nANTISYMMETRIC (Amorphous and Through)")
+for key, value in antisym.items():
     if isinstance(value, float):
         print(f"{key} = {value:.6f}")
     else:
         print(f"{key} = {value}")
 
-print("\nON (Crystalline)")
-for key, value in on.items():
+print("\nSYMMETRIC (Crystalline and Cross)")
+for key, value in sym.items():
     if isinstance(value, float):
         print(f"{key} = {value:.6f}")
     else:
         print(f"{key} = {value}")
 
-if off and on:
+if antisym and sym:
 
     # =====================
-    # DESIGN LENGTH (from ON)
+    # DESIGN LENGTH (from symmetric state)
     # =====================
-    L = np.pi / (2 * on["Omega"])   # meters
+    L = np.pi / (2 * sym["Omega"])   # meters
 
     # =====================
     # ACTUAL POWER TRANSFER
     # =====================
-    P_off = (1 - off["D"]**2) * np.sin(off["Omega"] * L)**2
-    P_on  = (1 - on["D"]**2)  * np.sin(on["Omega"]  * L)**2
+    P_antisym = (1 - antisym["D"]**2) * np.sin(antisym["Omega"] * L)**2
+    P_sym  = (1 - sym["D"]**2)  * np.sin(sym["Omega"]  * L)**2
 
     # avoid log(0)
-    P_on_safe = max(P_on, 1e-12)
+    P_on_safe = max(P_sym, 1e-12)
 
-    ER_dB = 10 * np.log10(P_off / P_on_safe)
+    ER_dB = 10 * np.log10(P_antisym / P_on_safe)
 
     # =====================
     # PRINT RESULTS
     # =====================
     print("\n========== SWITCHING ==========")
     print(f"L_design (um) = {L*1e6:.3f}")
-    print(f"P_off = {P_off:.4f}")
-    print(f"P_on  = {P_on:.4f}")
+    print(f"P_antisym = {P_antisym:.4f}")
+    print(f"P_sym  = {P_sym:.4f}")
     print(f"ER (dB) = {ER_dB:.2f}")

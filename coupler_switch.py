@@ -107,7 +107,7 @@ results_df.to_csv("ring_resonator/coupler_switch_pcm_sweep.csv", index=False)
 
 good = results_df[
     (results_df["P_sym"] > 0.95) &
-    (results_df["P_antisym"] < 0.20)
+    (results_df["P_antisym"] < 0.10)
 ]
 
 print("\n========== GOOD DESIGNS ==========")

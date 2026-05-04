@@ -39,9 +39,11 @@ for t_pcm in t_pcm_values:
         # Check mode ordering consistency
         if off["mode1"] != 1 or off["mode2"] != 2:
             print("WARNING: mode ordering changed (OFF)")
+            continue
 
         if on["mode1"] != 1 or on["mode2"] != 2:
             print("WARNING: mode ordering changed (ON)")
+            continue
             
         # If PCM overlap is too high, results may be inaccurate due to non-perturbative effects
         if on["eta_pcm_avg"] > 0.25:

@@ -64,7 +64,7 @@ for t_pcm in t_pcm_values:
         # Avoid log(0)
         P_sym_safe = max(P_sym, 1e-12)
 
-        ER_dB = 10 * np.log10(P_antisym / P_sym_safe)
+        ER_dB = 10 * np.log10(P_sym_safe / P_antisym)
 
         # =====================
         # STORE RESULTS

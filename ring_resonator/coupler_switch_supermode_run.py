@@ -58,6 +58,10 @@ def run_single(pcm_material, g, t_gap_pcm, t_pcm, lum_project=supermode, lsf_scr
 
             lum_project.eval(f'Ez_temp = getdata("FDE::data::{name}", "Ez");')
             Ez = np.squeeze(lum_project.getv("Ez_temp"))
+            
+            lum_project.eval(f'loss_temp = real(getdata("FDE::data::{name}", "loss"));')
+            loss_dB_m = lum_project.getv("loss_temp")    # dB/m
+            loss_dB_cm = loss_dB_m / 100  # dB/cm
 
         except:
             print(f"WARNING: failed to get data for mode {m}")
@@ -112,13 +116,13 @@ def run_single(pcm_material, g, t_gap_pcm, t_pcm, lum_project=supermode, lsf_scr
         # SRN masks
         # =====================
 
-        mask_left = (
+        srn_mask_left = (
             (X >= x_left - W/2 - margin) & (X <= x_left + W/2 + margin) &
             (Y >= y_bot_core - margin) &
             (Y <= y_mask_top)
         )
 
-        mask_right = (
+        srn_mask_right = (
             (X >= x_right - W/2 - margin) & (X <= x_right + W/2 + margin) &
             (Y >= y_bot_core - margin) &
             (Y <= y_mask_top)
@@ -142,8 +146,8 @@ def run_single(pcm_material, g, t_gap_pcm, t_pcm, lum_project=supermode, lsf_scr
 
         E_total = np.sum(E2)
 
-        eta_left  = np.sum(E2 * mask_left)  / E_total
-        eta_right = np.sum(E2 * mask_right) / E_total
+        eta_left  = np.sum(E2 * srn_mask_left)  / E_total
+        eta_right = np.sum(E2 * srn_mask_right) / E_total
         eta_pcm   = np.sum(E2 * mask_pcm)   / E_total
 
         eta_srn_total = eta_left + eta_right
@@ -152,6 +156,7 @@ def run_single(pcm_material, g, t_gap_pcm, t_pcm, lum_project=supermode, lsf_scr
             "mode": m,
             "neff": neff,
             "TEfrac": TEfrac,
+            "loss_dB_cm": loss_dB_cm,
             "eta_left": eta_left,
             "eta_right": eta_right,
             "eta_srn_total": eta_srn_total,
@@ -193,9 +198,23 @@ def run_single(pcm_material, g, t_gap_pcm, t_pcm, lum_project=supermode, lsf_scr
     Omega = (np.pi / lam) * dneff
 
     # Detuning proxy
-    D = abs(m1["eta_left"] - m2["eta_left"])
+    D = abs(m1["eta_right"] - m2["eta_right"])
 
     A_max = 1 - D**2
+    
+    # Effective loss (weighted by excitation)
+    loss1 = m1["loss_dB_cm"]
+    loss2 = m2["loss_dB_cm"]
+
+    # excitation weights (input waveguide)
+    w1 = m1["eta_right"]
+    w2 = m2["eta_right"]
+
+    norm = w1 + w2 + 1e-15
+    w1 /= norm
+    w2 /= norm
+
+    loss_eff = w1 * loss1 + w2 * loss2   # dB/cm
 
     return {
         "neff1": m1["neff"],
@@ -214,6 +233,8 @@ def run_single(pcm_material, g, t_gap_pcm, t_pcm, lum_project=supermode, lsf_scr
         "eta_pcm_2": m2["eta_pcm"],
 
         "eta_pcm_avg": 0.5 * (m1["eta_pcm"] + m2["eta_pcm"]),
+        
+        "loss_eff": loss_eff,
         
         "mode1": m1["mode"],
         "mode2": m2["mode"],

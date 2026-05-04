@@ -228,7 +228,6 @@ for key, value in off.items():
         print(f"{key} = {value}")
 
 print("\nON (Crystalline)")
-print(on)
 for key, value in on.items():
     if isinstance(value, float):
         print(f"{key} = {value:.6f}")

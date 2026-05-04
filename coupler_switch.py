@@ -38,7 +38,9 @@ for t_pcm in t_pcm_values:
             
         # If PCM overlap is too high, results may be inaccurate due to non-perturbative effects
         if (on["eta_pcm_left_1"] > 0.15 or on["eta_pcm_right_1"] > 0.15 or
-                on["eta_pcm_left_2"] > 0.15 or on["eta_pcm_right_2"] > 0.15):
+                on["eta_pcm_left_2"] > 0.15 or on["eta_pcm_right_2"] > 0.15 or
+                off["eta_pcm_left_1"] > 0.15 or off["eta_pcm_right_1"] > 0.15 or
+                off["eta_pcm_left_2"] > 0.15 or off["eta_pcm_right_2"] > 0.15):
             continue
 
         # =====================

@@ -17,9 +17,9 @@ with open(r"./lumerical/mode/coupler_switch_supermode.lsf") as f:
 
 # ===================== SWEEP PARAMETERS =====================
 
-g = 250e-9
+g = 200e-9
 
-t_pcm_values = np.array([10, 15, 20, 25, 30, 40, 50]) * 1e-9
+t_pcm_values = np.array([5, 10, 15, 20, 25, 30, 40]) * 1e-9
 t_gap_values = np.array([0, 2, 5, 10, 15, 20, 30]) * 1e-9
 
 results = []
@@ -106,8 +106,8 @@ results_df = pd.DataFrame(results)
 results_df.to_csv("ring_resonator/coupler_switch_pcm_sweep.csv", index=False)
 
 good = results_df[
-    (results_df["P_antisym"] > 0.85) &
-    (results_df["P_sym"]  < 0.20)
+    (results_df["P_sym"] > 0.95) &
+    (results_df["P_antisym"] < 0.20)
 ]
 
 print("\n========== GOOD DESIGNS ==========")

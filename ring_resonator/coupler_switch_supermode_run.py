@@ -256,9 +256,9 @@ def run_single(pcm_material, g, t_gap_pcm, t_pcm, lum_project=supermode, lsf_scr
 
 
 # ===================== PARAMETERS =====================
-g = 200e-9
-t_gap_pcm = 10e-9
-t_pcm = 15e-9
+g = 250e-9
+t_gap_pcm = 0e-9
+t_pcm = 50e-9
 
 # ===================== RUN BOTH STATES =====================
 
@@ -297,9 +297,9 @@ if antisym and sym:
     P_sym  = (1 - sym["D"]**2)  * np.sin(sym["Omega"]  * L)**2
 
     # avoid log(0)
-    P_on_safe = max(P_sym, 1e-12)
+    P_sym_safe = max(P_sym, 1e-12)
 
-    ER_dB = 10 * np.log10(P_antisym / P_on_safe)
+    ER_dB = 10 * np.log10(P_sym_safe / P_antisym)
 
     # =====================
     # PRINT RESULTS

@@ -15,31 +15,20 @@ supermode = lumapi.MODE(
 with open(r"./lumerical/mode/coupler_switch_supermode.lsf") as f:
     coupler_switch_supermode_script = f.read()
 
-# ===================== PARAMETERS =====================
-
-lam = 1.55e-6
-supermode.putv("lambda", lam)
-
-# >>> SET DESIGN PARAMETERS HERE <<<
-g = 200e-9
-t_gap_pcm = 10e-9
-t_pcm = 15e-9
-
-supermode.putv("g", g)
-supermode.putv("t_gap_pcm", t_gap_pcm)
-supermode.putv("t_pcm", t_pcm)
-
-# geometry constants (for masks)
-W = 0.450e-6
-H = 0.350e-6
-margin = 20e-9
-y_core_center = 0
-
 # ===================== CORE FUNCTION =====================
 
-def run_single(pcm_material, lum_project=supermode, lsf_script=coupler_switch_supermode_script):
+def run_single(pcm_material, g, t_gap_pcm, t_pcm, lum_project=supermode, lsf_script=coupler_switch_supermode_script):
 
+    # Set wavelength in Lumerical
+    lam = 1.55e-6
+    supermode.putv("lambda", lam)
+    
+    # Set geometry/material parameters in Lumerical
+    supermode.putv("g", g)
+    supermode.putv("t_gap_pcm", t_gap_pcm)
+    supermode.putv("t_pcm", t_pcm)
     lum_project.putv("pcm_mat", pcm_material)
+    
     lum_project.eval(lsf_script)
 
     nmodes = 6
@@ -77,6 +66,12 @@ def run_single(pcm_material, lum_project=supermode, lsf_script=coupler_switch_su
         X, Y = np.meshgrid(x, y, indexing='ij')
         E2 = np.abs(Ex)**2 + np.abs(Ey)**2 + np.abs(Ez)**2
 
+        # geometry constants (for waveguide masks)
+        W = 0.450e-6
+        H = 0.350e-6
+        margin = 20e-9
+        y_core_center = 0
+        
         # =====================
         # LEFT = PCM-loaded WG
         # RIGHT = clean WG
@@ -219,12 +214,21 @@ def run_single(pcm_material, lum_project=supermode, lsf_script=coupler_switch_su
         "eta_pcm_2": m2["eta_pcm"],
 
         "eta_pcm_avg": 0.5 * (m1["eta_pcm"] + m2["eta_pcm"]),
+        
+        "mode1": m1["mode"],
+        "mode2": m2["mode"],
     }
+
+
+# ===================== PARAMETERS =====================
+g = 200e-9
+t_gap_pcm = 10e-9
+t_pcm = 15e-9
 
 # ===================== RUN BOTH STATES =====================
 
-off = run_single("SBS Amorphous")
-on  = run_single("SBS Crystalline")
+off = run_single(pcm_material="SBS Amorphous", g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, lum_project=supermode, lsf_script=coupler_switch_supermode_script)
+on  = run_single(pcm_material="SBS Crystalline", g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, lum_project=supermode, lsf_script=coupler_switch_supermode_script)
 
 # ===================== RESULTS =====================
 

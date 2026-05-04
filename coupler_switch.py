@@ -17,10 +17,7 @@ with open(r"./lumerical/mode/coupler_switch_supermode.lsf") as f:
 
 # ===================== SWEEP PARAMETERS =====================
 
-lam = 1.55e-6
-supermode.putv("lambda", lam)
-
-g = 200e-9  # keep fixed for now
+g = 200e-9
 
 t_pcm_values = np.array([5, 10, 15, 20, 25, 30, 40]) * 1e-9
 t_gap_values = np.array([0, 2, 5, 10, 15, 20, 30]) * 1e-9
@@ -30,44 +27,40 @@ results = []
 for t_pcm in t_pcm_values:
     for t_gap_pcm in t_gap_values:
 
-        supermode.putv("g", g)
-        supermode.putv("t_gap_pcm", t_gap_pcm)
-        supermode.putv("t_pcm", t_pcm)
-
-        off = run_single("SBS Amorphous", supermode, coupler_switch_supermode_script)
-        on = run_single("SBS Crystalline", supermode, coupler_switch_supermode_script)
+        off = run_single("SBS Amorphous", g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, 
+                         lum_project=supermode, lsf_script=coupler_switch_supermode_script)
+        on  = run_single("SBS Crystalline", g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, 
+                         lum_project=supermode, lsf_script=coupler_switch_supermode_script)
 
         if off is None or on is None:
             continue
 
-        result = {
+        results.append({
             "g_nm": g * 1e9,
             "t_pcm_nm": t_pcm * 1e9,
             "t_gap_pcm_nm": t_gap_pcm * 1e9,
-
+            
             "D_off": off["D"],
             "D_on": on["D"],
             "delta_D": on["D"] - off["D"],
-
+            
             "Amax_off": off["A_max"],
             "Amax_on": on["A_max"],
             "delta_Amax": off["A_max"] - on["A_max"],
-
+            
             "Omega_off": off["Omega"],
             "Omega_on": on["Omega"],
 
-            "neff1_off": off["neff1"],
-            "neff2_off": off["neff2"],
-            "neff1_on": on["neff1"],
-            "neff2_on": on["neff2"],
-            
             "eta_pcm_avg_off": off["eta_pcm_avg"],
             "eta_pcm_avg_on": on["eta_pcm_avg"],
-        }
 
-        results.append(result)
+            "on_mode1": on["mode1"],
+            "on_mode2": on["mode2"],
+            "off_mode1": off["mode1"],
+            "off_mode2": off["mode2"],
+        })
 
 results_df = pd.DataFrame(results)
-results_df.to_csv("coupler_switch_pcm_sweep.csv", index=False)
+results_df.to_csv("ring_resonator/coupler_switch_pcm_sweep.csv", index=False)
 
 print(results_df.sort_values("delta_Amax", ascending=False).head(10))

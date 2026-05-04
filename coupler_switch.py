@@ -17,6 +17,9 @@ with open(r"./lumerical/mode/coupler_switch_supermode.lsf") as f:
 
 # ===================== SWEEP PARAMETERS =====================
 
+lam = 1.55e-6
+supermode.putv("lambda", lam)
+
 g = 200e-9  # keep fixed for now
 
 t_pcm_values = np.array([5, 10, 15, 20, 25, 30, 40]) * 1e-9

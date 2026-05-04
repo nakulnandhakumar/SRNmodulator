@@ -35,15 +35,6 @@ for t_pcm in t_pcm_values:
 
         if off is None or on is None:
             continue
-        
-        # Check mode ordering consistency
-        if off["mode1"] != 1 or off["mode2"] != 2:
-            print("WARNING: mode ordering changed (OFF)")
-            continue
-
-        if on["mode1"] != 1 or on["mode2"] != 2:
-            print("WARNING: mode ordering changed (ON)")
-            continue
             
         # If PCM overlap is too high, results may be inaccurate due to non-perturbative effects
         if (on["eta_pcm_left_1"] > 0.15 or on["eta_pcm_right_1"] > 0.15 or
@@ -58,8 +49,15 @@ for t_pcm in t_pcm_values:
         # =====================
         # ACTUAL POWER TRANSFER
         # =====================
+        alpha_off = off["loss_eff"] * 100 / (10 * np.log10(np.e))  # dB/cm → 1/m
+        alpha_on  = on["loss_eff"]  * 100 / (10 * np.log10(np.e))
+        
         P_off = (1 - off["D"]**2) * np.sin(off["Omega"] * L)**2
         P_on  = (1 - on["D"]**2)  * np.sin(on["Omega"]  * L)**2
+        
+        # Account for losses over the length L
+        P_off *= np.exp(-alpha_off * L)
+        P_on  *= np.exp(-alpha_on  * L)
 
         # Avoid log(0)
         P_on_safe = max(P_on, 1e-12)

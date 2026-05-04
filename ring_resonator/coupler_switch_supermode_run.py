@@ -7,27 +7,27 @@ import lumapi # pyright: ignore[reportMissingImports]
 
 # ===================== INIT =====================
 
-mode = lumapi.MODE(
+supermode = lumapi.MODE(
     hide=False,
     project=r"./lumerical/mode/supermode.lms"
 )
 
 with open(r"./lumerical/mode/coupler_switch_supermode.lsf") as f:
-    lsf_script = f.read()
+    coupler_switch_supermode_script = f.read()
 
 # ===================== PARAMETERS =====================
 
 lam = 1.55e-6
-mode.putv("lambda", lam)
+supermode.putv("lambda", lam)
 
 # >>> SET DESIGN PARAMETERS HERE <<<
 g = 200e-9
 t_gap_pcm = 10e-9
 t_pcm = 15e-9
 
-mode.putv("g", g)
-mode.putv("t_gap_pcm", t_gap_pcm)
-mode.putv("t_pcm", t_pcm)
+supermode.putv("g", g)
+supermode.putv("t_gap_pcm", t_gap_pcm)
+supermode.putv("t_pcm", t_pcm)
 
 # geometry constants (for masks)
 W = 0.450e-6
@@ -37,10 +37,10 @@ y_core_center = 0
 
 # ===================== CORE FUNCTION =====================
 
-def run_single(pcm_material):
+def run_single(pcm_material, lum_project=supermode, lsf_script=coupler_switch_supermode_script):
 
-    mode.putv("pcm_mat", pcm_material)
-    mode.eval(lsf_script)
+    lum_project.putv("pcm_mat", pcm_material)
+    lum_project.eval(lsf_script)
 
     nmodes = 6
     mode_data = []
@@ -49,26 +49,26 @@ def run_single(pcm_material):
         name = f"mode{m}"
 
         try:
-            mode.eval(f'neff_temp = real(getdata("FDE::data::{name}", "neff"));')
-            neff = mode.getv("neff_temp")
+            lum_project.eval(f'neff_temp = real(getdata("FDE::data::{name}", "neff"));')
+            neff = lum_project.getv("neff_temp")
 
-            mode.eval(f'TEfrac_temp = getdata("FDE::data::{name}", "TE polarization fraction");')
-            TEfrac = mode.getv("TEfrac_temp")
+            lum_project.eval(f'TEfrac_temp = getdata("FDE::data::{name}", "TE polarization fraction");')
+            TEfrac = lum_project.getv("TEfrac_temp")
 
-            mode.eval(f'x_temp = getdata("FDE::data::{name}", "x");')
-            x = np.squeeze(mode.getv("x_temp"))
+            lum_project.eval(f'x_temp = getdata("FDE::data::{name}", "x");')
+            x = np.squeeze(lum_project.getv("x_temp"))
 
-            mode.eval(f'y_temp = getdata("FDE::data::{name}", "y");')
-            y = np.squeeze(mode.getv("y_temp"))
+            lum_project.eval(f'y_temp = getdata("FDE::data::{name}", "y");')
+            y = np.squeeze(lum_project.getv("y_temp"))
 
-            mode.eval(f'Ex_temp = getdata("FDE::data::{name}", "Ex");')
-            Ex = np.squeeze(mode.getv("Ex_temp"))
+            lum_project.eval(f'Ex_temp = getdata("FDE::data::{name}", "Ex");')
+            Ex = np.squeeze(lum_project.getv("Ex_temp"))
 
-            mode.eval(f'Ey_temp = getdata("FDE::data::{name}", "Ey");')
-            Ey = np.squeeze(mode.getv("Ey_temp"))
+            lum_project.eval(f'Ey_temp = getdata("FDE::data::{name}", "Ey");')
+            Ey = np.squeeze(lum_project.getv("Ey_temp"))
 
-            mode.eval(f'Ez_temp = getdata("FDE::data::{name}", "Ez");')
-            Ez = np.squeeze(mode.getv("Ez_temp"))
+            lum_project.eval(f'Ez_temp = getdata("FDE::data::{name}", "Ez");')
+            Ez = np.squeeze(lum_project.getv("Ez_temp"))
 
         except:
             print(f"WARNING: failed to get data for mode {m}")
@@ -208,7 +208,17 @@ def run_single(pcm_material):
         "dneff": dneff,
         "Omega": Omega,
         "D": D,
-        "A_max": A_max
+        "A_max": A_max,
+        
+        "eta_left_1": m1["eta_left"],
+        "eta_right_1": m1["eta_right"],
+        "eta_pcm_1": m1["eta_pcm"],
+
+        "eta_left_2": m2["eta_left"],
+        "eta_right_2": m2["eta_right"],
+        "eta_pcm_2": m2["eta_pcm"],
+
+        "eta_pcm_avg": 0.5 * (m1["eta_pcm"] + m2["eta_pcm"]),
     }
 
 # ===================== RUN BOTH STATES =====================

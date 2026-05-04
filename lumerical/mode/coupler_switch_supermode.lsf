@@ -13,7 +13,9 @@ H = 350e-9;
 ?t_gap_pcm;     # vertical SiO2 gap between SRN and PCM
 ?t_pcm;         # PCM thickness
 ?lambda;
-?pcm_mat;
+?pcm_mat_left;   # PCM material on top of left waveguide (active switching layer)
+?pcm_mat_right;  # fixed crystalline/amorphous PCM on right waveguide
+
 
 core_mat = "SRN 3.1 (Silicon Rich Nitride)";
 clad_mat = "SiO2 (Glass) - Palik";
@@ -68,7 +70,7 @@ set("y span", H);
 # PCM film on top of LEFT waveguide
 addrect;
 set("name","pcm_top_left");
-set("material", pcm_mat);
+set("material", pcm_mat_left);
 set("x", -(W/2 + g/2));   # <-- moved to LEFT WG
 set("x span", W);
 set("y", H/2 + t_gap_pcm + t_pcm/2);
@@ -80,6 +82,26 @@ if (t_gap_pcm > 0) {
     set("name","pcm_gap_SiO2");
     set("material", clad_mat);
     set("x", -(W/2 + g/2));   # <-- also moved LEFT
+    set("x span", W);
+    set("y", H/2 + t_gap_pcm/2);
+    set("y span", t_gap_pcm);
+}
+
+# PCM film on top of RIGHT waveguide (fixed crystalline)
+addrect;
+set("name","pcm_top_right");
+set("material", pcm_mat_right);
+set("x", (W/2 + g/2));
+set("x span", W);
+set("y", H/2 + t_gap_pcm + t_pcm/2);
+set("y span", t_pcm);
+
+# Optional SiO2 spacer for RIGHT PCM
+if (t_gap_pcm > 0) {
+    addrect;
+    set("name","pcm_gap_SiO2_right");
+    set("material", clad_mat);
+    set("x", (W/2 + g/2));
     set("x span", W);
     set("y", H/2 + t_gap_pcm/2);
     set("y span", t_gap_pcm);

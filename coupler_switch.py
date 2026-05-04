@@ -46,14 +46,14 @@ for t_pcm in t_pcm_values:
             continue
             
         # If PCM overlap is too high, results may be inaccurate due to non-perturbative effects
-        if on["eta_pcm_avg"] > 0.25:
-            print("WARNING: PCM overlap too high, results may be inaccurate")
+        if (on["eta_pcm_left_1"] > 0.15 or on["eta_pcm_right_1"] > 0.15 or
+                on["eta_pcm_left_2"] > 0.15 or on["eta_pcm_right_2"] > 0.15):
             continue
 
         # =====================
-        # DESIGN LENGTH (from OFF)
+        # DESIGN LENGTH (from ON)
         # =====================
-        L = np.pi / (2 * off["Omega"])   # meters
+        L = np.pi / (2 * on["Omega"])   # meters
 
         # =====================
         # ACTUAL POWER TRANSFER
@@ -86,6 +86,9 @@ for t_pcm in t_pcm_values:
 
             "eta_pcm_avg_off": off["eta_pcm_avg"],
             "eta_pcm_avg_on": on["eta_pcm_avg"],
+            
+            "loss_eff_off": off["loss_eff"],
+            "loss_eff_on": on["loss_eff"],
 
             "on_mode1": on["mode1"],
             "on_mode2": on["mode2"],

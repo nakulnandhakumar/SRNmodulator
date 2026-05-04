@@ -27,7 +27,8 @@ def run_single(pcm_material, g, t_gap_pcm, t_pcm, lum_project=supermode, lsf_scr
     lum_project.putv("g", g)
     lum_project.putv("t_gap_pcm", t_gap_pcm)
     lum_project.putv("t_pcm", t_pcm)
-    lum_project.putv("pcm_mat", pcm_material)
+    lum_project.putv("pcm_mat_left", pcm_material)
+    lum_project.putv("pcm_mat_right", "SBS Crystalline") # fixed crystalline PCM on right waveguide
     
     lum_project.eval(lsf_script)
 
@@ -134,8 +135,14 @@ def run_single(pcm_material, g, t_gap_pcm, t_pcm, lum_project=supermode, lsf_scr
 
         y_pcm_top = y_pcm_bottom + t_pcm
 
-        mask_pcm = (
+        mask_pcm_left = (
             (X >= x_left - W/2 - margin) & (X <= x_left + W/2 + margin) &
+            (Y >= y_pcm_bottom) &
+            (Y <= y_pcm_top)
+        )
+
+        mask_pcm_right = (
+            (X >= x_right - W/2 - margin) & (X <= x_right + W/2 + margin) &
             (Y >= y_pcm_bottom) &
             (Y <= y_pcm_top)
         )
@@ -148,9 +155,12 @@ def run_single(pcm_material, g, t_gap_pcm, t_pcm, lum_project=supermode, lsf_scr
 
         eta_left  = np.sum(E2 * srn_mask_left)  / E_total
         eta_right = np.sum(E2 * srn_mask_right) / E_total
-        eta_pcm   = np.sum(E2 * mask_pcm)   / E_total
-
+        
+        eta_pcm_left  = np.sum(E2 * mask_pcm_left) / E_total
+        eta_pcm_right = np.sum(E2 * mask_pcm_right) / E_total
+        
         eta_srn_total = eta_left + eta_right
+        eta_pcm_total = eta_pcm_left + eta_pcm_right
 
         mode_data.append({
             "mode": m,
@@ -160,7 +170,9 @@ def run_single(pcm_material, g, t_gap_pcm, t_pcm, lum_project=supermode, lsf_scr
             "eta_left": eta_left,
             "eta_right": eta_right,
             "eta_srn_total": eta_srn_total,
-            "eta_pcm": eta_pcm
+            "eta_pcm_left": eta_pcm_left,
+            "eta_pcm_right": eta_pcm_right,
+            "eta_pcm_total": eta_pcm_total
         })
         
         # print(f"\nMode {m}")
@@ -178,7 +190,7 @@ def run_single(pcm_material, g, t_gap_pcm, t_pcm, lum_project=supermode, lsf_scr
     valid = []
     for md in mode_data:
         if md["TEfrac"] > 0.9:
-            if md["eta_pcm"] < 0.15:   # <-- critical filter
+            if md["eta_pcm_left"] < 0.15 and md["eta_pcm_right"] < 0.15:   # <-- critical filter
                 valid.append(md)
 
     if len(valid) < 2:
@@ -226,13 +238,15 @@ def run_single(pcm_material, g, t_gap_pcm, t_pcm, lum_project=supermode, lsf_scr
         
         "eta_left_1": m1["eta_left"],
         "eta_right_1": m1["eta_right"],
-        "eta_pcm_1": m1["eta_pcm"],
+        "eta_pcm_left_1": m1["eta_pcm_left"],
+        "eta_pcm_right_1": m1["eta_pcm_right"],
 
         "eta_left_2": m2["eta_left"],
         "eta_right_2": m2["eta_right"],
-        "eta_pcm_2": m2["eta_pcm"],
+        "eta_pcm_left_2": m2["eta_pcm_left"],
+        "eta_pcm_right_2": m2["eta_pcm_right"],
 
-        "eta_pcm_avg": 0.5 * (m1["eta_pcm"] + m2["eta_pcm"]),
+        "eta_pcm_avg": 0.5 * (m1["eta_pcm_total"] + m2["eta_pcm_total"]),
         
         "loss_eff": loss_eff,
         
@@ -272,9 +286,9 @@ for key, value in on.items():
 if off and on:
 
     # =====================
-    # DESIGN LENGTH (from OFF)
+    # DESIGN LENGTH (from ON)
     # =====================
-    L = np.pi / (2 * off["Omega"])   # meters
+    L = np.pi / (2 * on["Omega"])   # meters
 
     # =====================
     # ACTUAL POWER TRANSFER

@@ -20,7 +20,11 @@ cols = [
     "t_gap_pcm_nm",
     "t_pcm_nm",
     "P_sym",           # Symmetric / cross
-    "P_antisym"        # Antisymmetric / through
+    "P_antisym",        # Antisymmetric / through
+    "L_design_um",
+    "Omega_sym",
+    "Omega_antisym",
+    "loss_eff_antisym",
 ]
 
 # =====================

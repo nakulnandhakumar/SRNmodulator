@@ -3,7 +3,7 @@ import pandas as pd
 # =====================
 # LOAD CSV
 # =====================
-df = pd.read_csv("ring_resonator/coupler_switch_pcm(singlewg)_sweep.csv")
+df = pd.read_csv("ring_resonator/coupler_switch_pcm(dualwg)_sweep.csv")
 
 # =====================
 # SORT BY ER (best first)
@@ -19,8 +19,8 @@ cols = [
     "g_nm",
     "t_gap_pcm_nm",
     "t_pcm_nm",
-    "P_off",      # OFF / cross
-    "P_on"        # ON / through
+    "P_sym",           # Symmetric / cross
+    "P_antisym"        # Antisymmetric / through
 ]
 
 # =====================

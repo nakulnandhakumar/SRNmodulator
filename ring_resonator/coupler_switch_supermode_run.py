@@ -21,12 +21,12 @@ def run_single(pcm_material, g, t_gap_pcm, t_pcm, lum_project=supermode, lsf_scr
 
     # Set wavelength in Lumerical
     lam = 1.55e-6
-    supermode.putv("lambda", lam)
+    lum_project.putv("lambda", lam)
     
     # Set geometry/material parameters in Lumerical
-    supermode.putv("g", g)
-    supermode.putv("t_gap_pcm", t_gap_pcm)
-    supermode.putv("t_pcm", t_pcm)
+    lum_project.putv("g", g)
+    lum_project.putv("t_gap_pcm", t_gap_pcm)
+    lum_project.putv("t_pcm", t_pcm)
     lum_project.putv("pcm_mat", pcm_material)
     
     lum_project.eval(lsf_script)

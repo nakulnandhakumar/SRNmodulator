@@ -48,20 +48,37 @@ for t_pcm in t_pcm_values:
             print("WARNING: PCM overlap too high, results may be inaccurate")
             continue
 
-        # Store results in a list of dictionaries
+        # =====================
+        # DESIGN LENGTH (from OFF)
+        # =====================
+        L = np.pi / (2 * off["Omega"])   # meters
+
+        # =====================
+        # ACTUAL POWER TRANSFER
+        # =====================
+        P_off = (1 - off["D"]**2) * np.sin(off["Omega"] * L)**2
+        P_on  = (1 - on["D"]**2)  * np.sin(on["Omega"]  * L)**2
+
+        # Avoid log(0)
+        P_on_safe = max(P_on, 1e-12)
+
+        ER_dB = 10 * np.log10(P_off / P_on_safe)
+
+        # =====================
+        # STORE RESULTS
+        # =====================
         results.append({
             "g_nm": g * 1e9,
             "t_pcm_nm": t_pcm * 1e9,
             "t_gap_pcm_nm": t_gap_pcm * 1e9,
-            
+
             "D_off": off["D"],
             "D_on": on["D"],
             "delta_D": on["D"] - off["D"],
-            
+
             "Amax_off": off["A_max"],
             "Amax_on": on["A_max"],
-            "delta_Amax": off["A_max"] - on["A_max"],
-            
+
             "Omega_off": off["Omega"],
             "Omega_on": on["Omega"],
 
@@ -72,12 +89,21 @@ for t_pcm in t_pcm_values:
             "on_mode2": on["mode2"],
             "off_mode1": off["mode1"],
             "off_mode2": off["mode2"],
-            
-            "Lmax_off_um": np.pi / (2 * off["Omega"]) * 1e6,
-            "Lmax_on_um": np.pi / (2 * on["Omega"]) * 1e6,
+
+            # REAL DEVICE METRICS
+            "L_design_um": L * 1e6,
+            "P_off": P_off,
+            "P_on": P_on,
+            "ER_dB": ER_dB,
         })
 
 results_df = pd.DataFrame(results)
 results_df.to_csv("ring_resonator/coupler_switch_pcm_sweep.csv", index=False)
 
-print(results_df.sort_values("delta_Amax", ascending=False).head(10))
+good = results_df[
+    (results_df["P_off"] > 0.85) &
+    (results_df["P_on"]  < 0.20)
+]
+
+print("\n========== GOOD DESIGNS ==========")
+print(good[["t_pcm_nm", "t_gap_pcm_nm", "D_off", "D_on", "Omega_off", "Omega_on", "eta_pcm_avg_off", "eta_pcm_avg_on", "L_design_um", "P_off", "P_on", "ER_dB"]])

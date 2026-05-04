@@ -249,7 +249,28 @@ for key, value in on.items():
         print(f"{key} = {value}")
 
 if off and on:
+
+    # =====================
+    # DESIGN LENGTH (from OFF)
+    # =====================
+    L = np.pi / (2 * off["Omega"])   # meters
+
+    # =====================
+    # ACTUAL POWER TRANSFER
+    # =====================
+    P_off = (1 - off["D"]**2) * np.sin(off["Omega"] * L)**2
+    P_on  = (1 - on["D"]**2)  * np.sin(on["Omega"]  * L)**2
+
+    # avoid log(0)
+    P_on_safe = max(P_on, 1e-12)
+
+    ER_dB = 10 * np.log10(P_off / P_on_safe)
+
+    # =====================
+    # PRINT RESULTS
+    # =====================
     print("\n========== SWITCHING ==========")
-    print(f"ΔD = {on['D'] - off['D']:.4f}")
-    print(f"A_max OFF = {off['A_max']:.4f}")
-    print(f"A_max ON  = {on['A_max']:.4f}")
+    print(f"L_design (um) = {L*1e6:.3f}")
+    print(f"P_off = {P_off:.4f}")
+    print(f"P_on  = {P_on:.4f}")
+    print(f"ER (dB) = {ER_dB:.2f}")

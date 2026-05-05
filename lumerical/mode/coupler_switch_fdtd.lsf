@@ -288,7 +288,7 @@ set("mesh accuracy",2);
 set("simulation wavelength min",lambda0);
 set("simulation wavelength max",lambda0);
 
-set("auto shutoff min",1e-3);
+set("auto shutoff min",1e-4);
 
 ############################################################
 # MESH OVERRIDE AROUND COUPLING REGION
@@ -310,7 +310,7 @@ set("dz",20e-9);
 # MODE SOURCE: inject into RIGHT input waveguide
 ############################################################
 
-x_src = x_total_min + 0.8e-6;
+x_src = x_in_start - 1.0e-6;
 
 addmode;
 set("name","source_right");

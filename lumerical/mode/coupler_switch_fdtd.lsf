@@ -11,8 +11,8 @@ deleteall;
 ############################################################
 
 lambda0 = 1.55e-6;
-lambda_start = 1.54e-6;
-lambda_stop  = 1.56e-6;
+lambda_start = 1.545e-6;
+lambda_stop  = 1.555e-6;
 
 W = 450e-9;
 H = 350e-9;
@@ -283,8 +283,12 @@ set("z min bc","PML");
 set("z max bc","PML");
 
 set("mesh accuracy",2);
-set("simulation wavelength min",lambda_start);
-set("simulation wavelength max",lambda_stop);
+# set("simulation wavelength min",lambda_start);
+# set("simulation wavelength max",lambda_stop);
+set("simulation wavelength min",lambda0);
+set("simulation wavelength max",lambda0);
+
+set("auto shutoff min",1e-3);
 
 ############################################################
 # MESH OVERRIDE AROUND COUPLING REGION
@@ -295,12 +299,12 @@ set("name","mesh_coupler_pcm");
 set("x",0);
 set("x span",Lc + 1e-6);
 set("y",0);
-set("y span",2*W + gap_cpl + 1e-6);
+set("y span",2*W + gap_cpl + 0.4e-6);
 set("z",H/2 + t_gap_pcm/2 + t_pcm/2);
-set("z span",H + t_gap_pcm + t_pcm + 0.8e-6);
-set("dx",20e-9);
-set("dy",10e-9);
-set("dz",10e-9);
+set("z span",H + t_gap_pcm + t_pcm + 0.4e-6);
+set("dx",30e-9);
+set("dy",20e-9);
+set("dz",20e-9);
 
 ############################################################
 # MODE SOURCE: inject into RIGHT input waveguide
@@ -320,7 +324,8 @@ set("z",0);
 set("z span",1.2e-6);
 
 set("center wavelength",lambda0);
-set("wavelength span",lambda_stop-lambda_start);
+#set("wavelength span",lambda_stop-lambda_start);
+set("wavelength span",0);
 set("mode selection","fundamental TE mode");
 
 ############################################################

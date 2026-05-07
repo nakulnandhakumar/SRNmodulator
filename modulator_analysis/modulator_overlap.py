@@ -420,7 +420,7 @@ def compute_modulator_overlap(params):
     epsr_TiO2 = n_TiO2**2
 
     lum["epsr_opt"] = epsr_SiO2         # default to SiO2 (after all other regions are assigned BOX/Cladding is SiO2)
-    lum.loc[shield_mask, "epsr_opt"] = epsr_TiO2       # shields are TiO2
+    lum.loc[shield_mask, "epsr_opt"] = epsr_HfO2       # shields are HfO2
     lum.loc[core_mask, "epsr_opt"] = epsr_SRN       # core is SRN
 
     # ============================================================

@@ -17,15 +17,17 @@ with open(r"./lumerical/mode/coupler_switch_supermode.lsf") as f:
 
 # ===================== SWEEP PARAMETERS =====================
 
-g = 200e-9
+# Fix spacing between PCM and waveguide, and sweep coupling gap as well as PCM thickness
+t_gap_pcm = 0e-9
 
-t_pcm_values = np.array([5, 10, 15, 20, 25, 30, 40]) * 1e-9
-t_gap_values = np.array([0, 2, 5, 10, 15, 20, 30]) * 1e-9
+t_pcm_values = np.arange(5, 51, 2) * 1e-9
+gap_values   = np.arange(200, 301, 5) * 1e-9
+
 
 results = []
 
 for t_pcm in t_pcm_values:
-    for t_gap_pcm in t_gap_values:
+    for g in gap_values:
         
         # Run both states for the current parameter combination
         antisym = run_single("SBS Amorphous", g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, 

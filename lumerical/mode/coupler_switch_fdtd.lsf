@@ -273,6 +273,7 @@ set("z max bc","PML");
 set("mesh accuracy",2);
 set("simulation wavelength min",lambda0);
 set("simulation wavelength max",lambda0);
+set("simulation time", 10000e-15);
 set("auto shutoff min",1e-4);
 
 ############################################################

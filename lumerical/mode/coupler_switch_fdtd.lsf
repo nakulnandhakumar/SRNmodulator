@@ -1,6 +1,17 @@
 ############################################################
-# 3D FDTD: dual-PCM directional coupler switch
-# Ring-arc S-bends + straight coupling region
+# 3-layer interposer FDTD validation
+# Layer 1: NS bus
+# Layer 2: NS-to-WE routing waveguide
+# Layer 3: WE bus
+#
+# Coordinates:
+# x = WE
+# y = NS
+# z = vertical stack
+#
+# SRN dimensions:
+# z span = W = 450 nm
+# in-plane width = H = 350 nm
 ############################################################
 
 switchtolayout;
@@ -11,256 +22,230 @@ deleteall;
 ############################################################
 
 lambda0 = 1.55e-6;
-lambda_start = 1.545e-6;
-lambda_stop  = 1.555e-6;
 
-W = 450e-9;
-H = 350e-9;
+W = 450e-9;          # vertical thickness, z span
+H = 350e-9;          # in-plane waveguide width
 
-gap_cpl = 250e-9;
-gap_io  = 1.5e-6;
+gap_12 = 250e-9;     # vertical gap between layer 1 and layer 2
+gap_23 = 250e-9;     # vertical gap between layer 2 and layer 3
 
-t_pcm = 50e-9;
-t_gap_pcm = 0e-9;
-
-Lc = 31.27e-6;
-Ls = 10e-6;
-
-overlap_safe = 10e-9;
+R = 15e-6;           # 90 degree bend radius
+Lc_NS = 20e-6;       # layer-2 NS coupling length with layer-1 bus
+Lc_WE = 20e-6;       # layer-2 WE coupling length with layer-3 bus
 
 mat_core = "SRN (Silicon Rich Nitride)";
 mat_clad = "SiO2 (Glass) - Palik";
 
-pcm_mat_left  = "SBS Amorphous";
-pcm_mat_right = "SBS Crystalline";
+pad = 5e-6;
+overlap_safe = 30e-9;
 
-x_pad_in  = 2e-6;
-x_pad_out = 2e-6;
-y_pad = 2.5e-6;
-z_pad_top = 2e-6;
-z_pad_bot = 2e-6;
+t_pcm = 50e-9;
+t_gap_pcm = 0e-9;
 
-############################################################
-# DERIVED GEOMETRY
-############################################################
-
-# lateral positions
-y_left_cpl  = -(gap_cpl/2 + W/2);
-y_right_cpl =  (gap_cpl/2 + W/2);
-
-y_left_io  = -(gap_io/2 + W/2);
-y_right_io =  (gap_io/2 + W/2);
-
-# propagation positions
-x_cpl_start = -Lc/2;
-x_cpl_stop  =  Lc/2;
-
-x_in_start  = x_cpl_start - Ls;
-x_in_stop   = x_cpl_start;
-
-x_out_start = x_cpl_stop;
-x_out_stop  = x_cpl_stop + Ls;
-
-x_total_min = x_in_start - x_pad_in;
-x_total_max = x_out_stop + x_pad_out;
-x_total = 0.5*(x_total_min + x_total_max);
-x_span_total = x_total_max - x_total_min;
-
-y_span_total = gap_io + 2*W + 2*y_pad;
-
-z_core = 0;
-z_pcm = H/2 + t_gap_pcm + t_pcm/2;
-z_span_total = H + t_gap_pcm + t_pcm + z_pad_top + z_pad_bot;
+pcm_mat_active = "SBS Crystalline";
+pcm_mat_passive = "SBS Amorphous";
 
 ############################################################
-# BACKGROUND
+# LAYER POSITIONS
+############################################################
+
+z_L2 = 0;
+z_L1 = -(W + gap_12);
+z_L3 =  (W + gap_23);
+
+############################################################
+# ROUTING GEOMETRY
+############################################################
+
+# Layer-2 NS segment runs along y at x = 0
+y_NS_start = -R - Lc_NS;
+y_NS_stop  = -R;
+
+# 90 degree bend connects:
+# start: x=0, y=-R
+# end:   x=R, y=0
+
+# Layer-2 WE segment runs along x at y = 0
+x_WE_start = R;
+x_WE_stop  = R + Lc_WE;
+
+x_min = -pad;
+x_max = x_WE_stop + pad;
+
+y_min = y_NS_start - pad;
+y_max = pad;
+
+x_center = 0.5*(x_min+x_max);
+y_center = 0.5*(y_min+y_max);
+
+x_span_total = x_max - x_min;
+y_span_total = y_max - y_min;
+z_span_total = 3*W + gap_12 + gap_23 + 2*pad;
+
+############################################################
+# BACKGROUND CLADDING
 ############################################################
 
 addrect;
 set("name","cladding");
 set("material",mat_clad);
-set("x",x_total);
+set("x",x_center);
 set("x span",x_span_total);
-set("y",0);
+set("y",y_center);
 set("y span",y_span_total);
 set("z",0);
 set("z span",z_span_total);
 
 ############################################################
-# HELPER FUNCTION: S-BEND USING TWO RING ARCS
-############################################################
-
-function add_sbend(prefix,x0,y0,y1,Lbend,W,H,mat_core,z_core) {
-
-    dy = y1-y0;
-    s = sign(dy);
-    dy_abs = abs(dy);
-
-    theta = 2*atan(dy_abs/Lbend);
-    theta_deg = theta*180/pi;
-
-    R = Lbend/(2*sin(theta));
-
-    r_in  = R - W/2;
-    r_out = R + W/2;
-
-    # midpoint lateral position
-    y_mid = y0 + s*R*(1-cos(theta));
-
-    ########################################################
-    # First arc
-    ########################################################
-
-    addring;
-    set("name",prefix+"_arc1");
-    set("material",mat_core);
-    set("x",x0);
-    set("y",y0 + s*R);
-    set("z",z_core);
-    set("z span",H);
-    set("inner radius",r_in);
-    set("outer radius",r_out);
-
-    if (s > 0) {
-        set("theta start",-90);
-        set("theta stop",-90+theta_deg);
-    } else {
-        set("theta start",90-theta_deg);
-        set("theta stop",90);
-    }
-
-    ########################################################
-    # Second arc
-    ########################################################
-
-    addring;
-    set("name",prefix+"_arc2");
-    set("material",mat_core);
-    set("x",x0+Lbend);
-    set("y",y_mid - s*R*cos(theta));
-    set("z",z_core);
-    set("z span",H);
-    set("inner radius",r_in);
-    set("outer radius",r_out);
-
-    if (s > 0) {
-        set("theta start",90);
-        set("theta stop",90+theta_deg);
-    } else {
-        set("theta start",-90-theta_deg);
-        set("theta stop",-90);
-    }
-}
-
-############################################################
-# STRAIGHT INPUT WAVEGUIDES
+# LAYER 1: NS BUS WAVEGUIDE
+# Propagates along y
+# transverse: x span = H, z span = W
 ############################################################
 
 addrect;
-set("name","right_input");
-set("material",mat_core);
-set("x",(x_total_min + x_in_start)/2);
-set("x span",x_in_start - x_total_min + overlap_safe);
-set("y",y_right_io);
-set("y span",W);
-set("z",z_core);
-set("z span",H);
-
-addrect;
-set("name","left_input");
-set("material",mat_core);
-set("x",(x_total_min + x_in_start)/2);
-set("x span",x_in_start - x_total_min + overlap_safe);
-set("y",y_left_io);
-set("y span",W);
-set("z",z_core);
-set("z span",H);
-
-############################################################
-# INPUT S-BENDS
-############################################################
-
-add_sbend("right_input_sbend",x_in_start,y_right_io,y_right_cpl,Ls,W,H,mat_core,z_core);
-add_sbend("left_input_sbend",x_in_start,y_left_io,y_left_cpl,Ls,W,H,mat_core,z_core);
-
-############################################################
-# STRAIGHT COUPLING REGION
-############################################################
-
-addrect;
-set("name","right_coupler_SRN");
+set("name","L1_NS_bus");
 set("material",mat_core);
 set("x",0);
-set("x span",Lc + 2*overlap_safe);
-set("y",y_right_cpl);
-set("y span",W);
-set("z",z_core);
-set("z span",H);
+set("x span",H);
+set("y",y_center);
+set("y span",y_span_total);
+set("z",z_L1);
+set("z span",W);
+
+############################################################
+# LAYER 3: WE BUS WAVEGUIDE
+# Propagates along x
+# transverse: y span = H, z span = W
+############################################################
 
 addrect;
-set("name","left_coupler_SRN");
+set("name","L3_WE_bus");
+set("material",mat_core);
+set("x",x_center);
+set("x span",x_span_total);
+set("y",0);
+set("y span",H);
+set("z",z_L3);
+set("z span",W);
+
+############################################################
+# LAYER 2: NS STRAIGHT COUPLING SECTION
+# Propagates along y
+############################################################
+
+addrect;
+set("name","L2_NS_coupler");
 set("material",mat_core);
 set("x",0);
-set("x span",Lc + 2*overlap_safe);
-set("y",y_left_cpl);
-set("y span",W);
-set("z",z_core);
-set("z span",H);
+set("x span",H);
+set("y",0.5*(y_NS_start+y_NS_stop));
+set("y span",Lc_NS + 2*overlap_safe);
+set("z",z_L2);
+set("z span",W);
 
 ############################################################
-# PCM FILMS ONLY OVER STRAIGHT COUPLER
+# LAYER 2: 90 DEGREE BEND IN xy PLANE
+# Connects NS direction to WE direction
 ############################################################
 
-addrect;
-set("name","pcm_left");
-set("material",pcm_mat_left);
-set("x",0);
-set("x span",Lc);
-set("y",y_left_cpl);
-set("y span",W);
-set("z",z_pcm);
-set("z span",t_pcm);
-
-addrect;
-set("name","pcm_right_fixed");
-set("material",pcm_mat_right);
-set("x",0);
-set("x span",Lc);
-set("y",y_right_cpl);
-set("y span",W);
-set("z",z_pcm);
-set("z span",t_pcm);
-
-############################################################
-# OUTPUT S-BENDS
-############################################################
-
-add_sbend("right_output_sbend",x_out_start,y_right_cpl,y_right_io,Ls,W,H,mat_core,z_core);
-add_sbend("left_output_sbend", x_out_start,y_left_cpl, y_left_io,Ls,W,H,mat_core,z_core);
-
-############################################################
-# STRAIGHT OUTPUT WAVEGUIDES
-############################################################
-
-addrect;
-set("name","right_output");
+addring;
+set("name","L2_90deg_bend");
 set("material",mat_core);
-set("x",(x_out_stop + x_total_max)/2);
-set("x span",x_total_max - x_out_stop + overlap_safe);
-set("y",y_right_io);
-set("y span",W);
-set("z",z_core);
-set("z span",H);
+
+# Center chosen so arc connects (0,-R) to (R,0)
+set("x",R);
+set("y",-R);
+set("z",z_L2);
+set("z span",W);
+
+set("inner radius",R - H/2);
+set("outer radius",R + H/2);
+
+# upper-left quarter arc
+set("theta start",90);
+set("theta stop",180);
+
+############################################################
+# LAYER 2: WE STRAIGHT COUPLING SECTION
+# Propagates along x
+############################################################
 
 addrect;
-set("name","left_output");
+set("name","L2_WE_coupler");
 set("material",mat_core);
-set("x",(x_out_stop + x_total_max)/2);
-set("x span",x_total_max - x_out_stop + overlap_safe);
-set("y",y_left_io);
-set("y span",W);
-set("z",z_core);
-set("z span",H);
+set("x",0.5*(x_WE_start+x_WE_stop));
+set("x span",Lc_WE + 2*overlap_safe);
+set("y",0);
+set("y span",H);
+set("z",z_L2);
+set("z span",W);
+
+############################################################
+# PCM FILMS ON LATERAL OUTER SURFACES OF COUPLING REGIONS
+# Not on z-facing coupling surfaces
+############################################################
+
+# ============================
+# NS COUPLING REGION
+# Propagation = y
+# Lateral sidewall direction = x
+# Put PCM on +x side of both L1_NS_bus and L2_NS_coupler
+# ============================
+
+x_pcm_NS = H/2 + t_gap_pcm + t_pcm/2;
+
+# PCM on Layer 1 NS bus, only over NS coupling region
+addrect;
+set("name","pcm_L1_NS_bus_sidewall");
+set("material",pcm_mat_passive);
+set("x",x_pcm_NS);
+set("x span",t_pcm);
+set("y",0.5*(y_NS_start+y_NS_stop));
+set("y span",Lc_NS);
+set("z",z_L1);
+set("z span",W);
+
+# PCM on Layer 2 NS coupling waveguide
+addrect;
+set("name","pcm_L2_NS_sidewall");
+set("material",pcm_mat_active);
+set("x",x_pcm_NS);
+set("x span",t_pcm);
+set("y",0.5*(y_NS_start+y_NS_stop));
+set("y span",Lc_NS);
+set("z",z_L2);
+set("z span",W);
+
+# ============================
+# WE COUPLING REGION
+# Propagation = x
+# Lateral sidewall direction = y
+# Put PCM on +y side of both L2_WE_coupler and L3_WE_bus
+# ============================
+
+y_pcm_WE = H/2 + t_gap_pcm + t_pcm/2;
+
+# PCM on Layer 2 WE coupling waveguide
+addrect;
+set("name","pcm_L2_WE_sidewall");
+set("material",pcm_mat_active);
+set("x",0.5*(x_WE_start+x_WE_stop));
+set("x span",Lc_WE);
+set("y",y_pcm_WE);
+set("y span",t_pcm);
+set("z",z_L2);
+set("z span",W);
+
+# PCM on Layer 3 WE bus, only over WE coupling region
+addrect;
+set("name","pcm_L3_WE_bus_sidewall");
+set("material",pcm_mat_passive);
+set("x",0.5*(x_WE_start+x_WE_stop));
+set("x span",Lc_WE);
+set("y",y_pcm_WE);
+set("y span",t_pcm);
+set("z",z_L3);
+set("z span",W);
 
 ############################################################
 # FDTD REGION
@@ -268,10 +253,13 @@ set("z span",H);
 
 addfdtd;
 set("dimension","3D");
-set("x",x_total);
+
+set("x",x_center);
 set("x span",x_span_total);
-set("y",0);
+
+set("y",y_center);
 set("y span",y_span_total);
+
 set("z",0);
 set("z span",z_span_total);
 
@@ -283,120 +271,185 @@ set("z min bc","PML");
 set("z max bc","PML");
 
 set("mesh accuracy",2);
-# set("simulation wavelength min",lambda_start);
-# set("simulation wavelength max",lambda_stop);
 set("simulation wavelength min",lambda0);
 set("simulation wavelength max",lambda0);
-
 set("auto shutoff min",1e-4);
 
 ############################################################
-# MESH OVERRIDE AROUND COUPLING REGION
+# MESH OVERRIDES
 ############################################################
 
+# NS coupling region between L1 and L2
 addmesh;
-set("name","mesh_coupler_pcm");
+set("name","mesh_NS_vertical_coupler");
 set("x",0);
-set("x span",Lc + 1e-6);
+set("x span",H + 0.8e-6);
+set("y",0.5*(y_NS_start+y_NS_stop));
+set("y span",Lc_NS + 1e-6);
+set("z",0.5*(z_L1+z_L2));
+set("z span",2*W + gap_12 + 0.6e-6);
+set("dx",20e-9);
+set("dy",30e-9);
+set("dz",20e-9);
+
+# WE coupling region between L2 and L3
+addmesh;
+set("name","mesh_WE_vertical_coupler");
+set("x",0.5*(x_WE_start+x_WE_stop));
+set("x span",Lc_WE + 1e-6);
 set("y",0);
-set("y span",2*W + gap_cpl + 0.4e-6);
-set("z",H/2 + t_gap_pcm/2 + t_pcm/2);
-set("z span",H + t_gap_pcm + t_pcm + 0.4e-6);
+set("y span",H + 0.8e-6);
+set("z",0.5*(z_L2+z_L3));
+set("z span",2*W + gap_23 + 0.6e-6);
 set("dx",30e-9);
 set("dy",20e-9);
 set("dz",20e-9);
 
 ############################################################
-# MODE SOURCE: inject into RIGHT input waveguide
+# MODE SOURCE: launch into Layer 1 NS bus
 ############################################################
 
-x_src = x_in_start - 1.0e-6;
+y_src = y_min + 1.0e-6;
 
 addmode;
-set("name","source_right");
-set("injection axis","x");
+set("name","source_L1_NS");
+set("injection axis","y");
 set("direction","forward");
 
-set("x",x_src);
-set("y",y_right_io);
-set("y span",1.2e-6);
-set("z",0);
+set("x",0);
+set("x span",1.2e-6);
+
+set("y",y_src);
+
+set("z",z_L1);
 set("z span",1.2e-6);
 
 set("center wavelength",lambda0);
-#set("wavelength span",lambda_stop-lambda_start);
 set("wavelength span",0);
 set("mode selection","fundamental TE mode");
 
 ############################################################
-# OUTPUT MONITORS AFTER OUTPUT S-BENDS
+# OUTPUT MONITORS
 ############################################################
 
-x_mon = x_out_stop + 0.8e-6;
-
-# through port = right output
+# L1 NS through monitor
 addprofile;
-set("name","through_field");
-set("monitor type","2D X-normal");
-set("x",x_mon);
-set("y",y_right_io);
-set("y span",1.2e-6);
-set("z",0);
+set("name","L1_NS_through_field");
+set("monitor type","2D Y-normal");
+set("x",0);
+set("x span",1.2e-6);
+set("y",y_NS_stop + 1.0e-6);
+set("z",z_L1);
 set("z span",1.2e-6);
 
 addmodeexpansion;
-set("name","through_exp");
-set("monitor type","2D X-normal");
-set("x",x_mon);
-set("y",y_right_io);
-set("y span",1.2e-6);
-set("z",0);
+set("name","L1_NS_through_exp");
+set("monitor type","2D Y-normal");
+set("x",0);
+set("x span",1.2e-6);
+set("y",y_NS_stop + 1.0e-6);
+set("z",z_L1);
 set("z span",1.2e-6);
 set("mode selection","fundamental TE mode");
 
-# cross port = left output
+# Layer 2 after bend / WE section monitor
 addprofile;
-set("name","cross_field");
+set("name","L2_WE_field");
 set("monitor type","2D X-normal");
-set("x",x_mon);
-set("y",y_left_io);
+set("x",x_WE_start + 1.0e-6);
+set("y",0);
 set("y span",1.2e-6);
-set("z",0);
+set("z",z_L2);
 set("z span",1.2e-6);
 
 addmodeexpansion;
-set("name","cross_exp");
+set("name","L2_WE_exp");
 set("monitor type","2D X-normal");
-set("x",x_mon);
-set("y",y_left_io);
+set("x",x_WE_start + 1.0e-6);
+set("y",0);
 set("y span",1.2e-6);
-set("z",0);
+set("z",z_L2);
 set("z span",1.2e-6);
 set("mode selection","fundamental TE mode");
+
+# L3 WE output monitor
+addprofile;
+set("name","L3_WE_out_field");
+set("monitor type","2D X-normal");
+set("x",x_WE_stop + 4.0e-6);
+set("y",0);
+set("y span",1.2e-6);
+set("z",z_L3);
+set("z span",1.2e-6);
+
+addmodeexpansion;
+set("name","L3_WE_out_exp");
+set("monitor type","2D X-normal");
+set("x",x_WE_stop + 4.0e-6);
+set("y",0);
+set("y span",1.2e-6);
+set("z",z_L3);
+set("z span",1.2e-6);
+set("mode selection","fundamental TE mode");
+
+# Far field NS bus monitor
+y_NS_bus_far_mon = y_max - 2.0e-6;
+
+addmodeexpansion;
+set("name","L1_NS_far_exp");
+set("monitor type","2D Y-normal");
+set("x",0);
+set("x span",1.2e-6);
+set("y",y_NS_bus_far_mon);
+set("z",z_L1);
+set("z span",1.2e-6);
+set("mode selection","fundamental TE mode");
+
+addprofile;
+set("name","L1_NS_far_field");
+set("monitor type","2D Y-normal");
+set("x",0);
+set("x span",1.2e-6);
+set("y",y_NS_bus_far_mon);
+set("z",z_L1);
+set("z span",1.2e-6);
 
 ############################################################
 # FIELD MONITORS
 ############################################################
 
+# Top-down view of routing
 addprofile;
-set("name","field_xy_top");
+set("name","field_xy_mid_stack");
 set("monitor type","2D Z-normal");
-set("x",0);
-set("x span",Lc + 2*Ls);
-set("y",0);
-set("y span",gap_io + 2*W + 0.5e-6);
-set("z",0);
+set("x",x_center);
+set("x span",x_span_total);
+set("y",y_center);
+set("y span",y_span_total);
+set("z",z_L2);
 
+# Vertical slice through NS coupling region
 addprofile;
-set("name","field_xz_mid");
-set("monitor type","2D Y-normal");
+set("name","field_yz_NS_coupler");
+set("monitor type","2D X-normal");
 set("x",0);
-set("x span",Lc + 2*Ls);
+set("y",0.5*(y_NS_start+y_NS_stop));
+set("y span",Lc_NS);
+set("z",0.5*(z_L1+z_L2));
+set("z span",2*W + gap_12 + 0.8e-6);
+
+# Vertical slice through WE coupling region
+addprofile;
+set("name","field_xz_WE_coupler");
+set("monitor type","2D Y-normal");
+set("x",0.5*(x_WE_start+x_WE_stop));
+set("x span",Lc_WE);
 set("y",0);
-set("z",0);
-set("z span",H + t_gap_pcm + t_pcm + 0.8e-6);
+set("z",0.5*(z_L2+z_L3));
+set("z span",2*W + gap_23 + 0.8e-6);
 
 ############################################################
 # RUN
 ############################################################
-run;
+
+# run;

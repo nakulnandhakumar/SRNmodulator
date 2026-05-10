@@ -80,7 +80,7 @@ y_center = 0.5*(y_min+y_max);
 
 x_span_total = x_max - x_min;
 y_span_total = y_max - y_min;
-z_span_total = 3*W + gap_12 + gap_23 + 2*pad;
+z_span_total = 3*W + gap_12 + gap_23 + 2*t_pcm + 2*pad;
 
 ############################################################
 # BACKGROUND CLADDING
@@ -283,7 +283,7 @@ set("auto shutoff min",1e-4);
 addmesh;
 set("name","mesh_NS_vertical_coupler");
 set("x",0);
-set("x span",H + 0.8e-6);
+set("x span",H + 2*t_pcm + 0.8e-6);
 set("y",0.5*(y_NS_start+y_NS_stop));
 set("y span",Lc_NS + 1e-6);
 set("z",0.5*(z_L1+z_L2));
@@ -298,7 +298,7 @@ set("name","mesh_WE_vertical_coupler");
 set("x",0.5*(x_WE_start+x_WE_stop));
 set("x span",Lc_WE + 1e-6);
 set("y",0);
-set("y span",H + 0.8e-6);
+set("y span",H + 2*t_pcm + 0.8e-6);
 set("z",0.5*(z_L2+z_L3));
 set("z span",2*W + gap_23 + 0.6e-6);
 set("dx",30e-9);
@@ -376,7 +376,7 @@ set("mode selection","fundamental TE mode");
 addprofile;
 set("name","L3_WE_out_field");
 set("monitor type","2D X-normal");
-set("x",x_WE_stop + 4.0e-6);
+set("x",x_WE_stop + pad - 2.0e-6);
 set("y",0);
 set("y span",1.2e-6);
 set("z",z_L3);
@@ -385,7 +385,7 @@ set("z span",1.2e-6);
 addmodeexpansion;
 set("name","L3_WE_out_exp");
 set("monitor type","2D X-normal");
-set("x",x_WE_stop + 4.0e-6);
+set("x",x_WE_stop + pad - 2.0e-6);
 set("y",0);
 set("y span",1.2e-6);
 set("z",z_L3);

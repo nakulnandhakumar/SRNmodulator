@@ -278,8 +278,8 @@ t_pcm = 50e-9
 
 # ===================== RUN BOTH STATES =====================
 
-antisym = run_single(pcm_material="SBS Crystalline", g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, lum_project=supermode, coupling="vertical", lsf_script=coupler_switch_supermode_script)
-sym  = run_single(pcm_material="SBS Amorphous", g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, lum_project=supermode, coupling="vertical", lsf_script=coupler_switch_supermode_script)
+antisym = run_single(pcm_material="SBS Crystalline", g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, lum_project=supermode, coupling="lateral", lsf_script=coupler_switch_supermode_script)
+sym  = run_single(pcm_material="SBS Amorphous", g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, lum_project=supermode, coupling="lateral", lsf_script=coupler_switch_supermode_script)
 
 # ===================== RESULTS =====================
 

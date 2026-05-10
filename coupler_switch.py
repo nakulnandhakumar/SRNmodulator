@@ -21,7 +21,7 @@ with open(r"./lumerical/mode/coupler_switch_supermode.lsf") as f:
 t_gap_pcm = 0e-9
 
 t_pcm_values = np.arange(5, 51, 2) * 1e-9
-gap_values   = np.arange(200, 301, 5) * 1e-9
+gap_values   = np.arange(200, 401, 5) * 1e-9
 
 
 results = []
@@ -31,9 +31,9 @@ for t_pcm in t_pcm_values:
         
         # Run both states for the current parameter combination
         antisym = run_single("SBS Amorphous", g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, 
-                         lum_project=supermode, coupling="vertical", lsf_script=coupler_switch_supermode_script)
+                         lum_project=supermode, coupling="lateral", lsf_script=coupler_switch_supermode_script)
         sym  = run_single("SBS Crystalline", g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, 
-                         lum_project=supermode, coupling="vertical", lsf_script=coupler_switch_supermode_script)
+                         lum_project=supermode, coupling="lateral", lsf_script=coupler_switch_supermode_script)
 
         if antisym is None or sym is None:
             continue

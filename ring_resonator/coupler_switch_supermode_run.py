@@ -17,18 +17,29 @@ with open(r"./lumerical/mode/coupler_switch_supermode.lsf") as f:
 
 # ===================== CORE FUNCTION =====================
 
-def run_single(pcm_material, g, t_gap_pcm, t_pcm, lum_project=supermode, lsf_script=coupler_switch_supermode_script):
+def run_single(pcm_material, g, t_gap_pcm, t_pcm, coupling="vertical",lum_project=supermode, lsf_script=coupler_switch_supermode_script):
 
     # Set wavelength in Lumerical
     lam = 1.55e-6
     lum_project.putv("lambda", lam)
+    
+    # Check if coupling is vertical or lateral
+    if coupling == "vertical":
+        lum_project.putv("W", 350e-9)
+        lum_project.putv("H", 450e-9)
+    elif coupling == "lateral":
+        lum_project.putv("W", 450e-9)
+        lum_project.putv("H", 350e-9)
+    else:
+        print(f"ERROR: invalid coupling type '{coupling}'")
+        return None
     
     # Set geometry/material parameters in Lumerical
     lum_project.putv("g", g)
     lum_project.putv("t_gap_pcm", t_gap_pcm)
     lum_project.putv("t_pcm", t_pcm)
     lum_project.putv("pcm_mat_left", pcm_material)
-    lum_project.putv("pcm_mat_right", "SBS Crystalline") # fixed crystalline PCM on right waveguide
+    lum_project.putv("pcm_mat_right", "SBS Amorphous") # fixed amorphous PCM on right waveguide
     
     lum_project.eval(lsf_script)
 
@@ -72,8 +83,13 @@ def run_single(pcm_material, g, t_gap_pcm, t_pcm, lum_project=supermode, lsf_scr
         E2 = np.abs(Ex)**2 + np.abs(Ey)**2 + np.abs(Ez)**2
 
         # geometry constants (for waveguide masks)
-        W = 0.450e-6
-        H = 0.350e-6
+        if coupling == "vertical":
+            W = 350e-9
+            H = 450e-9
+        else:
+            W = 450e-9
+            H = 350e-9
+        
         margin = 20e-9
         y_core_center = 0
         
@@ -262,21 +278,21 @@ t_pcm = 50e-9
 
 # ===================== RUN BOTH STATES =====================
 
-antisym = run_single(pcm_material="SBS Amorphous", g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, lum_project=supermode, lsf_script=coupler_switch_supermode_script)
-sym  = run_single(pcm_material="SBS Crystalline", g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, lum_project=supermode, lsf_script=coupler_switch_supermode_script)
+antisym = run_single(pcm_material="SBS Crystalline", g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, lum_project=supermode, coupling="vertical", lsf_script=coupler_switch_supermode_script)
+sym  = run_single(pcm_material="SBS Amorphous", g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, lum_project=supermode, coupling="vertical", lsf_script=coupler_switch_supermode_script)
 
 # ===================== RESULTS =====================
 
 print("\n========== RESULTS ==========")
 
-print("\nANTISYMMETRIC (Amorphous and Through)")
+print("\nASYMMETRIC (NO COUPLING)")
 for key, value in antisym.items():
     if isinstance(value, float):
         print(f"{key} = {value:.6f}")
     else:
         print(f"{key} = {value}")
 
-print("\nSYMMETRIC (Crystalline and Cross)")
+print("\nSYMMETRIC (STRONG COUPLING)")
 for key, value in sym.items():
     if isinstance(value, float):
         print(f"{key} = {value:.6f}")

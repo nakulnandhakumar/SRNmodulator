@@ -29,9 +29,9 @@ for t_pcm in t_pcm_values:
         
         # Run both states for the current parameter combination
         antisym = run_single("SBS Amorphous", g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, 
-                         lum_project=supermode, lsf_script=coupler_switch_supermode_script)
+                         lum_project=supermode, coupling="vertical", lsf_script=coupler_switch_supermode_script)
         sym  = run_single("SBS Crystalline", g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, 
-                         lum_project=supermode, lsf_script=coupler_switch_supermode_script)
+                         lum_project=supermode, coupling="vertical", lsf_script=coupler_switch_supermode_script)
 
         if antisym is None or sym is None:
             continue

@@ -288,9 +288,9 @@ set("y",0.5*(y_NS_start+y_NS_stop));
 set("y span",Lc_NS + 1e-6);
 set("z",0.5*(z_L1+z_L2));
 set("z span",2*W + gap_12 + 0.3e-6);
-set("dx",35e-9);
-set("dy",35e-9);
-set("dz",30e-9);
+set("dx",40e-9);
+set("dy",40e-9);
+set("dz",35e-9);
 
 # WE coupling region between L2 and L3
 addmesh;
@@ -301,9 +301,9 @@ set("y",0);
 set("y span",H + 2*t_pcm + 0.4e-6);
 set("z",0.5*(z_L2+z_L3));
 set("z span",2*W + gap_23 + 0.3e-6);
-set("dx",35e-9);
-set("dy",35e-9);
-set("dz",30e-9);
+set("dx",40e-9);
+set("dy",40e-9);
+set("dz",35e-9);
 
 ############################################################
 # MODE SOURCE: launch into Layer 1 NS bus

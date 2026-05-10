@@ -6,19 +6,18 @@ switchtolayout;
 deleteall;
 
 # ===================== PARAMETERS ============================
-"""
-For lateral coupling geometry, W = 450nm, H = 350nm, and g represents the lateral
-gap between the two waveguides. The PCM layer is placed on top of the left waveguide
-and the right waveguide, with the left PCM layer being the active switching layer
-and the right PCM layer being a fixed crystalline/amorphous layer for index contrast.
 
-For vertical coupling geometry, W = 350nm, H = 450nm, and g represents the vertical
-gap between the two waveguides. The originally left waveguide becomes the bottom
-waveguide and the originally right waveguide becomes the top waveguide. The PCM
-layer is placed along the sidewall of both the bottom and top waveguides, with the PCM
-on the bottom waveguide being the active switching layer and the PCM on the top
-waveguide being the fixed layer for index contrast.
-"""
+# For lateral coupling geometry, W = 450nm, H = 350nm, and g represents the lateral
+# gap between the two waveguides. The PCM layer is placed on top of the left waveguide
+# and the right waveguide, with the left PCM layer being the active switching layer
+# and the right PCM layer being a fixed crystalline/amorphous layer for index contrast.
+
+# For vertical coupling geometry, W = 350nm, H = 450nm, and g represents the vertical
+# gap between the two waveguides. The originally left waveguide becomes the bottom
+# waveguide and the originally right waveguide becomes the top waveguide. The PCM
+# layer is placed along the sidewall of both the bottom and top waveguides, with the PCM
+# on the bottom waveguide being the active switching layer and the PCM on the top
+# waveguide being the fixed layer for index contrast.
 
 ?W;
 ?H;

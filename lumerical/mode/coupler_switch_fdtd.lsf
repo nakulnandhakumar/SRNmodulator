@@ -36,7 +36,7 @@ Lc_WE = 20e-6;       # layer-2 WE coupling length with layer-3 bus
 mat_core = "SRN (Silicon Rich Nitride)";
 mat_clad = "SiO2 (Glass) - Palik";
 
-pad = 5e-6;
+pad = 3e-6;
 overlap_safe = 30e-9;
 
 t_pcm = 50e-9;
@@ -283,14 +283,14 @@ set("auto shutoff min",1e-4);
 addmesh;
 set("name","mesh_NS_vertical_coupler");
 set("x",0);
-set("x span",H + 2*t_pcm + 0.8e-6);
+set("x span",H + 2*t_pcm + 0.4e-6);
 set("y",0.5*(y_NS_start+y_NS_stop));
 set("y span",Lc_NS + 1e-6);
 set("z",0.5*(z_L1+z_L2));
-set("z span",2*W + gap_12 + 0.6e-6);
-set("dx",20e-9);
-set("dy",30e-9);
-set("dz",20e-9);
+set("z span",2*W + gap_12 + 0.3e-6);
+set("dx",35e-9);
+set("dy",35e-9);
+set("dz",30e-9);
 
 # WE coupling region between L2 and L3
 addmesh;
@@ -298,12 +298,12 @@ set("name","mesh_WE_vertical_coupler");
 set("x",0.5*(x_WE_start+x_WE_stop));
 set("x span",Lc_WE + 1e-6);
 set("y",0);
-set("y span",H + 2*t_pcm + 0.8e-6);
+set("y span",H + 2*t_pcm + 0.4e-6);
 set("z",0.5*(z_L2+z_L3));
-set("z span",2*W + gap_23 + 0.6e-6);
-set("dx",30e-9);
-set("dy",20e-9);
-set("dz",20e-9);
+set("z span",2*W + gap_23 + 0.3e-6);
+set("dx",35e-9);
+set("dy",35e-9);
+set("dz",30e-9);
 
 ############################################################
 # MODE SOURCE: launch into Layer 1 NS bus
@@ -332,45 +332,45 @@ set("mode selection","fundamental TE mode");
 # OUTPUT MONITORS
 ############################################################
 
-# L1 NS through monitor
-addprofile;
-set("name","L1_NS_through_field");
-set("monitor type","2D Y-normal");
-set("x",0);
-set("x span",1.2e-6);
-set("y",y_NS_stop + 1.0e-6);
-set("z",z_L1);
-set("z span",1.2e-6);
+# # L1 NS through monitor
+# addprofile;
+# set("name","L1_NS_through_field");
+# set("monitor type","2D Y-normal");
+# set("x",0);
+# set("x span",1.2e-6);
+# set("y",y_NS_stop + 1.0e-6);
+# set("z",z_L1);
+# set("z span",1.2e-6);
 
-addmodeexpansion;
-set("name","L1_NS_through_exp");
-set("monitor type","2D Y-normal");
-set("x",0);
-set("x span",1.2e-6);
-set("y",y_NS_stop + 1.0e-6);
-set("z",z_L1);
-set("z span",1.2e-6);
-set("mode selection","fundamental TE mode");
+# addmodeexpansion;
+# set("name","L1_NS_through_exp");
+# set("monitor type","2D Y-normal");
+# set("x",0);
+# set("x span",1.2e-6);
+# set("y",y_NS_stop + 1.0e-6);
+# set("z",z_L1);
+# set("z span",1.2e-6);
+# set("mode selection","fundamental TE mode");
 
-# Layer 2 after bend / WE section monitor
-addprofile;
-set("name","L2_WE_field");
-set("monitor type","2D X-normal");
-set("x",x_WE_start + 1.0e-6);
-set("y",0);
-set("y span",1.2e-6);
-set("z",z_L2);
-set("z span",1.2e-6);
+# # Layer 2 after bend / WE section monitor
+# addprofile;
+# set("name","L2_WE_field");
+# set("monitor type","2D X-normal");
+# set("x",x_WE_start + 1.0e-6);
+# set("y",0);
+# set("y span",1.2e-6);
+# set("z",z_L2);
+# set("z span",1.2e-6);
 
-addmodeexpansion;
-set("name","L2_WE_exp");
-set("monitor type","2D X-normal");
-set("x",x_WE_start + 1.0e-6);
-set("y",0);
-set("y span",1.2e-6);
-set("z",z_L2);
-set("z span",1.2e-6);
-set("mode selection","fundamental TE mode");
+# addmodeexpansion;
+# set("name","L2_WE_exp");
+# set("monitor type","2D X-normal");
+# set("x",x_WE_start + 1.0e-6);
+# set("y",0);
+# set("y span",1.2e-6);
+# set("z",z_L2);
+# set("z span",1.2e-6);
+# set("mode selection","fundamental TE mode");
 
 # L3 WE output monitor
 addprofile;
@@ -418,35 +418,35 @@ set("z span",1.2e-6);
 # FIELD MONITORS
 ############################################################
 
-# Top-down view of routing
-addprofile;
-set("name","field_xy_mid_stack");
-set("monitor type","2D Z-normal");
-set("x",x_center);
-set("x span",x_span_total);
-set("y",y_center);
-set("y span",y_span_total);
-set("z",z_L2);
+# # Top-down view of routing
+# addprofile;
+# set("name","field_xy_mid_stack");
+# set("monitor type","2D Z-normal");
+# set("x",x_center);
+# set("x span",x_span_total);
+# set("y",y_center);
+# set("y span",y_span_total);
+# set("z",z_L2);
 
-# Vertical slice through NS coupling region
-addprofile;
-set("name","field_yz_NS_coupler");
-set("monitor type","2D X-normal");
-set("x",0);
-set("y",0.5*(y_NS_start+y_NS_stop));
-set("y span",Lc_NS);
-set("z",0.5*(z_L1+z_L2));
-set("z span",2*W + gap_12 + 0.8e-6);
+# # Vertical slice through NS coupling region
+# addprofile;
+# set("name","field_yz_NS_coupler");
+# set("monitor type","2D X-normal");
+# set("x",0);
+# set("y",0.5*(y_NS_start+y_NS_stop));
+# set("y span",Lc_NS);
+# set("z",0.5*(z_L1+z_L2));
+# set("z span",2*W + gap_12 + 0.8e-6);
 
-# Vertical slice through WE coupling region
-addprofile;
-set("name","field_xz_WE_coupler");
-set("monitor type","2D Y-normal");
-set("x",0.5*(x_WE_start+x_WE_stop));
-set("x span",Lc_WE);
-set("y",0);
-set("z",0.5*(z_L2+z_L3));
-set("z span",2*W + gap_23 + 0.8e-6);
+# # Vertical slice through WE coupling region
+# addprofile;
+# set("name","field_xz_WE_coupler");
+# set("monitor type","2D Y-normal");
+# set("x",0.5*(x_WE_start+x_WE_stop));
+# set("x span",Lc_WE);
+# set("y",0);
+# set("z",0.5*(z_L2+z_L3));
+# set("z span",2*W + gap_23 + 0.8e-6);
 
 ############################################################
 # RUN

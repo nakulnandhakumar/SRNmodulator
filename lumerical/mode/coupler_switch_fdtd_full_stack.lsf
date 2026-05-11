@@ -42,8 +42,8 @@ overlap_safe = 30e-9;
 t_pcm = 50e-9;
 t_gap_pcm = 0e-9;
 
-pcm_mat_active = "SBS Crystalline";
-pcm_mat_passive = "SBS Amorphous";
+pcm_mat_coupler = "SBS Amorphous";     # active PCM material on layer 2 coupling waveguides
+pcm_mat_bus = "SBS Crystalline";       # fixed PCM state on bus waveguides
 
 ############################################################
 # LAYER POSITIONS
@@ -197,7 +197,7 @@ x_pcm_NS = H/2 + t_gap_pcm + t_pcm/2;
 # PCM on Layer 1 NS bus, only over NS coupling region
 addrect;
 set("name","pcm_L1_NS_bus_sidewall");
-set("material",pcm_mat_passive);
+set("material",pcm_mat_bus);
 set("x",x_pcm_NS);
 set("x span",t_pcm);
 set("y",0.5*(y_NS_start+y_NS_stop));
@@ -208,7 +208,7 @@ set("z span",W);
 # PCM on Layer 2 NS coupling waveguide
 addrect;
 set("name","pcm_L2_NS_sidewall");
-set("material",pcm_mat_active);
+set("material",pcm_mat_coupler);
 set("x",x_pcm_NS);
 set("x span",t_pcm);
 set("y",0.5*(y_NS_start+y_NS_stop));
@@ -228,7 +228,7 @@ y_pcm_WE = H/2 + t_gap_pcm + t_pcm/2;
 # PCM on Layer 2 WE coupling waveguide
 addrect;
 set("name","pcm_L2_WE_sidewall");
-set("material",pcm_mat_active);
+set("material",pcm_mat_coupler);
 set("x",0.5*(x_WE_start+x_WE_stop));
 set("x span",Lc_WE);
 set("y",y_pcm_WE);
@@ -239,7 +239,7 @@ set("z span",W);
 # PCM on Layer 3 WE bus, only over WE coupling region
 addrect;
 set("name","pcm_L3_WE_bus_sidewall");
-set("material",pcm_mat_passive);
+set("material",pcm_mat_bus);
 set("x",0.5*(x_WE_start+x_WE_stop));
 set("x span",Lc_WE);
 set("y",y_pcm_WE);
@@ -273,7 +273,6 @@ set("z max bc","PML");
 set("mesh accuracy",2);
 set("simulation wavelength min",lambda0);
 set("simulation wavelength max",lambda0);
-set("simulation time", 10000e-15);
 set("auto shutoff min",1e-4);
 
 ############################################################

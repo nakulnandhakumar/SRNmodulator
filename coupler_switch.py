@@ -5,6 +5,7 @@ import sys
 from ring_resonator.coupler_switch_supermode_run import run_single
 sys.path.append(r"C:\Program Files\Lumerical\v202\api\python")
 import lumapi # pyright: ignore[reportMissingImports]
+import time
 
 # Initialize Lumerical MODE for the ring filter waveguide
 supermode = lumapi.MODE(
@@ -22,12 +23,23 @@ t_gap_pcm_values = np.arange(0, 51, 5) * 1e-9   # 0 to 50 nm gap between PCM and
 t_pcm_values = np.arange(5, 51, 5) * 1e-9   # PCM thickness from 5 to 50 nm, in steps of 5 nm
 gap_values   = np.arange(200, 401, 10) * 1e-9   # Coupling gap from 200 to 400 nm, in steps of 10 nm
 
-
 results = []
+
+# ===================== PROGRESS TRACKING =====================
+
+total_iterations = len(t_pcm_values) * len(gap_values) * len(t_gap_pcm_values)
+iteration = 0
+global_start = time.time()
+
+# ===================== PARAMETER SWEEP =====================
 
 for t_pcm in t_pcm_values:
     for g in gap_values:
         for t_gap_pcm in t_gap_pcm_values:
+            
+            # Progress tracking
+            iteration += 1
+            iter_start = time.time()
         
             # Run both states for the current parameter combination
             antisym = run_single(pcm_material_coupler="SBS Amorphous", pcm_material_bus="SBS Crystalline", y_coupler_center=0, g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, 
@@ -103,6 +115,28 @@ for t_pcm in t_pcm_values:
                 "P_sym": P_sym,
                 "ER_dB": ER_dB,
             })
+            
+            # =====================
+            # PROGRESS UPDATE
+            # =====================
+
+            elapsed = time.time() - global_start
+            avg_time = elapsed / iteration
+            remaining_iterations = total_iterations - iteration
+
+            eta_seconds = int(avg_time * remaining_iterations)
+            
+            eta_hours = eta_seconds // 3600
+            eta_minutes = (eta_seconds % 3600) // 60
+            eta_secs = eta_seconds % 60
+
+            percent = 100 * iteration / total_iterations
+
+            print(
+                f"[{iteration}/{total_iterations}] "
+                f"{percent:.1f}% complete | "
+                f"ETA: {eta_hours}h {eta_minutes}m {eta_secs}s"
+            )
 
 results_df = pd.DataFrame(results)
 results_df.to_csv("ring_resonator/coupler_switch_pcm_sweep.csv", index=False)

@@ -25,6 +25,7 @@ cols = [
     "Omega_sym",
     "Omega_antisym",
     "loss_eff_antisym",
+    "loss_eff_sym",
 ]
 
 # =====================

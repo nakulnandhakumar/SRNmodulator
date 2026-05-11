@@ -56,10 +56,12 @@ for y_vertical in y_sweep:
     result = run_single(
         pcm_material_coupler="SiO2 (Glass) - Palik",
         pcm_material_bus="SiO2 (Glass) - Palik",
+        y_coupler_center=y_vertical,
         g=g,
         t_gap_pcm=t_gap_pcm,
         t_pcm=t_pcm,
-        y_coupler_center=y_vertical,
+        lum_project=mode,
+        lsf_script=lsf_script,
         coupling="lateral"
     )
 

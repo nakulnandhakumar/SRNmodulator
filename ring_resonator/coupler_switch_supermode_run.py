@@ -17,7 +17,7 @@ with open(r"./lumerical/mode/coupler_switch_supermode.lsf") as f:
 
 # ===================== CORE FUNCTION =====================
 
-def run_single(pcm_material, g, t_gap_pcm, t_pcm, coupling="lateral",lum_project=supermode, lsf_script=coupler_switch_supermode_script):
+def run_single(pcm_material_left, pcm_material_right, g, t_gap_pcm, t_pcm, coupling="lateral",lum_project=supermode, lsf_script=coupler_switch_supermode_script):
 
     # Set wavelength in Lumerical
     lam = 1.55e-6
@@ -38,9 +38,9 @@ def run_single(pcm_material, g, t_gap_pcm, t_pcm, coupling="lateral",lum_project
     lum_project.putv("g", g)
     lum_project.putv("t_gap_pcm", t_gap_pcm)
     lum_project.putv("t_pcm", t_pcm)
-    lum_project.putv("pcm_mat_left", pcm_material)
-    lum_project.putv("pcm_mat_right", "SBS Amorphous") # fixed amorphous PCM on right waveguide
-    
+    lum_project.putv("pcm_mat_left", pcm_material_left)   # PCM on left waveguide
+    lum_project.putv("pcm_mat_right", pcm_material_right) # PCM on right waveguide
+
     lum_project.eval(lsf_script)
 
     nmodes = 4
@@ -278,8 +278,8 @@ t_pcm = 50e-9
 
 # ===================== RUN BOTH STATES =====================
 
-antisym = run_single(pcm_material="SBS Crystalline", g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, lum_project=supermode, coupling="lateral", lsf_script=coupler_switch_supermode_script)
-sym  = run_single(pcm_material="SBS Amorphous", g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, lum_project=supermode, coupling="lateral", lsf_script=coupler_switch_supermode_script)
+antisym = run_single(pcm_material_left="SBS Crystalline", pcm_material_right="SBS Amorphous", g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, lum_project=supermode, coupling="lateral", lsf_script=coupler_switch_supermode_script)
+sym  = run_single(pcm_material_left="SBS Amorphous", pcm_material_right="SBS Amorphous", g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, lum_project=supermode, coupling="lateral", lsf_script=coupler_switch_supermode_script)
 
 # ===================== RESULTS =====================
 

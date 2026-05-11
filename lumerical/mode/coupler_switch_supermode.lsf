@@ -18,6 +18,7 @@ deleteall;
 # layer is placed along the sidewall of both the bottom and top waveguides, with the PCM
 # on the bottom waveguide being the active switching layer and the PCM on the top
 # waveguide being the fixed layer for index contrast.
+?lambda;
 
 ?W;
 ?H;
@@ -25,10 +26,12 @@ deleteall;
 ?g;             # waveguide-to-waveguide gap
 ?t_gap_pcm;     # vertical SiO2 gap between SRN and PCM
 ?t_pcm;         # PCM thickness
-?lambda;
+
+?y_bus_center    # y-center of bus waveguide
+?y_coupler_center # y-center of coupler waveguide 
+
 ?pcm_mat_left;   # PCM material on top of left waveguide (active switching layer)
 ?pcm_mat_right;  # fixed crystalline/amorphous PCM on right waveguide
-
 
 core_mat = "SRN 3.1 (Silicon Rich Nitride)";
 clad_mat = "SiO2 (Glass) - Palik";
@@ -62,31 +65,31 @@ set("x span", x_span);
 set("y",0);
 set("y span", y_span);
 
-# Left / bus SRN waveguide
+# Left / coupler SRN waveguide
 addrect;
 set("name","wg_left_SRN");
 set("material", core_mat);
 set("x", -(W/2 + g/2));
 set("x span", W);
-set("y", 0);
+set("y", y_coupler_center);
 set("y span", H);
 
-# Right / coupler SRN waveguide
+# Right / bus SRN waveguide
 addrect;
 set("name","wg_right_SRN");
 set("material", core_mat);
 set("x", (W/2 + g/2));
 set("x span", W);
-set("y", 0);
+set("y", y_bus_center);
 set("y span", H);
 
-# PCM film on top of LEFT waveguide
+# PCM film on top of LEFT (coupler) waveguide
 addrect;
 set("name","pcm_top_left");
 set("material", pcm_mat_left);
 set("x", -(W/2 + g/2));   # <-- moved to LEFT WG
 set("x span", W);
-set("y", H/2 + t_gap_pcm + t_pcm/2);
+set("y", y_coupler_center + H/2 + t_gap_pcm + t_pcm/2);
 set("y span", t_pcm);
 
 # Optional SiO2 spacer between LEFT SRN and PCM
@@ -96,17 +99,17 @@ if (t_gap_pcm > 0) {
     set("material", clad_mat);
     set("x", -(W/2 + g/2));   # <-- also moved LEFT
     set("x span", W);
-    set("y", H/2 + t_gap_pcm/2);
+    set("y", y_coupler_center + H/2 + t_gap_pcm/2);
     set("y span", t_gap_pcm);
 }
 
-# PCM film on top of RIGHT waveguide (fixed crystalline)
+# PCM film on top of RIGHT (bus) waveguide (fixed crystalline)
 addrect;
 set("name","pcm_top_right");
 set("material", pcm_mat_right);
 set("x", (W/2 + g/2));
 set("x span", W);
-set("y", H/2 + t_gap_pcm + t_pcm/2);
+set("y", y_bus_center + H/2 + t_gap_pcm + t_pcm/2);
 set("y span", t_pcm);
 
 # Optional SiO2 spacer for RIGHT PCM
@@ -116,7 +119,7 @@ if (t_gap_pcm > 0) {
     set("material", clad_mat);
     set("x", (W/2 + g/2));
     set("x span", W);
-    set("y", H/2 + t_gap_pcm/2);
+    set("y", y_bus_center + H/2 + t_gap_pcm/2);
     set("y span", t_gap_pcm);
 }
 
@@ -148,7 +151,7 @@ set("x", 0);
 set("x span", 2*W + g + 1e-6);
 
 # include both SRN waveguides + PCM above right guide
-set("y", H/2 + t_gap_pcm/2 + t_pcm/2);
+set("y", y_coupler_center + y_bus_center + H/2 + t_gap_pcm/2 + t_pcm/2);
 set("y span", H + t_gap_pcm + t_pcm + 1e-6);
 
 set("z", 0);

@@ -38,8 +38,12 @@ def run_single(pcm_material_coupler, pcm_material_bus, g, t_gap_pcm, t_pcm, coup
     lum_project.putv("g", g)
     lum_project.putv("t_gap_pcm", t_gap_pcm)
     lum_project.putv("t_pcm", t_pcm)
-    lum_project.putv("pcm_mat_left", pcm_material_coupler)   # PCM on left waveguide
-    lum_project.putv("pcm_mat_right", pcm_material_bus) # PCM on right waveguide
+    
+    lum_project.putv("pcm_mat_left", pcm_material_coupler)   # PCM on left (coupler) waveguide
+    lum_project.putv("pcm_mat_right", pcm_material_bus)     # PCM on right (bus) waveguide
+    
+    lum_project.putv("y_coupler_center", 0)   # vertical center of coupler waveguide
+    lum_project.putv("y_bus_center", 0)       # vertical center of bus waveguide
 
     lum_project.eval(lsf_script)
 

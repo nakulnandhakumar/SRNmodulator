@@ -1,10 +1,11 @@
 ############################################################
-# 2-LAYER VERTICAL COUPLER TEST
-# Layer 1 + Layer 2 only
+# 2-LAYER INTERPOSER
+# Layer 1 = NS bus
+# Layer 2 = routed coupler + bend
 #
 # x = WE
-# y = propagation
-# z = vertical stack
+# y = NS
+# z = vertical
 ############################################################
 
 switchtolayout;
@@ -16,12 +17,14 @@ deleteall;
 
 lambda0 = 1.55e-6;
 
-W = 450e-9;     # vertical thickness
-H = 350e-9;     # lateral width
+W = 450e-9;
+H = 350e-9;
 
 gap_12 = 250e-9;
 
-Lc = 31.273e-6;
+R = 15e-6;
+
+Lc_NS = 31.273e-6;
 
 mat_core = "SRN (Silicon Rich Nitride)";
 mat_clad = "SiO2 (Glass) - Palik";
@@ -43,17 +46,26 @@ z_L2 = 0;
 z_L1 = -(W + gap_12);
 
 ############################################################
+# ROUTING GEOMETRY
+############################################################
+
+# Straight NS coupler
+y_NS_start = -R - Lc_NS;
+y_NS_stop  = -R;
+
+# Bend output
+x_out_start = R;
+x_out_stop  = R + 10e-6;
+
+############################################################
 # DOMAIN
 ############################################################
 
-y_start = -Lc/2;
-y_stop  =  Lc/2;
-
 x_min = -pad;
-x_max =  pad;
+x_max = x_out_stop + pad;
 
-y_min = y_start - pad;
-y_max = y_stop + pad;
+y_min = y_NS_start - pad;
+y_max = pad;
 
 x_center = 0.5*(x_min+x_max);
 y_center = 0.5*(y_min+y_max);
@@ -73,8 +85,10 @@ set("material",mat_clad);
 
 set("x",x_center);
 set("x span",x_span_total);
+
 set("y",y_center);
 set("y span",y_span_total);
+
 set("z",0);
 set("z span",z_span_total);
 
@@ -88,23 +102,69 @@ set("material",mat_core);
 
 set("x",0);
 set("x span",H);
+
 set("y",y_center);
 set("y span",y_span_total);
+
 set("z",z_L1);
 set("z span",W);
 
 ############################################################
-# LAYER 2 COUPLER
+# LAYER 2 STRAIGHT COUPLER
 ############################################################
 
 addrect;
-set("name","L2_coupler");
+set("name","L2_NS");
+
 set("material",mat_core);
 
 set("x",0);
 set("x span",H);
+
+set("y",0.5*(y_NS_start+y_NS_stop));
+set("y span",Lc_NS + 2*overlap_safe);
+
+set("z",z_L2);
+set("z span",W);
+
+############################################################
+# LAYER 2 90 DEGREE BEND
+############################################################
+
+addring;
+
+set("name","L2_bend");
+
+set("material",mat_core);
+
+set("x",R);
+set("y",-R);
+
+set("z",z_L2);
+set("z span",W);
+
+set("inner radius",R - H/2);
+set("outer radius",R + H/2);
+
+set("theta start",90);
+set("theta stop",180);
+
+############################################################
+# LAYER 2 OUTPUT STRAIGHT
+############################################################
+
+addrect;
+
+set("name","L2_output");
+
+set("material",mat_core);
+
+set("x",0.5*(x_out_start+x_out_stop));
+set("x span",x_out_stop-x_out_start + overlap_safe);
+
 set("y",0);
-set("y span",Lc + 2*overlap_safe);
+set("y span",H);
+
 set("z",z_L2);
 set("z span",W);
 
@@ -114,29 +174,35 @@ set("z span",W);
 
 x_pcm = H/2 + t_gap_pcm + t_pcm/2;
 
-# Layer 1 PCM
+# Bus PCM
 addrect;
+
 set("name","pcm_L1");
 
 set("material",pcm_mat_bus);
 
 set("x",x_pcm);
 set("x span",t_pcm);
-set("y",0);
-set("y span",Lc);
+
+set("y",0.5*(y_NS_start+y_NS_stop));
+set("y span",Lc_NS);
+
 set("z",z_L1);
 set("z span",W);
 
-# Layer 2 PCM
+# Coupler PCM
 addrect;
+
 set("name","pcm_L2");
 
 set("material",pcm_mat_coupler);
 
 set("x",x_pcm);
 set("x span",t_pcm);
-set("y",0);
-set("y span",Lc);
+
+set("y",0.5*(y_NS_start+y_NS_stop));
+set("y span",Lc_NS);
+
 set("z",z_L2);
 set("z span",W);
 
@@ -150,15 +216,19 @@ set("dimension","3D");
 
 set("x",x_center);
 set("x span",x_span_total);
+
 set("y",y_center);
 set("y span",y_span_total);
+
 set("z",0);
 set("z span",z_span_total);
 
 set("x min bc","PML");
 set("x max bc","PML");
+
 set("y min bc","PML");
 set("y max bc","PML");
+
 set("z min bc","PML");
 set("z max bc","PML");
 
@@ -168,7 +238,7 @@ set("simulation wavelength min",lambda0);
 set("simulation wavelength max",lambda0);
 
 ############################################################
-# MESH OVERRIDE
+# MESH
 ############################################################
 
 addmesh;
@@ -178,8 +248,8 @@ set("name","mesh_coupler");
 set("x",0);
 set("x span",H + 2*t_pcm + 0.4e-6);
 
-set("y",0);
-set("y span",Lc + 1e-6);
+set("y",0.5*(y_NS_start+y_NS_stop));
+set("y span",Lc_NS + 1e-6);
 
 set("z",0.5*(z_L1+z_L2));
 set("z span",2*W + gap_12 + 0.3e-6);
@@ -215,7 +285,7 @@ set("wavelength span",0);
 set("mode selection","fundamental TE mode");
 
 ############################################################
-# SOURCE CHECK MONITOR
+# SOURCE CHECK FIELD
 ############################################################
 
 addprofile;
@@ -236,7 +306,7 @@ set("z span",1.6e-6);
 # THROUGH MONITOR
 ############################################################
 
-y_through = y_max - 2e-6;
+y_far = y_max - 2e-6;
 
 addmodeexpansion;
 
@@ -247,7 +317,7 @@ set("monitor type","2D Y-normal");
 set("x",0);
 set("x span",1.2e-6);
 
-set("y",y_through);
+set("y",y_far);
 
 set("z",z_L1);
 set("z span",1.2e-6);
@@ -255,19 +325,21 @@ set("z span",1.2e-6);
 set("mode selection","fundamental TE mode");
 
 ############################################################
-# CROSS MONITOR
+# OUTPUT MONITOR AFTER BEND
 ############################################################
+
+x_mon = x_out_stop - 2e-6;
 
 addmodeexpansion;
 
-set("name","cross_exp");
+set("name","bend_output_exp");
 
-set("monitor type","2D Y-normal");
+set("monitor type","2D X-normal");
 
-set("x",0);
-set("x span",1.2e-6);
+set("x",x_mon);
 
-set("y",y_through);
+set("y",0);
+set("y span",1.2e-6);
 
 set("z",z_L2);
 set("z span",1.2e-6);

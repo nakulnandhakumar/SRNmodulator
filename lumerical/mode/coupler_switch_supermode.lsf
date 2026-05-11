@@ -132,7 +132,7 @@ set("y",0);
 set("y span", y_span);
 
 set("wavelength", lambda);
-set("number of trial modes", 6);
+set("number of trial modes", 4);
 set("search","near n");
 
 # Global mesh

@@ -43,7 +43,7 @@ def run_single(pcm_material, g, t_gap_pcm, t_pcm, coupling="lateral",lum_project
     
     lum_project.eval(lsf_script)
 
-    nmodes = 6
+    nmodes = 4
     mode_data = []
 
     for m in range(1, nmodes+1):

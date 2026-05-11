@@ -3,7 +3,7 @@ import pandas as pd
 # =====================
 # LOAD CSV
 # =====================
-df = pd.read_csv("ring_resonator/coupler_switch_pcm(dualwg)_sweep.csv")
+df = pd.read_csv("ring_resonator/coupler_switch_pcm_sweep.csv")
 
 # =====================
 # SORT BY ER (best first)

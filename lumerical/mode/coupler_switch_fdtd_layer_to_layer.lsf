@@ -29,7 +29,7 @@ Lc_NS = 31.273e-6;
 mat_core = "SRN (Silicon Rich Nitride)";
 mat_clad = "SiO2 (Glass) - Palik";
 
-pad = 6e-6;
+pad = 2e-6;
 overlap_safe = 30e-9;
 
 t_pcm = 50e-9;

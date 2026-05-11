@@ -1,0 +1,281 @@
+############################################################
+# 2-LAYER VERTICAL COUPLER TEST
+# Layer 1 + Layer 2 only
+#
+# x = WE
+# y = propagation
+# z = vertical stack
+############################################################
+
+switchtolayout;
+deleteall;
+
+############################################################
+# PARAMETERS
+############################################################
+
+lambda0 = 1.55e-6;
+
+W = 450e-9;     # vertical thickness
+H = 350e-9;     # lateral width
+
+gap_12 = 250e-9;
+
+Lc = 31.273e-6;
+
+mat_core = "SRN (Silicon Rich Nitride)";
+mat_clad = "SiO2 (Glass) - Palik";
+
+pad = 6e-6;
+overlap_safe = 30e-9;
+
+t_pcm = 50e-9;
+t_gap_pcm = 0e-9;
+
+pcm_mat_coupler = "SBS Amorphous";
+pcm_mat_bus = "SBS Crystalline";
+
+############################################################
+# LAYER POSITIONS
+############################################################
+
+z_L2 = 0;
+z_L1 = -(W + gap_12);
+
+############################################################
+# DOMAIN
+############################################################
+
+y_start = -Lc/2;
+y_stop  =  Lc/2;
+
+x_min = -pad;
+x_max =  pad;
+
+y_min = y_start - pad;
+y_max = y_stop + pad;
+
+x_center = 0.5*(x_min+x_max);
+y_center = 0.5*(y_min+y_max);
+
+x_span_total = x_max - x_min;
+y_span_total = y_max - y_min;
+
+z_span_total = 2*W + gap_12 + 2*t_pcm + 2*pad;
+
+############################################################
+# BACKGROUND
+############################################################
+
+addrect;
+set("name","cladding");
+set("material",mat_clad);
+
+set("x",x_center);
+set("x span",x_span_total);
+set("y",y_center);
+set("y span",y_span_total);
+set("z",0);
+set("z span",z_span_total);
+
+############################################################
+# LAYER 1 BUS
+############################################################
+
+addrect;
+set("name","L1_bus");
+set("material",mat_core);
+
+set("x",0);
+set("x span",H);
+set("y",y_center);
+set("y span",y_span_total);
+set("z",z_L1);
+set("z span",W);
+
+############################################################
+# LAYER 2 COUPLER
+############################################################
+
+addrect;
+set("name","L2_coupler");
+set("material",mat_core);
+
+set("x",0);
+set("x span",H);
+set("y",0);
+set("y span",Lc + 2*overlap_safe);
+set("z",z_L2);
+set("z span",W);
+
+############################################################
+# PCM SIDEWALLS
+############################################################
+
+x_pcm = H/2 + t_gap_pcm + t_pcm/2;
+
+# Layer 1 PCM
+addrect;
+set("name","pcm_L1");
+
+set("material",pcm_mat_bus);
+
+set("x",x_pcm);
+set("x span",t_pcm);
+set("y",0);
+set("y span",Lc);
+set("z",z_L1);
+set("z span",W);
+
+# Layer 2 PCM
+addrect;
+set("name","pcm_L2");
+
+set("material",pcm_mat_coupler);
+
+set("x",x_pcm);
+set("x span",t_pcm);
+set("y",0);
+set("y span",Lc);
+set("z",z_L2);
+set("z span",W);
+
+############################################################
+# FDTD
+############################################################
+
+addfdtd;
+
+set("dimension","3D");
+
+set("x",x_center);
+set("x span",x_span_total);
+set("y",y_center);
+set("y span",y_span_total);
+set("z",0);
+set("z span",z_span_total);
+
+set("x min bc","PML");
+set("x max bc","PML");
+set("y min bc","PML");
+set("y max bc","PML");
+set("z min bc","PML");
+set("z max bc","PML");
+
+set("mesh accuracy",2);
+
+set("simulation wavelength min",lambda0);
+set("simulation wavelength max",lambda0);
+
+############################################################
+# MESH OVERRIDE
+############################################################
+
+addmesh;
+
+set("name","mesh_coupler");
+
+set("x",0);
+set("x span",H + 2*t_pcm + 0.4e-6);
+
+set("y",0);
+set("y span",Lc + 1e-6);
+
+set("z",0.5*(z_L1+z_L2));
+set("z span",2*W + gap_12 + 0.3e-6);
+
+set("dx",40e-9);
+set("dy",40e-9);
+set("dz",35e-9);
+
+############################################################
+# MODE SOURCE
+############################################################
+
+y_src = y_min + 1e-6;
+
+addmode;
+
+set("name","source");
+
+set("injection axis","y");
+set("direction","forward");
+
+set("x",0);
+set("x span",H + 400e-9);
+
+set("y",y_src);
+
+set("z",z_L1);
+set("z span",W + 400e-9);
+
+set("center wavelength",lambda0);
+set("wavelength span",0);
+
+set("mode selection","fundamental TE mode");
+
+############################################################
+# SOURCE CHECK MONITOR
+############################################################
+
+addprofile;
+
+set("name","source_check");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.2e-6);
+
+set("y",y_src + 1e-6);
+
+set("z",z_L1);
+set("z span",1.6e-6);
+
+############################################################
+# THROUGH MONITOR
+############################################################
+
+y_through = y_max - 2e-6;
+
+addmodeexpansion;
+
+set("name","through_exp");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.2e-6);
+
+set("y",y_through);
+
+set("z",z_L1);
+set("z span",1.2e-6);
+
+set("mode selection","fundamental TE mode");
+
+############################################################
+# CROSS MONITOR
+############################################################
+
+addmodeexpansion;
+
+set("name","cross_exp");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.2e-6);
+
+set("y",y_through);
+
+set("z",z_L2);
+set("z span",1.2e-6);
+
+set("mode selection","fundamental TE mode");
+
+############################################################
+# RUN
+############################################################
+
+# run;

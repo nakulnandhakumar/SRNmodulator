@@ -17,7 +17,7 @@ with open(r"./lumerical/mode/coupler_switch_supermode.lsf") as f:
 
 # ===================== CORE FUNCTION =====================
 
-def run_single(pcm_material, g, t_gap_pcm, t_pcm, coupling="vertical",lum_project=supermode, lsf_script=coupler_switch_supermode_script):
+def run_single(pcm_material, g, t_gap_pcm, t_pcm, coupling="lateral",lum_project=supermode, lsf_script=coupler_switch_supermode_script):
 
     # Set wavelength in Lumerical
     lam = 1.55e-6

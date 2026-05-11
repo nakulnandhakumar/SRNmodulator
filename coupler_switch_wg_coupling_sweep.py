@@ -106,7 +106,9 @@ for y_vertical in y_sweep:
 # ============================================================
 
 df = pd.DataFrame(results)
-print(df)
+
+# Save to CSV
+df.to_csv("coupler_switch_wg_coupling_sweep.csv", index=False)
 
 # ============================================================
 # PLOT

@@ -29,7 +29,11 @@ Lc_NS = 31.273e-6;
 mat_core = "SRN (Silicon Rich Nitride)";
 mat_clad = "SiO2 (Glass) - Palik";
 
-pad = 2e-6;
+pad_left   = 6e-6;   # source side
+pad_right  = 2e-6;   # after bend
+pad_top    = 2e-6;
+pad_bottom = 2e-6;
+
 overlap_safe = 30e-9;
 
 t_pcm = 50e-9;
@@ -61,11 +65,11 @@ x_out_stop  = R + 4e-6;
 # DOMAIN
 ############################################################
 
-x_min = -pad;
-x_max = x_out_stop + pad;
+x_min = -pad_left;
+x_max = x_out_stop + pad_right;
 
-y_min = y_NS_start - pad;
-y_max = pad;
+y_min = y_NS_start - pad_bottom;
+y_max = pad_top;
 
 x_center = 0.5*(x_min+x_max);
 y_center = 0.5*(y_min+y_max);

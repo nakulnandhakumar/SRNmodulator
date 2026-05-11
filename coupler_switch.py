@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import sys
-from ring_resonator.coupler_switch_supermode_run import run_single
+from ring_resonator.coupler_switch_supermode import run_single
 sys.path.append(r"C:\Program Files\Lumerical\v202\api\python")
 import lumapi # pyright: ignore[reportMissingImports]
 import time
@@ -43,9 +43,9 @@ for t_pcm in t_pcm_values:
         
             # Run both states for the current parameter combination
             antisym = run_single(pcm_material_coupler="SBS Amorphous", pcm_material_bus="SBS Crystalline", y_coupler_center=0, g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, 
-                            lum_project=supermode, coupling="lateral", lsf_script=coupler_switch_supermode_script)
+                            lum_project=supermode, lsf_script=coupler_switch_supermode_script, coupling="lateral")
             sym  = run_single(pcm_material_coupler="SBS Crystalline", pcm_material_bus="SBS Crystalline", y_coupler_center=0, g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, 
-                            lum_project=supermode, coupling="lateral", lsf_script=coupler_switch_supermode_script)
+                            lum_project=supermode, lsf_script=coupler_switch_supermode_script, coupling="lateral")
 
             if antisym is None or sym is None:
                 continue

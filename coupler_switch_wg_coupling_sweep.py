@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import sys
-from ring_resonator.coupler_switch_supermode_run import run_single
+from ring_resonator.coupler_switch_supermode import run_single
 import time
 
 sys.path.append(r"C:\Program Files\Lumerical\v202\api\python")
@@ -59,8 +59,8 @@ for y_vertical in y_sweep:
         g=g,
         t_gap_pcm=t_gap_pcm,
         t_pcm=t_pcm,
-        coupling="lateral",
-        y_coupler_center=y_vertical
+        y_coupler_center=y_vertical,
+        coupling="lateral"
     )
 
     if result is None:

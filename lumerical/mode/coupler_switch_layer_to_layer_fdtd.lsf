@@ -24,7 +24,7 @@ gap_12 = 250e-9;
 
 R = 15e-6;
 
-Lc_NS = 27.173e-6;
+Lc_NS = 31.27e-6;
 
 mat_core = "SRN (Silicon Rich Nitride)";
 mat_clad = "SiO2 (Glass) - Palik";
@@ -39,7 +39,7 @@ overlap_safe = 30e-9;
 t_pcm = 50e-9;
 t_gap_pcm = 0e-9;
 
-pcm_mat_coupler = "SBS Amorphous";
+pcm_mat_coupler = "SBS Crystalline";
 pcm_mat_bus = "SBS Crystalline";
 
 ############################################################
@@ -180,9 +180,7 @@ x_pcm = H/2 + t_gap_pcm + t_pcm/2;
 
 # Bus PCM
 addrect;
-
 set("name","pcm_L1");
-
 set("material",pcm_mat_bus);
 
 set("x",x_pcm);
@@ -196,9 +194,7 @@ set("z span",W);
 
 # Coupler PCM
 addrect;
-
 set("name","pcm_L2");
-
 set("material",pcm_mat_coupler);
 
 set("x",x_pcm);
@@ -246,7 +242,6 @@ set("simulation wavelength max",lambda0);
 ############################################################
 
 addmesh;
-
 set("name","mesh_coupler");
 
 set("x",0);
@@ -269,9 +264,7 @@ set("dz",35e-9);
 y_src = y_min + 1e-6;
 
 addmode;
-
 set("name","source");
-
 set("injection axis","y");
 set("direction","forward");
 
@@ -285,7 +278,6 @@ set("z span",W + 400e-9);
 
 set("center wavelength",lambda0);
 set("wavelength span",0);
-
 set("mode selection","fundamental TE mode");
 
 ############################################################
@@ -293,9 +285,7 @@ set("mode selection","fundamental TE mode");
 ############################################################
 
 addprofile;
-
 set("name","source_check");
-
 set("monitor type","2D Y-normal");
 
 set("x",0);
@@ -313,9 +303,7 @@ set("z span",1.6e-6);
 y_far = y_max - 2e-6;
 
 addmodeexpansion;
-
 set("name","through_exp");
-
 set("monitor type","2D Y-normal");
 
 set("x",0);
@@ -328,6 +316,18 @@ set("z span",1.2e-6);
 
 set("mode selection","fundamental TE mode");
 
+addprofile;
+set("name","through_field");
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.2e-6);
+
+set("y",y_far);
+
+set("z",z_L1);
+set("z span",1.2e-6);
+
 ############################################################
 # OUTPUT MONITOR AFTER BEND
 ############################################################
@@ -335,9 +335,7 @@ set("mode selection","fundamental TE mode");
 x_mon = x_out_stop - 2e-6;
 
 addmodeexpansion;
-
 set("name","bend_output_exp");
-
 set("monitor type","2D X-normal");
 
 set("x",x_mon);
@@ -349,6 +347,79 @@ set("z",z_L2);
 set("z span",1.2e-6);
 
 set("mode selection","fundamental TE mode");
+
+addprofile;
+set("name","bend_output_field");
+set("monitor type","2D X-normal");
+
+set("x",x_mon);
+
+set("y",0);
+set("y span",1.2e-6);
+
+set("z",z_L2);
+set("z span",1.2e-6);
+
+############################################################
+# COUPLING EVOLUTION MONITORS
+############################################################
+
+# ----------------------------------------------------------
+# 1) START OF COUPLING REGION
+# ----------------------------------------------------------
+
+y_start_monitor = y_NS_start + 1.0e-6;
+
+addprofile;
+set("name","field_start");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.6e-6);
+
+set("y",y_start_monitor);
+
+set("z",0.5*(z_L1+z_L2));
+set("z span",2.0e-6);
+
+# ----------------------------------------------------------
+# 2) HALFWAY THROUGH COUPLER
+# ----------------------------------------------------------
+
+y_mid_monitor = 0.5*(y_NS_start + y_NS_stop);
+
+addprofile;
+set("name","field_mid");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.6e-6);
+
+set("y",y_mid_monitor);
+
+set("z",0.5*(z_L1+z_L2));
+set("z span",2.0e-6);
+
+# ----------------------------------------------------------
+# 3) END OF STRAIGHT COUPLER (BEFORE BEND)
+# ----------------------------------------------------------
+
+y_end_monitor = y_NS_stop - 0.5e-6;
+
+addprofile;
+set("name","field_end");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.6e-6);
+
+set("y",y_end_monitor);
+
+set("z",0.5*(z_L1+z_L2));
+set("z span",2.0e-6);
 
 ############################################################
 # RUN

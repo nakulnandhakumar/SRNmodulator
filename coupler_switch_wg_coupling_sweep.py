@@ -30,7 +30,7 @@ t_gap_pcm = 0e-9
 t_pcm = 50e-9
 
 # vertical pull-away sweep
-y_sweep = np.linspace(0, 1.5e-6, 40)
+y_sweep = np.linspace(0, 0.7e-6, 40)
 
 results = []
 

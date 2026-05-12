@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import sys
-from coupler_switch.coupler_switch_supermode import run_single
+from coupler_switch_supermode import run_single
 sys.path.append(r"C:\Program Files\Lumerical\v202\api\python")
 import lumapi # pyright: ignore[reportMissingImports]
 import time

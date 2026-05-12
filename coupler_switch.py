@@ -26,6 +26,8 @@ gap_values   = np.arange(200, 301, 10) * 1e-9   # Coupling gap from 200 to 400 n
 
 results = []
 
+phase_cache = {}
+
 # ===================== PROGRESS TRACKING =====================
 
 total_iterations = len(t_pcm_values) * len(gap_values) * len(t_gap_pcm_values)
@@ -61,16 +63,17 @@ for t_pcm in t_pcm_values:
             # =====================
             # PHASE-CORRECTED COUPLING LENGTH
             # =====================
+            
+            if g not in phase_cache:
+                phase_adjust = run_coupling_phase_adjustment(
+                    lum_project=supermode,
+                    lsf_script=coupler_switch_supermode_script,
+                    g=g,
+                    Omega_sym=sym["Omega"],
+                    R=15e-6
+                )
 
-            phase_adjust = run_coupling_phase_adjustment(
-                lum_project=supermode,
-                lsf_script=coupler_switch_supermode_script,
-                g=g,
-                Omega_sym=sym["Omega"],
-                R=15e-6
-            )
-
-            theta_tail = phase_adjust["theta_tail_rad"]
+            theta_tail = phase_cache[g]["theta_tail_rad"]
 
             # corrected straight coupling length
             L = phase_adjust["Lc_corrected_um"] * 1e-6

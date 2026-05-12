@@ -17,8 +17,8 @@ top = df.sort_values(by="ER_dB", ascending=False).head(top_n)
 # =====================
 cols = [
     "g_nm",
-    "t_gap_pcm_nm",
     "t_pcm_nm",
+    "t_gap_pcm_nm",
     "P_sym",           # Symmetric / cross
     "P_antisym",        # Antisymmetric / through
     "L_design_um",

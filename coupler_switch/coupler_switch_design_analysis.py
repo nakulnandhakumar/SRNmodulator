@@ -3,7 +3,7 @@ import pandas as pd
 # =====================
 # LOAD CSV
 # =====================
-df = pd.read_csv("ring_resonator/coupler_switch_side_pcm_sweep.csv")
+df = pd.read_csv("coupler_switch/coupler_switch_side_pcm_sweep.csv")
 
 # =====================
 # FILTER DESIGNS

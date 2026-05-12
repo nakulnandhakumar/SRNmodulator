@@ -3,7 +3,7 @@ import pandas as pd
 from scipy.interpolate import PchipInterpolator
 from scipy.optimize import curve_fit
 
-df = pd.read_csv("ring_resonator/coupler_switch_wg_coupling_sweep.csv")
+df = pd.read_csv("coupler_switch/coupler_switch_wg_coupling_sweep.csv")
 
 y_um = df["y_vertical_um"].values
 kappa = df["kappa_per_m"].values
@@ -29,7 +29,6 @@ A_fit, b_fit = popt
 
 def kappa_model(y_um):
     y_um = np.asarray(y_um)
-
     k = np.zeros_like(y_um, dtype=float)
 
     measured = y_um <= 0.9
@@ -48,11 +47,8 @@ def kappa_model(y_um):
 # =====================
 
 R = 15e-6  # bend radius in meters
-
 kappa_threshold = 100  # 1/m, stop once coupling is negligible
-
-# Full quarter bend arc length
-s_max = R * np.pi / 2
+s_max = R * np.pi / 2  # Full quarter bend arc length
 
 s = np.linspace(0, s_max, 2000)
 

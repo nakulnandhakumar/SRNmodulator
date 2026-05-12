@@ -110,4 +110,4 @@ for y_vertical in y_sweep:
 df = pd.DataFrame(results)
 
 # Save to CSV
-df.to_csv("coupler_switch_wg_coupling_sweep.csv", index=False)
+df.to_csv("ring_resonator/coupler_switch_wg_coupling_sweep.csv", index=False)

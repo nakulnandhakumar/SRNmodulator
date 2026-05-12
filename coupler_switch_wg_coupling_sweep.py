@@ -111,15 +111,3 @@ df = pd.DataFrame(results)
 
 # Save to CSV
 df.to_csv("coupler_switch_wg_coupling_sweep.csv", index=False)
-
-# ============================================================
-# PLOT
-# ============================================================
-
-plt.figure(figsize=(7,5))
-plt.plot(df["y_vertical_um"], df["kappa_per_m"])
-plt.xlabel("Vertical displacement (um)")
-plt.ylabel("Coupling coefficient kappa (1/m)")
-plt.title("Residual Coupling During Pull-Away")
-plt.grid(True)
-plt.show()

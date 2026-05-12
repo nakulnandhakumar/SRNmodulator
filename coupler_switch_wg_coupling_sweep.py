@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import sys
-from ring_resonator.coupler_switch_supermode import run_single
+from coupler_switch.coupler_switch_supermode import run_single
 import time
 
 sys.path.append(r"C:\Program Files\Lumerical\v202\api\python")
@@ -110,4 +110,4 @@ for y_vertical in y_sweep:
 df = pd.DataFrame(results)
 
 # Save to CSV
-df.to_csv("ring_resonator/coupler_switch_wg_coupling_sweep.csv", index=False)
+df.to_csv("coupler_switch/coupler_switch_wg_coupling_sweep.csv", index=False)

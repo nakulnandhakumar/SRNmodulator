@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import sys
-from ring_resonator.coupler_switch_supermode import run_single
+from coupler_switch.coupler_switch_supermode import run_single
 sys.path.append(r"C:\Program Files\Lumerical\v202\api\python")
 import lumapi # pyright: ignore[reportMissingImports]
 import time
@@ -139,7 +139,7 @@ for t_pcm in t_pcm_values:
             )
 
 results_df = pd.DataFrame(results)
-results_df.to_csv("ring_resonator/coupler_switch_pcm_sweep.csv", index=False)
+results_df.to_csv("coupler_switch/coupler_switch_pcm_sweep.csv", index=False)
 
 good = results_df[
     (results_df["P_sym"] > 0.95) &

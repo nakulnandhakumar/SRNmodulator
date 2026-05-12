@@ -25,7 +25,6 @@ with open(r"./lumerical/mode/coupler_switch_supermode.lsf") as f:
 # ============================================================
 
 g = 250e-9
-
 t_gap_pcm = 0e-9
 t_pcm = 50e-9
 
@@ -109,5 +108,22 @@ for y_vertical in y_sweep:
 
 df = pd.DataFrame(results)
 
-# Save to CSV
-df.to_csv("coupler_switch/coupler_switch_wg_coupling_sweep.csv", index=False)
+# ============================================================
+# SAVE TO CSV WITH PARAMETERS IN FILENAME
+# ============================================================
+
+g_nm = int(g * 1e9)
+t_pcm_nm = int(t_pcm * 1e9)
+t_gap_pcm_nm = int(t_gap_pcm * 1e9)
+
+csv_path = (
+    f"coupler_switch/"
+    f"wg_coupling_sweep/"
+    f"g{g_nm}nm_"
+    f"tpcm{t_pcm_nm}nm_"
+    f"tgap{t_gap_pcm_nm}nm.csv"
+)
+
+df.to_csv(csv_path, index=False)
+
+print(f"\nSaved sweep data to:\n{csv_path}")

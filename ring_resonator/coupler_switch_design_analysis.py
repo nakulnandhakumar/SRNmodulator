@@ -6,30 +6,42 @@ import pandas as pd
 df = pd.read_csv("ring_resonator/coupler_switch_side_pcm_sweep.csv")
 
 # =====================
-# SORT BY ER (best first)
+# FILTER DESIGNS
+# Keep only ER >= 20 dB
 # =====================
-top_n = 5
-
-top = df.sort_values(by="ER_dB", ascending=False).head(top_n)
+filtered = df[df["ER_dB"] >= 20]
 
 # =====================
-# SELECT ONLY RELEVANT COLUMNS
+# SORT BY COUPLING LENGTH
+# Smallest coupling length first
+# =====================
+filtered = filtered.sort_values(by="L_design_um", ascending=True)
+
+# =====================
+# SELECT TOP N
+# =====================
+top_n = 20
+top = filtered.head(top_n)
+
+# =====================
+# SELECT RELEVANT COLUMNS
 # =====================
 cols = [
     "g_nm",
     "t_pcm_nm",
     "t_gap_pcm_nm",
-    "P_sym",           # Symmetric / cross
-    "P_antisym",        # Antisymmetric / through
+    "P_sym",
+    "P_antisym",
     "L_design_um",
     "Omega_sym",
     "Omega_antisym",
     "loss_eff_antisym",
-    "loss_eff_sym",
+    "ER_dB",
 ]
 
 # =====================
 # PRINT
 # =====================
 print("\n========== TOP DESIGNS ==========\n")
+
 print(top[cols].to_string(index=False))

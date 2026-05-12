@@ -31,8 +31,8 @@ overlap_safe = 10e-9;
 mat_core = "SRN (Silicon Rich Nitride)";
 mat_clad = "SiO2 (Glass) - Palik";
 
-pcm_mat_left  = "SBS Amorphous";
-pcm_mat_right = "SBS Crystalline";
+pcm_mat_coupler  = "SBS Amorphous";
+pcm_mat_bus = "SBS Crystalline";
 
 x_pad_in  = 2e-6;
 x_pad_out = 2e-6;
@@ -157,7 +157,7 @@ function add_sbend(prefix,x0,y0,y1,Lbend,W,H,mat_core,z_core) {
 ############################################################
 
 addrect;
-set("name","right_input");
+set("name","bus_input");
 set("material",mat_core);
 set("x",(x_total_min + x_in_start)/2);
 set("x span",x_in_start - x_total_min + overlap_safe);
@@ -167,7 +167,7 @@ set("z",z_core);
 set("z span",H);
 
 addrect;
-set("name","left_input");
+set("name","coupler_input");
 set("material",mat_core);
 set("x",(x_total_min + x_in_start)/2);
 set("x span",x_in_start - x_total_min + overlap_safe);
@@ -180,15 +180,15 @@ set("z span",H);
 # INPUT S-BENDS
 ############################################################
 
-add_sbend("right_input_sbend",x_in_start,y_right_io,y_right_cpl,Ls,W,H,mat_core,z_core);
-add_sbend("left_input_sbend",x_in_start,y_left_io,y_left_cpl,Ls,W,H,mat_core,z_core);
+add_sbend("bus_input_sbend",x_in_start,y_right_io,y_right_cpl,Ls,W,H,mat_core,z_core);
+add_sbend("coupler_input_sbend",x_in_start,y_left_io,y_left_cpl,Ls,W,H,mat_core,z_core);
 
 ############################################################
 # STRAIGHT COUPLING REGION
 ############################################################
 
 addrect;
-set("name","right_coupler_SRN");
+set("name","bus_coupling_section");
 set("material",mat_core);
 set("x",0);
 set("x span",Lc + 2*overlap_safe);
@@ -198,7 +198,7 @@ set("z",z_core);
 set("z span",H);
 
 addrect;
-set("name","left_coupler_SRN");
+set("name","coupler_coupling_section");
 set("material",mat_core);
 set("x",0);
 set("x span",Lc + 2*overlap_safe);
@@ -212,8 +212,8 @@ set("z span",H);
 ############################################################
 
 addrect;
-set("name","pcm_left");
-set("material",pcm_mat_left);
+set("name","pcm_coupler");
+set("material",pcm_mat_coupler);
 set("x",0);
 set("x span",Lc);
 set("y",y_left_cpl);
@@ -222,8 +222,8 @@ set("z",z_pcm);
 set("z span",t_pcm);
 
 addrect;
-set("name","pcm_right_fixed");
-set("material",pcm_mat_right);
+set("name","pcm_bus");
+set("material",pcm_mat_bus);
 set("x",0);
 set("x span",Lc);
 set("y",y_right_cpl);
@@ -243,7 +243,7 @@ add_sbend("left_output_sbend", x_out_start,y_left_cpl, y_left_io,Ls,W,H,mat_core
 ############################################################
 
 addrect;
-set("name","right_output");
+set("name","bus_output");
 set("material",mat_core);
 set("x",(x_out_stop + x_total_max)/2);
 set("x span",x_total_max - x_out_stop + overlap_safe);
@@ -253,7 +253,7 @@ set("z",z_core);
 set("z span",H);
 
 addrect;
-set("name","left_output");
+set("name","coupler_output");
 set("material",mat_core);
 set("x",(x_out_stop + x_total_max)/2);
 set("x span",x_total_max - x_out_stop + overlap_safe);
@@ -313,7 +313,7 @@ set("dz",20e-9);
 x_src = x_in_start - 1.0e-6;
 
 addmode;
-set("name","source_right");
+set("name","source_bus");
 set("injection axis","x");
 set("direction","forward");
 
@@ -378,23 +378,23 @@ set("mode selection","fundamental TE mode");
 # FIELD MONITORS
 ############################################################
 
-addprofile;
-set("name","field_xy_top");
-set("monitor type","2D Z-normal");
-set("x",0);
-set("x span",Lc + 2*Ls);
-set("y",0);
-set("y span",gap_io + 2*W + 0.5e-6);
-set("z",0);
+# addprofile;
+# set("name","field_xy_top");
+# set("monitor type","2D Z-normal");
+# set("x",0);
+# set("x span",Lc + 2*Ls);
+# set("y",0);
+# set("y span",gap_io + 2*W + 0.5e-6);
+# set("z",0);
 
-addprofile;
-set("name","field_xz_mid");
-set("monitor type","2D Y-normal");
-set("x",0);
-set("x span",Lc + 2*Ls);
-set("y",0);
-set("z",0);
-set("z span",H + t_gap_pcm + t_pcm + 0.8e-6);
+# addprofile;
+# set("name","field_xz_mid");
+# set("monitor type","2D Y-normal");
+# set("x",0);
+# set("x span",Lc + 2*Ls);
+# set("y",0);
+# set("z",0);
+# set("z span",H + t_gap_pcm + t_pcm + 0.8e-6);
 
 ############################################################
 # RUN

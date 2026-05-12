@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import sys
 from coupler_switch.coupler_switch_supermode import run_single
+from coupler_switch.coupler_switch_phase_adjustment import run_coupling_phase_adjustment
 sys.path.append(r"C:\Program Files\Lumerical\v202\api\python")
 import lumapi # pyright: ignore[reportMissingImports]
 import time
@@ -21,7 +22,7 @@ with open(r"./lumerical/mode/coupler_switch_supermode.lsf") as f:
 # Fix spacing between PCM and waveguide, and sweep coupling gap as well as PCM thickness
 t_gap_pcm_values = np.arange(0, 51, 5) * 1e-9   # 0 to 50 nm gap between PCM and waveguide, in steps of 5 nm
 t_pcm_values = np.arange(5, 51, 5) * 1e-9   # PCM thickness from 5 to 50 nm, in steps of 5 nm
-gap_values   = np.arange(200, 401, 10) * 1e-9   # Coupling gap from 200 to 400 nm, in steps of 10 nm
+gap_values   = np.arange(200, 301, 10) * 1e-9   # Coupling gap from 200 to 400 nm, in steps of 10 nm
 
 results = []
 
@@ -58,9 +59,21 @@ for t_pcm in t_pcm_values:
                 continue
 
             # =====================
-            # DESIGN LENGTH (from ON)
+            # PHASE-CORRECTED COUPLING LENGTH
             # =====================
-            L = np.pi / (2 * sym["Omega"])   # meters
+
+            phase_adjust = run_coupling_phase_adjustment(
+                lum_project=supermode,
+                lsf_script=coupler_switch_supermode_script,
+                g=g,
+                Omega_sym=sym["Omega"],
+                R=15e-6
+            )
+
+            theta_tail = phase_adjust["theta_tail_rad"]
+
+            # corrected straight coupling length
+            L = phase_adjust["Lc_corrected_um"] * 1e-6
 
             # =====================
             # ACTUAL POWER TRANSFER
@@ -68,8 +81,19 @@ for t_pcm in t_pcm_values:
             alpha_antisym = antisym["loss_eff"] * 100 / (10 * np.log10(np.e))  # dB/cm → 1/m
             alpha_sym  = sym["loss_eff"]  * 100 / (10 * np.log10(np.e))
             
-            P_antisym = (1 - antisym["D"]**2) * np.sin(antisym["Omega"] * L)**2
-            P_sym  = (1 - sym["D"]**2)  * np.sin(sym["Omega"]  * L)**2
+            # total accumulated coupling phase
+            theta_antisym = antisym["Omega"] * L + theta_tail
+            theta_sym = sym["Omega"] * L + theta_tail
+
+            P_antisym = (
+                (1 - antisym["D"]**2)
+                * np.sin(theta_antisym)**2
+            )
+
+            P_sym = (
+                (1 - sym["D"]**2)
+                * np.sin(theta_sym)**2
+            )
             
             # Account for losses over the length L
             P_antisym *= np.exp(-alpha_antisym * L)
@@ -110,7 +134,8 @@ for t_pcm in t_pcm_values:
                 "antisym_mode2": antisym["mode2"],
 
                 # REAL DEVICE METRICS
-                "L_design_um": L * 1e6,
+                "L_corrected_design_um": L * 1e6,
+                "theta_tail_rad": theta_tail,
                 "P_antisym": P_antisym,
                 "P_sym": P_sym,
                 "ER_dB": ER_dB,
@@ -147,4 +172,4 @@ good = results_df[
 ]
 
 print("\n========== GOOD DESIGNS ==========")
-print(good[["t_pcm_nm", "t_gap_pcm_nm", "D_antisym", "D_sym", "Omega_antisym", "Omega_sym", "eta_pcm_avg_antisym", "eta_pcm_avg_sym", "L_design_um", "P_antisym", "P_sym", "ER_dB"]])
+print(good[["t_pcm_nm", "t_gap_pcm_nm", "D_antisym", "D_sym", "Omega_antisym", "Omega_sym", "eta_pcm_avg_antisym", "eta_pcm_avg_sym", "L_corrected_design_um", "P_antisym", "P_sym", "ER_dB"]])

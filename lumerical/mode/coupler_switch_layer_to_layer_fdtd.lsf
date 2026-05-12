@@ -24,7 +24,7 @@ gap_12 = 250e-9;
 
 R = 15e-6;
 
-Lc_NS = 31.273e-6;
+Lc_NS = 27.173e-6;
 
 mat_core = "SRN (Silicon Rich Nitride)";
 mat_clad = "SiO2 (Glass) - Palik";

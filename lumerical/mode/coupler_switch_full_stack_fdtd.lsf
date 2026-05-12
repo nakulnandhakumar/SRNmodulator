@@ -30,8 +30,8 @@ gap_12 = 250e-9;     # vertical gap between layer 1 and layer 2
 gap_23 = 250e-9;     # vertical gap between layer 2 and layer 3
 
 R = 15e-6;           # 90 degree bend radius
-Lc_NS = 31.273e-6;       # layer-2 NS coupling length with layer-1 bus
-Lc_WE = 31.273e-6;       # layer-2 WE coupling length with layer-3 bus
+Lc_NS = 27.173e-6;       # layer-2 NS coupling length with layer-1 bus
+Lc_WE = 27.173e-6;       # layer-2 WE coupling length with layer-3 bus
 
 mat_core = "SRN (Silicon Rich Nitride)";
 mat_clad = "SiO2 (Glass) - Palik";

@@ -2,29 +2,58 @@ import numpy as np
 
 # ===================== CORE FUNCTION =====================
 
-def run_single(pcm_material_coupler, pcm_material_bus, y_coupler_center, g, t_gap_pcm, t_pcm, lum_project, lsf_script):
+def run_single(config, lum_project, lsf_script):
 
     # Set wavelength in Lumerical
     lam = 1.55e-6
     lum_project.putv("lambda", lam)
     
-    # Set geometry constants in Lumerical (for mode masks)
-    W = 450e-9
-    H = 350e-9
+    # Set waveguide geometry in Lumerical
+    W = config["W"]
+    H = config["H"]
+    
     lum_project.putv("W", W)
     lum_project.putv("H", H)
     
-    # Set geometry/material parameters in Lumerical
+    # Set PCM geometry in Lumerical
+    g = config["g"]
+    t_gap_pcm = config["t_gap_pcm"]
+    t_pcm = config["t_pcm"]
+    
     lum_project.putv("g", g)
     lum_project.putv("t_gap_pcm", t_gap_pcm)
     lum_project.putv("t_pcm", t_pcm)
     
-    lum_project.putv("pcm_mat_left", pcm_material_coupler)   # PCM on left (coupler) waveguide
-    lum_project.putv("pcm_mat_right", pcm_material_bus)     # PCM on right (bus) waveguide
+    # Set PCM states in Lumerical
+    pcm_material_coupler = config["pcm_mat_coupler"]
+    pcm_material_bus = config["pcm_mat_bus"]
     
-    lum_project.putv("y_coupler_center", y_coupler_center)   # vertical center of coupler waveguide
-    lum_project.putv("y_bus_center", 0)       # vertical center of bus waveguide
+    lum_project.putv("pcm_mat_coupler", pcm_material_coupler)   # PCM on coupler waveguide
+    lum_project.putv("pcm_mat_bus", pcm_material_bus)           # PCM on bus waveguide
+    
+    # Get coupling direction and determine vertical/horizontal center positions
+    coupling_direction = config["coupling_direction"]
+    
+    if coupling_direction == "lateral":
+        x_coupler_center = -(W/2 + g/2)
+        x_bus_center     = (W/2 + g/2)
+        y_coupler_center = 0
+        y_bus_center     = 0
+    elif coupling_direction == "vertical":
+        y_coupler_center = (H/2 + g/2)
+        y_bus_center     = -(H/2 + g/2)
+        x_coupler_center = 0
+        x_bus_center     = 0
+    else:
+        raise ValueError(f"Unknown coupling direction: {coupling_direction}")
+    
+    lum_project.putv("x_coupler_center", x_coupler_center)
+    lum_project.putv("x_bus_center", x_bus_center)
 
+    lum_project.putv("y_coupler_center", y_coupler_center)
+    lum_project.putv("y_bus_center", y_bus_center)
+
+    # Evaluate the Lumerical script to compute modes and coupling parameters
     lum_project.eval(lsf_script)
 
     nmodes = 4
@@ -67,77 +96,201 @@ def run_single(pcm_material_coupler, pcm_material_bus, y_coupler_center, g, t_ga
         E2 = np.abs(Ex)**2 + np.abs(Ey)**2 + np.abs(Ez)**2
 
         margin = 20e-9
-        y_core_center = 0
-        
-        # =====================
-        # LEFT = PCM-loaded WG
-        # RIGHT = clean WG
-        # =====================
-
-        x_left  = -(W/2 + g/2)
-        x_right =  (W/2 + g/2)
-        
-        # =====================
-        # Vertical boundaries
-        # =====================
-
-        y_top_core = y_core_center + H/2
-        y_bot_core = y_core_center - H/2
-
-        # PCM starts above the core
-        y_pcm_bottom = y_top_core + t_gap_pcm
-
-        # safety buffer (avoid counting PCM field)
         buffer = 2e-9
 
-        # =====================
-        # Compute mask top safely
-        # =====================
+        # ============================================================
+        # LATERAL COUPLING
+        # ============================================================
 
-        # Ideal: include margin but stop before PCM
-        y_mask_top_candidate = y_top_core + margin
-        y_pcm_limit = y_pcm_bottom - buffer
+        if coupling_direction == "lateral":
 
-        # Handle edge cases
-        if t_gap_pcm <= buffer:
-            # PCM touching or too close → NO upward margin
-            y_mask_top = y_top_core
-        else:
-            y_mask_top = min(y_mask_top_candidate, y_pcm_limit)
+            # --------------------------------
+            # Waveguide centers
+            # --------------------------------
 
-        # =====================
-        # SRN masks
-        # =====================
+            x_coupler = x_coupler_center
+            x_bus     = x_bus_center
 
-        srn_mask_left = (
-            (X >= x_left - W/2 - margin) & (X <= x_left + W/2 + margin) &
-            (Y >= y_bot_core - margin) &
-            (Y <= y_mask_top)
-        )
+            y_coupler = y_coupler_center
+            y_bus     = y_bus_center
 
-        srn_mask_right = (
-            (X >= x_right - W/2 - margin) & (X <= x_right + W/2 + margin) &
-            (Y >= y_bot_core - margin) &
-            (Y <= y_mask_top)
-        )
+            # ========================================================
+            # COUPLER WG
+            # ========================================================
 
-        # =====================
-        # Add PCM mask
-        # =====================
+            y_top_core_coupler = y_coupler + H/2
+            y_bot_core_coupler = y_coupler - H/2
 
-        y_pcm_top = y_pcm_bottom + t_pcm
+            y_pcm_bottom_coupler = y_top_core_coupler + t_gap_pcm
+            y_pcm_top_coupler    = y_pcm_bottom_coupler + t_pcm
 
-        mask_pcm_left = (
-            (X >= x_left - W/2 - margin) & (X <= x_left + W/2 + margin) &
-            (Y >= y_pcm_bottom) &
-            (Y <= y_pcm_top)
-        )
+            y_mask_top_candidate_coupler = y_top_core_coupler + margin
+            y_pcm_limit_coupler = y_pcm_bottom_coupler - buffer
 
-        mask_pcm_right = (
-            (X >= x_right - W/2 - margin) & (X <= x_right + W/2 + margin) &
-            (Y >= y_pcm_bottom) &
-            (Y <= y_pcm_top)
-        )
+            if t_gap_pcm <= buffer:
+                y_mask_top_coupler = y_top_core_coupler
+            else:
+                y_mask_top_coupler = min(
+                    y_mask_top_candidate_coupler,
+                    y_pcm_limit_coupler
+                )
+
+            # ========================================================
+            # BUS WG
+            # ========================================================
+
+            y_top_core_bus = y_bus + H/2
+            y_bot_core_bus = y_bus - H/2
+
+            y_pcm_bottom_bus = y_top_core_bus + t_gap_pcm
+            y_pcm_top_bus    = y_pcm_bottom_bus + t_pcm
+
+            y_mask_top_candidate_bus = y_top_core_bus + margin
+            y_pcm_limit_bus = y_pcm_bottom_bus - buffer
+
+            if t_gap_pcm <= buffer:
+                y_mask_top_bus = y_top_core_bus
+            else:
+                y_mask_top_bus = min(
+                    y_mask_top_candidate_bus,
+                    y_pcm_limit_bus
+                )
+
+            # --------------------------------
+            # SRN masks
+            # --------------------------------
+
+            srn_mask_coupler = (
+                (X >= x_coupler - W/2 - margin) &
+                (X <= x_coupler + W/2 + margin) &
+                (Y >= y_bot_core_coupler - margin) &
+                (Y <= y_mask_top_coupler)
+            )
+
+            srn_mask_bus = (
+                (X >= x_bus - W/2 - margin) &
+                (X <= x_bus + W/2 + margin) &
+                (Y >= y_bot_core_bus - margin) &
+                (Y <= y_mask_top_bus)
+            )
+
+            # --------------------------------
+            # PCM masks
+            # --------------------------------
+
+            mask_pcm_coupler = (
+                (X >= x_coupler - W/2 - margin) &
+                (X <= x_coupler + W/2 + margin) &
+                (Y >= y_pcm_bottom_coupler) &
+                (Y <= y_pcm_top_coupler)
+            )
+
+            mask_pcm_bus = (
+                (X >= x_bus - W/2 - margin) &
+                (X <= x_bus + W/2 + margin) &
+                (Y >= y_pcm_bottom_bus) &
+                (Y <= y_pcm_top_bus)
+            )
+
+        # ============================================================
+        # VERTICAL COUPLING
+        # ============================================================
+
+        elif coupling_direction == "vertical":
+
+            # --------------------------------
+            # Waveguide centers
+            # --------------------------------
+
+            x_coupler = x_coupler_center
+            x_bus     = x_bus_center
+
+            y_coupler = y_coupler_center
+            y_bus     = y_bus_center
+
+            # ========================================================
+            # COUPLER WG
+            # ========================================================
+
+            x_right_core_coupler = x_coupler + W/2
+            x_left_core_coupler  = x_coupler - W/2
+
+            x_pcm_left_coupler  = x_right_core_coupler + t_gap_pcm
+            x_pcm_right_coupler = x_pcm_left_coupler + t_pcm
+
+            x_mask_right_candidate_coupler = (
+                x_right_core_coupler + margin
+            )
+
+            x_pcm_limit_coupler = x_pcm_left_coupler - buffer
+
+            if t_gap_pcm <= buffer:
+                x_mask_right_coupler = x_right_core_coupler
+            else:
+                x_mask_right_coupler = min(
+                    x_mask_right_candidate_coupler,
+                    x_pcm_limit_coupler
+                )
+
+            # ========================================================
+            # BUS WG
+            # ========================================================
+
+            x_right_core_bus = x_bus + W/2
+            x_left_core_bus  = x_bus - W/2
+
+            x_pcm_left_bus  = x_right_core_bus + t_gap_pcm
+            x_pcm_right_bus = x_pcm_left_bus + t_pcm
+
+            x_mask_right_candidate_bus = (
+                x_right_core_bus + margin
+            )
+
+            x_pcm_limit_bus = x_pcm_left_bus - buffer
+
+            if t_gap_pcm <= buffer:
+                x_mask_right_bus = x_right_core_bus
+            else:
+                x_mask_right_bus = min(
+                    x_mask_right_candidate_bus,
+                    x_pcm_limit_bus
+                )
+
+            # --------------------------------
+            # SRN masks
+            # --------------------------------
+
+            srn_mask_coupler = (
+                (X >= x_left_core_coupler - margin) &
+                (X <= x_mask_right_coupler) &
+                (Y >= y_coupler - H/2 - margin) &
+                (Y <= y_coupler + H/2 + margin)
+            )
+
+            srn_mask_bus = (
+                (X >= x_left_core_bus - margin) &
+                (X <= x_mask_right_bus) &
+                (Y >= y_bus - H/2 - margin) &
+                (Y <= y_bus + H/2 + margin)
+            )
+
+            # --------------------------------
+            # PCM masks
+            # --------------------------------
+
+            mask_pcm_coupler = (
+                (X >= x_pcm_left_coupler) &
+                (X <= x_pcm_right_coupler) &
+                (Y >= y_coupler - H/2 - margin) &
+                (Y <= y_coupler + H/2 + margin)
+            )
+
+            mask_pcm_bus = (
+                (X >= x_pcm_left_bus) &
+                (X <= x_pcm_right_bus) &
+                (Y >= y_bus - H/2 - margin) &
+                (Y <= y_bus + H/2 + margin)
+            )
 
         # =====================
         # Energy fractions
@@ -145,33 +298,33 @@ def run_single(pcm_material_coupler, pcm_material_bus, y_coupler_center, g, t_ga
 
         E_total = np.sum(E2)
 
-        eta_left  = np.sum(E2 * srn_mask_left)  / E_total
-        eta_right = np.sum(E2 * srn_mask_right) / E_total
+        eta_coupler  = np.sum(E2 * srn_mask_coupler)  / E_total
+        eta_bus = np.sum(E2 * srn_mask_bus) / E_total
         
-        eta_pcm_left  = np.sum(E2 * mask_pcm_left) / E_total
-        eta_pcm_right = np.sum(E2 * mask_pcm_right) / E_total
+        eta_pcm_coupler  = np.sum(E2 * mask_pcm_coupler) / E_total
+        eta_pcm_bus = np.sum(E2 * mask_pcm_bus) / E_total
         
-        eta_srn_total = eta_left + eta_right
-        eta_pcm_total = eta_pcm_left + eta_pcm_right
+        eta_srn_total = eta_coupler + eta_bus
+        eta_pcm_total = eta_pcm_coupler + eta_pcm_bus
 
         mode_data.append({
             "mode": m,
             "neff": neff,
             "TEfrac": TEfrac,
             "loss_dB_cm": loss_dB_cm,
-            "eta_left": eta_left,
-            "eta_right": eta_right,
+            "eta_coupler": eta_coupler,
+            "eta_bus": eta_bus,
             "eta_srn_total": eta_srn_total,
-            "eta_pcm_left": eta_pcm_left,
-            "eta_pcm_right": eta_pcm_right,
+            "eta_pcm_coupler": eta_pcm_coupler,
+            "eta_pcm_bus": eta_pcm_bus,
             "eta_pcm_total": eta_pcm_total
         })
         
         # print(f"\nMode {m}")
         # print(f"neff = {neff:.6f}")
         # print(f"TEfrac = {TEfrac:.3f}")
-        # print(f"eta_left  = {eta_left:.3f}")
-        # print(f"eta_right = {eta_right:.3f}")
+        # print(f"eta_coupler  = {eta_coupler:.3f}")
+        # print(f"eta_bus = {eta_bus:.3f}")
         # print(f"eta_pcm   = {eta_pcm:.3f}")
         # print(f"eta_srn_total = {eta_srn_total:.3f}")
 
@@ -182,7 +335,7 @@ def run_single(pcm_material_coupler, pcm_material_bus, y_coupler_center, g, t_ga
     valid = []
     for md in mode_data:
         if md["TEfrac"] > 0.9:
-            if md["eta_pcm_left"] < 0.15 and md["eta_pcm_right"] < 0.15:   # <-- critical filter
+            if md["eta_pcm_coupler"] < 0.15 and md["eta_pcm_bus"] < 0.15:   # <-- critical filter
                 valid.append(md)
 
     if len(valid) < 2:
@@ -202,7 +355,7 @@ def run_single(pcm_material_coupler, pcm_material_bus, y_coupler_center, g, t_ga
     Omega = (np.pi / lam) * dneff
 
     # Detuning proxy
-    D = abs(m1["eta_right"] - m2["eta_right"])
+    D = abs(m1["eta_bus"] - m2["eta_bus"])
 
     A_max = 1 - D**2
     
@@ -211,8 +364,8 @@ def run_single(pcm_material_coupler, pcm_material_bus, y_coupler_center, g, t_ga
     loss2 = m2["loss_dB_cm"]
 
     # excitation weights (input waveguide)
-    w1 = m1["eta_right"]
-    w2 = m2["eta_right"]
+    w1 = m1["eta_bus"]
+    w2 = m2["eta_bus"]
 
     norm = w1 + w2 + 1e-15
     w1 /= norm
@@ -228,15 +381,15 @@ def run_single(pcm_material_coupler, pcm_material_bus, y_coupler_center, g, t_ga
         "D": D,
         "A_max": A_max,
         
-        "eta_left_1": m1["eta_left"],
-        "eta_right_1": m1["eta_right"],
-        "eta_pcm_left_1": m1["eta_pcm_left"],
-        "eta_pcm_right_1": m1["eta_pcm_right"],
+        "eta_coupler_1": m1["eta_coupler"],
+        "eta_bus_1": m1["eta_bus"],
+        "eta_pcm_coupler_1": m1["eta_pcm_coupler"],
+        "eta_pcm_bus_1": m1["eta_pcm_bus"],
 
-        "eta_left_2": m2["eta_left"],
-        "eta_right_2": m2["eta_right"],
-        "eta_pcm_left_2": m2["eta_pcm_left"],
-        "eta_pcm_right_2": m2["eta_pcm_right"],
+        "eta_coupler_2": m2["eta_coupler"],
+        "eta_bus_2": m2["eta_bus"],
+        "eta_pcm_coupler_2": m2["eta_pcm_coupler"],
+        "eta_pcm_bus_2": m2["eta_pcm_bus"],
 
         "eta_pcm_avg": 0.5 * (m1["eta_pcm_total"] + m2["eta_pcm_total"]),
         

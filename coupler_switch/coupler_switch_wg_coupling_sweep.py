@@ -10,8 +10,8 @@ def wg_coupling_sweep(lum_project, lsf_script, g=250e-9, t_gap_pcm=0e-9, t_pcm=5
     # SWEEP PARAMETERS
     # ============================================================
 
-    # vertical pull-away sweep
-    y_sweep = np.linspace(0, 0.9e-6, 40)
+    # vertical/horizontal pull-away sweep
+    pull_away_sweep = np.linspace(0, 0.9e-6, 40)
 
     results = []
 
@@ -19,7 +19,7 @@ def wg_coupling_sweep(lum_project, lsf_script, g=250e-9, t_gap_pcm=0e-9, t_pcm=5
     # TIME TRACKING
     # ============================================================
 
-    total_iterations = len(y_sweep)
+    total_iterations = len(pull_away_sweep)
     global_start = time.time()
     iteration = 0
 
@@ -27,7 +27,7 @@ def wg_coupling_sweep(lum_project, lsf_script, g=250e-9, t_gap_pcm=0e-9, t_pcm=5
     # SWEEP
     # ============================================================
 
-    for y_vertical in y_sweep:
+    for pull_away in pull_away_sweep:
 
         # Progress tracking
         iteration += 1
@@ -37,13 +37,12 @@ def wg_coupling_sweep(lum_project, lsf_script, g=250e-9, t_gap_pcm=0e-9, t_pcm=5
         result = run_single(
             pcm_material_coupler="SiO2 (Glass) - Palik",
             pcm_material_bus="SiO2 (Glass) - Palik",
-            y_coupler_center=y_vertical,
+            y_coupler_center=pull_away,
             g=g,
             t_gap_pcm=t_gap_pcm,
             t_pcm=t_pcm,
             lum_project=lum_project,
-            lsf_script=lsf_script,
-            coupling="lateral"
+            lsf_script=lsf_script
         )
 
         if result is None:
@@ -54,7 +53,7 @@ def wg_coupling_sweep(lum_project, lsf_script, g=250e-9, t_gap_pcm=0e-9, t_pcm=5
         D = result["D"] # just for verification, should be near 0 for identical guides
 
         results.append({
-            "y_vertical_um": y_vertical * 1e6,
+            "pull_away_um": pull_away * 1e6,
             "kappa_per_m": kappa,
             "dneff": result["dneff"],
             "D": D
@@ -77,7 +76,7 @@ def wg_coupling_sweep(lum_project, lsf_script, g=250e-9, t_gap_pcm=0e-9, t_pcm=5
         percent = 100 * iteration / total_iterations
 
         print(
-            f"dy = {y_vertical*1e6:.3f} um | "
+            f"dy = {pull_away*1e6:.3f} um | "
             f"kappa = {kappa:.3e} 1/m | "
             f"D = {D:.3e} | "
             f"{percent:.1f}% complete | "

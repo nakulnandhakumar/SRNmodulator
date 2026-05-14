@@ -20,7 +20,7 @@ supermode = lumapi.MODE(
     project=r"./lumerical/mode/supermode.lms"
 )
 
-with open(r"./lumerical/mode/coupler_switch_supermode.lsf") as f:
+with open(r"./lumerical/mode/coupler_switch_lateral_supermode.lsf") as f:
     coupler_switch_supermode_script = f.read()
 
 # ===================== PARAMETERS =====================
@@ -31,8 +31,8 @@ t_pcm = 50e-9
 
 # ===================== RUN BOTH STATES =====================
 
-antisym = run_single(pcm_material_coupler="SBS Amorphous", pcm_material_bus="SBS Crystalline", y_coupler_center=0, g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, lum_project=supermode, lsf_script=coupler_switch_supermode_script, coupling="lateral")
-sym  = run_single(pcm_material_coupler="SBS Crystalline", pcm_material_bus="SBS Crystalline", y_coupler_center=0, g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, lum_project=supermode, lsf_script=coupler_switch_supermode_script, coupling="lateral")
+antisym = run_single(pcm_material_coupler="SBS Amorphous", pcm_material_bus="SBS Crystalline", y_coupler_center=0, g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, lum_project=supermode, lsf_script=coupler_switch_supermode_script)
+sym  = run_single(pcm_material_coupler="SBS Crystalline", pcm_material_bus="SBS Crystalline", y_coupler_center=0, g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, lum_project=supermode, lsf_script=coupler_switch_supermode_script)
 
 # ===================== RESULTS =====================
 

@@ -1,0 +1,179 @@
+# ============================================================
+# Coupled Waveguide Supermode Solver (MODE)
+# Asymmetric side-loaded PCM directional coupler
+# ============================================================
+switchtolayout;
+deleteall;
+
+# ===================== PARAMETERS ============================
+
+?lambda;
+
+?W;
+?H;
+
+?g;             # waveguide-to-waveguide gap
+?t_gap_pcm;     # vertical SiO2 gap between SRN and PCM
+?t_pcm;         # PCM thickness
+
+?y_bus_center = -(H/2 + g/2);    # y-center of bus waveguide
+?y_coupler_center = (H/2 + g/2); # y-center of coupler waveguide 
+?x_bus_center;    # x-center of bus waveguide
+?x_coupler_center; # x-center of coupler waveguide
+
+?pcm_mat_coupler;   # PCM material on TOP (coupler) waveguide (active switching layer)
+?pcm_mat_bus;  # PCM material on BOTTOM (bus) waveguide (fixed crystalline/amorphous)
+
+core_mat = "SRN 3.1 (Silicon Rich Nitride)";
+clad_mat = "SiO2 (Glass) - Palik";
+
+x_span = 3e-6;
+y_span = 3e-6;
+
+if (g <= 0) {
+    ? "ERROR: g must be > 0";
+    break;
+}
+
+if (t_pcm <= 0) {
+    ? "ERROR: t_pcm must be > 0";
+    break;
+}
+
+if (t_gap_pcm < 0) {
+    ? "ERROR: t_gap_pcm must be >= 0";
+    break;
+}
+
+# ===================== GEOMETRY ==============================
+
+# Background SiO2
+addrect;
+set("name","cladding_background");
+set("material", clad_mat);
+set("x",0);
+set("x span", x_span);
+set("y",0);
+set("y span", y_span);
+
+# ===================== TOP / COUPLER WG =====================
+
+addrect;
+set("name","wg_coupler");
+set("material", core_mat);
+set("x", 0);
+set("x span", W);
+set("y", y_coupler_center);
+set("y span", H);
+
+# ===================== BOTTOM / BUS WG ======================
+
+addrect;
+set("name","wg_bus");
+set("material", core_mat);
+set("x", 0);
+set("x span", W);
+set("y", y_bus_center);
+set("y span", H);
+
+# ===================== PCM ON TOP WG ========================
+
+addrect;
+set("name","pcm_coupler");
+set("material", pcm_mat_coupler);
+
+# PCM placed on RIGHT side of coupler waveguide
+set("x", x_coupler_center + W/2 + t_gap_pcm + t_pcm/2);
+set("x span", t_pcm);
+
+set("y", y_coupler_center);
+set("y span", H);
+
+# Optional spacer
+if (t_gap_pcm > 0) {
+
+    addrect;
+    set("name","gap_between_pcm_coupler");
+    set("material", clad_mat);
+
+    set("x", x_coupler_center + W/2 + t_gap_pcm/2);
+    set("x span", t_gap_pcm);
+
+    set("y", y_coupler_center);
+    set("y span", H);
+}
+
+# ===================== PCM ON BOTTOM WG =====================
+
+addrect;
+set("name","pcm_bus");
+set("material", pcm_mat_bus);
+
+# PCM placed on RIGHT side of bus waveguide
+set("x", x_bus_center + W/2 + t_gap_pcm + t_pcm/2);
+set("x span", t_pcm);
+
+set("y", y_bus_center);
+set("y span", H);
+
+# Optional spacer
+if (t_gap_pcm > 0) {
+
+    addrect;
+    set("name","gap_between_pcm_bus");
+    set("material", clad_mat);
+
+    set("x", x_bus_center + W/2 + t_gap_pcm/2);
+    set("x span", t_gap_pcm);
+
+    set("y", y_bus_center);
+    set("y span", H);
+}
+
+# ===================== MODE SOLVER ===========================
+
+addfde;
+select("FDE");
+
+set("solver type","2D Z normal");
+set("x",0);
+set("x span", x_span);
+set("y",0);
+set("y span", y_span);
+
+set("wavelength", lambda);
+set("number of trial modes", 4);
+set("search","near n");
+
+# Global mesh
+set("mesh cells x", 200);
+set("mesh cells y", 200);
+
+# ===================== MESH OVERRIDE =========================
+
+addmesh;
+set("name","mesh_coupler");
+
+x_right_edge = x_coupler_center + W/2 + t_gap_pcm + t_pcm;
+x_left_edge  = x_coupler_center - W/2;
+
+set("x", (x_right_edge + x_left_edge)/2);
+set("x span", abs(x_right_edge - x_left_edge) + 1e-6);
+
+# cover both stacked guides + PCM
+y_top_edge = y_coupler_center + H/2;
+y_bottom_edge = y_bus_center - H/2;
+set("y", (y_top_edge + y_bottom_edge)/2);
+set("y span", abs(y_top_edge - y_bottom_edge) + 1e-6);
+
+set("z", 0);
+set("z span", 0.5e-6);
+
+set("dx", 5e-9);
+set("dy", 5e-9);
+
+set("enabled", 1);
+
+# ===================== SOLVE ================================
+
+findmodes;

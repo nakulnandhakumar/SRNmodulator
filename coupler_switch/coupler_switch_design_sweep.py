@@ -21,7 +21,7 @@ supermode = lumapi.MODE(
             project=r"./lumerical/mode/supermode.lms"
         )
 
-with open(r"./lumerical/mode/coupler_switch_supermode.lsf") as f:
+with open(r"./lumerical/mode/coupler_switch_lateral_supermode.lsf") as f:
     coupler_switch_supermode_script = f.read()
 
 # ===================== SWEEP PARAMETERS =====================

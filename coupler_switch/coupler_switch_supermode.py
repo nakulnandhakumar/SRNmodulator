@@ -2,22 +2,17 @@ import numpy as np
 
 # ===================== CORE FUNCTION =====================
 
-def run_single(pcm_material_coupler, pcm_material_bus, y_coupler_center, g, t_gap_pcm, t_pcm, lum_project, lsf_script, coupling="lateral"):
+def run_single(pcm_material_coupler, pcm_material_bus, y_coupler_center, g, t_gap_pcm, t_pcm, lum_project, lsf_script):
 
     # Set wavelength in Lumerical
     lam = 1.55e-6
     lum_project.putv("lambda", lam)
     
-    # Check if coupling is vertical or lateral
-    if coupling == "vertical":
-        lum_project.putv("W", 350e-9)
-        lum_project.putv("H", 450e-9)
-    elif coupling == "lateral":
-        lum_project.putv("W", 450e-9)
-        lum_project.putv("H", 350e-9)
-    else:
-        print(f"ERROR: invalid coupling type '{coupling}'")
-        return None
+    # Set geometry constants in Lumerical (for mode masks)
+    W = 450e-9
+    H = 350e-9
+    lum_project.putv("W", W)
+    lum_project.putv("H", H)
     
     # Set geometry/material parameters in Lumerical
     lum_project.putv("g", g)
@@ -71,14 +66,6 @@ def run_single(pcm_material_coupler, pcm_material_bus, y_coupler_center, g, t_ga
         X, Y = np.meshgrid(x, y, indexing='ij')
         E2 = np.abs(Ex)**2 + np.abs(Ey)**2 + np.abs(Ez)**2
 
-        # geometry constants (for waveguide masks)
-        if coupling == "vertical":
-            W = 350e-9
-            H = 450e-9
-        else:
-            W = 450e-9
-            H = 350e-9
-        
         margin = 20e-9
         y_core_center = 0
         

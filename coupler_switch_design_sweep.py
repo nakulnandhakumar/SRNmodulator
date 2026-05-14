@@ -168,11 +168,3 @@ for t_pcm in t_pcm_values:
 
 results_df = pd.DataFrame(results)
 results_df.to_csv("coupler_switch/coupler_switch_pcm_sweep.csv", index=False)
-
-good = results_df[
-    (results_df["P_sym"] > 0.95) &
-    (results_df["P_antisym"] < 0.10)
-]
-
-print("\n========== GOOD DESIGNS ==========")
-print(good[["t_pcm_nm", "t_gap_pcm_nm", "D_antisym", "D_sym", "Omega_antisym", "Omega_sym", "eta_pcm_avg_antisym", "eta_pcm_avg_sym", "L_corrected_design_um", "P_antisym", "P_sym", "ER_dB"]])

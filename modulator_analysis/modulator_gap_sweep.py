@@ -1,5 +1,5 @@
-from modulator_analysis.modulator_lumapi import LumericalSession
-from modulator_analysis.modulator_evaluate import evaluate_params
+from modulator_lumapi import LumericalSession
+from modulator_evaluate import evaluate_params
 import matplotlib.pyplot as plt
 import numpy as np
 from modulator_optimize_config import PARAMS

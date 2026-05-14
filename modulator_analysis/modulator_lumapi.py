@@ -35,6 +35,13 @@ import lumapi # pyright: ignore[reportMissingImports]
 import numpy as np
 import time
 from modulator_optimize_config import PARAM_BOUNDS
+import warnings
+
+warnings.filterwarnings(
+    "ignore",
+    message=r".*invalid escape sequence.*",
+    category=SyntaxWarning
+)
 
 # ============================================================
 # Parameter clamping for physical feasibility

@@ -3,6 +3,13 @@ import csv
 import sys
 sys.path.append(r"C:\Program Files\Lumerical\v202\api\python")
 import lumapi # pyright: ignore[reportMissingImports]
+import warnings
+
+warnings.filterwarnings(
+    "ignore",
+    message=r".*invalid escape sequence.*",
+    category=SyntaxWarning
+)
 
 def sweep_kappa_vs_lambda_modulator(
     g_opt,

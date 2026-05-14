@@ -5,7 +5,13 @@ import sys
 from coupler_switch_supermode import run_single
 sys.path.append(r"C:\Program Files\Lumerical\v202\api\python")
 import lumapi # pyright: ignore[reportMissingImports]
-import time
+import warnings
+
+warnings.filterwarnings(
+    "ignore",
+    message=r".*invalid escape sequence.*",
+    category=SyntaxWarning
+)
 
 # ===================== INIT =====================
 

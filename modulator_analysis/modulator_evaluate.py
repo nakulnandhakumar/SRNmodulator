@@ -30,7 +30,6 @@ Objective is NOT computed here.
 This file returns raw metrics only.
 """
 
-from modulator_lumapi import LumericalSession
 from file_parsing.lumerical_electrostatics_mattocsv import convert_lumerical_electrostatics_to_csv
 from file_parsing.lumerical_mode_mattocsv import convert_lumerical_mode_to_csv
 from modulator_overlap import compute_modulator_overlap

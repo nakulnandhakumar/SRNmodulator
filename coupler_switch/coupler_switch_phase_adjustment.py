@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 import os
-import sys
 from scipy.interpolate import PchipInterpolator
 from scipy.optimize import curve_fit
 from coupler_switch_wg_coupling_sweep import wg_coupling_sweep

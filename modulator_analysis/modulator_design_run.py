@@ -1,6 +1,5 @@
 from modulator_lumapi import LumericalSession
 from modulator_evaluate import evaluate_params
-import matplotlib.pyplot as plt
 from modulator_optimize_config import PARAMS
 
 # Define loop over gap values

@@ -42,8 +42,8 @@ Suitable for:
 
 import copy
 import numpy as np
-from modulator_analysis.modulator_evaluate import evaluate_params
-from modulator_analysis.modulator_objective import objective_function
+from modulator_evaluate import evaluate_params
+from modulator_objective import objective_function
 
 
 class FDOptimizer:

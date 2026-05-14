@@ -2,11 +2,17 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import sys
-from coupler_switch.coupler_switch_supermode import run_single
-from coupler_switch.coupler_switch_phase_adjustment import run_coupling_phase_adjustment
+from coupler_switch_supermode import run_single
+from coupler_switch_phase_adjustment import run_coupling_phase_adjustment
 sys.path.append(r"C:\Program Files\Lumerical\v202\api\python")
 import lumapi # pyright: ignore[reportMissingImports]
 import time
+import warnings
+warnings.filterwarnings(
+    "ignore",
+    message=r".*invalid escape sequence.*",
+    category=SyntaxWarning
+)
 
 # Initialize Lumerical MODE for the ring filter waveguide
 supermode = lumapi.MODE(

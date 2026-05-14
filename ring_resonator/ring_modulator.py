@@ -2,8 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from scipy.interpolate import interp1d
-from ring_resonator.sweep_kappa_vs_gap import sweep_kappa_vs_gap_modulator
-from ring_resonator.sweep_kappa_vs_lambda import sweep_kappa_vs_lambda_modulator
+from sweep_kappa_vs_gap import sweep_kappa_vs_gap_modulator
+from sweep_kappa_vs_lambda import sweep_kappa_vs_lambda_modulator
 
 # ============================================================
 # RACETRACK GEOMETRY

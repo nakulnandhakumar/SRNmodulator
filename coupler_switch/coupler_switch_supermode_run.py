@@ -3,6 +3,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import sys
 from coupler_switch_supermode import run_single
+from coupler_switch_config import WG_COUPLING_CONFIG
+import copy
 sys.path.append(r"C:\Program Files\Lumerical\v202\api\python")
 import lumapi # pyright: ignore[reportMissingImports]
 import warnings
@@ -20,19 +22,50 @@ supermode = lumapi.MODE(
     project=r"./lumerical/mode/supermode.lms"
 )
 
-with open(r"./lumerical/mode/coupler_switch_lateral_supermode.lsf") as f:
+# Choose script based on coupling direction
+if WG_COUPLING_CONFIG["coupling_direction"] == "lateral":
+    script_path = (
+        r"./lumerical/mode/coupler_switch_lateral_supermode.lsf"
+    )
+
+elif WG_COUPLING_CONFIG["coupling_direction"] == "vertical":
+    script_path = (
+        r"./lumerical/mode/coupler_switch_vertical_supermode.lsf"
+    )
+else:
+    raise ValueError(
+        f'Unknown coupling direction: '
+        f'{WG_COUPLING_CONFIG["coupling_direction"]}'
+    )
+
+with open(script_path) as f:
     coupler_switch_supermode_script = f.read()
 
-# ===================== PARAMETERS =====================
+# ===================== CONFIG COPIES =====================
 
-g = 250e-9
-t_gap_pcm = 0e-9
-t_pcm = 50e-9
+# Asymmetric state
+antisym_config = copy.deepcopy(WG_COUPLING_CONFIG)
+antisym_config["pcm_mat_coupler"] = "SBS Amorphous"
+antisym_config["pcm_mat_bus"] = "SBS Crystalline"
+
+# Symmetric state
+sym_config = copy.deepcopy(WG_COUPLING_CONFIG)
+sym_config["pcm_mat_coupler"] = "SBS Crystalline"
+sym_config["pcm_mat_bus"] = "SBS Crystalline"
 
 # ===================== RUN BOTH STATES =====================
 
-antisym = run_single(pcm_material_coupler="SBS Amorphous", pcm_material_bus="SBS Crystalline", y_coupler_center=0, g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, lum_project=supermode, lsf_script=coupler_switch_supermode_script)
-sym  = run_single(pcm_material_coupler="SBS Crystalline", pcm_material_bus="SBS Crystalline", y_coupler_center=0, g=g, t_gap_pcm=t_gap_pcm, t_pcm=t_pcm, lum_project=supermode, lsf_script=coupler_switch_supermode_script)
+antisym = run_single(
+    config=antisym_config,
+    lum_project=supermode,
+    lsf_script=coupler_switch_supermode_script
+)
+
+sym = run_single(
+    config=sym_config,
+    lum_project=supermode,
+    lsf_script=coupler_switch_supermode_script
+)
 
 # ===================== RESULTS =====================
 

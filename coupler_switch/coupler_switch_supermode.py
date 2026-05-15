@@ -6,7 +6,13 @@ def run_single(config, lum_project, lsf_script):
 
     # Set wavelength in Lumerical
     lam = 1.55e-6
+    
     lum_project.putv("lambda", lam)
+    
+    # Set number of trial modes for MODE solver
+    num_trial_modes = config["num_trial_modes"]
+    
+    lum_project.putv("num_trial_modes", num_trial_modes)
     
     # Set waveguide geometry in Lumerical
     W = config["W"]
@@ -48,10 +54,9 @@ def run_single(config, lum_project, lsf_script):
     # Evaluate the Lumerical script to compute modes and coupling parameters
     lum_project.eval(lsf_script)
 
-    nmodes = 4
     mode_data = []
 
-    for m in range(1, nmodes+1):
+    for m in range(1, num_trial_modes+1):
         name = f"mode{m}"
 
         try:

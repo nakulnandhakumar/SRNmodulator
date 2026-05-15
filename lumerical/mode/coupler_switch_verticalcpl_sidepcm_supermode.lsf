@@ -24,6 +24,8 @@ deleteall;
 ?pcm_mat_coupler;   # PCM material on TOP (coupler) waveguide (active switching layer)
 ?pcm_mat_bus;  # PCM material on BOTTOM (bus) waveguide (fixed crystalline/amorphous)
 
+?num_trial_modes; # number of trial modes for MODE solver
+
 core_mat = "SRN 3.1 (Silicon Rich Nitride)";
 clad_mat = "SiO2 (Glass) - Palik";
 
@@ -142,7 +144,7 @@ set("y",0);
 set("y span", y_span);
 
 set("wavelength", lambda);
-set("number of trial modes", 4);
+set("number of trial modes", num_trial_modes);
 set("search","near n");
 
 # Global mesh

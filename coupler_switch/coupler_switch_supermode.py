@@ -429,4 +429,8 @@ def run_single(config, lum_project, lsf_script):
         
         "mode1": m1["mode"],
         "mode2": m2["mode"],
+        
+        "TEfrac1": m1["TEfrac"],
+        "TEfrac2": m2["TEfrac"],
+        "polarization": polarization
     }

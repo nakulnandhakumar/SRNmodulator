@@ -3,19 +3,66 @@ import pandas as pd
 import os
 from scipy.interpolate import PchipInterpolator
 from scipy.optimize import curve_fit
-from coupler_switch_wg_coupling_sweep import wg_coupling_sweep
+from coupler_switch_phase_correction_coupling_sweep import phase_correction_coupling_sweep
 
+"""
+This module computes the phase correction to the straight coupling length due 
+to the non-ideal coupling tail in the bend region, based on a coupling sweep 
+that characterizes the coupling coefficient as a function of pull-away distance.
+"""
+def run_coupling_phase_correction(
+    lum_project,
+    lsf_script,
+    coupling_direction,
+    W,
+    H,
+    g,
+    Omega_sym,
+    R=15e-6
+):
 
-def run_coupling_phase_adjustment(lum_project, lsf_script, g=250e-9, Omega_sym=50233.970346, R=15e-6):
-    # ==============================================
-    # WAVEGUIDE COUPLING SWEEP
-    # ==============================================
+    # ============================================================
+    # PHASE SWEEP FILE PATH
+    # ============================================================
 
-    # Check if file exists, if not run the sweep
-    csv_path = f"coupler_switch/wg_coupling_sweep/g{int(g*1e9)}nm_.csv"
+    W_nm = int(W * 1e9)
+    H_nm = int(H * 1e9)
+    g_nm = int(g * 1e9)
+
+    save_dir = (
+        f"./phase_correction_coupling_sweep/"
+        f"{coupling_direction}_coupling"
+    )
+
+    filename = (
+        f"pullaway_"
+        f"W{W_nm}nm_"
+        f"H{H_nm}nm_"
+        f"g{g_nm}nm.csv"
+    )
+
+    csv_path = os.path.join(save_dir, filename)
+
+    # ============================================================
+    # RUN SWEEP IF FILE DOES NOT EXIST
+    # ============================================================
+
     if not os.path.exists(csv_path):
-        print(f"Coupling sweep file not found at {csv_path}. Running sweep...")
-        wg_coupling_sweep(lum_project, lsf_script, g=g)
+
+        print(
+            f"Coupling sweep file not found:\n"
+            f"{csv_path}\n"
+            f"Running coupling sweep..."
+        )
+
+        phase_correction_coupling_sweep(
+            lum_project=lum_project,
+            lsf_script=lsf_script,
+            coupling_direction=coupling_direction,
+            W=W,
+            H=H,
+            g=g
+        )
 
     # Load the sweep results
     df = pd.read_csv(csv_path)

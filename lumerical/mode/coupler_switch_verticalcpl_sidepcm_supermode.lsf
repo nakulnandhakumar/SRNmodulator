@@ -16,8 +16,8 @@ deleteall;
 ?t_gap_pcm;     # vertical SiO2 gap between SRN and PCM
 ?t_pcm;         # PCM thickness
 
-?y_bus_center = -(H/2 + g/2);    # y-center of bus waveguide
-?y_coupler_center = (H/2 + g/2); # y-center of coupler waveguide 
+?y_bus_center;    # y-center of bus waveguide
+?y_coupler_center; # y-center of coupler waveguide 
 ?x_bus_center;    # x-center of bus waveguide
 ?x_coupler_center; # x-center of coupler waveguide
 

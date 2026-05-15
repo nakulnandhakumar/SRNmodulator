@@ -31,27 +31,19 @@ def run_single(config, lum_project, lsf_script):
     lum_project.putv("pcm_mat_coupler", pcm_material_coupler)   # PCM on coupler waveguide
     lum_project.putv("pcm_mat_bus", pcm_material_bus)           # PCM on bus waveguide
     
-    # Get coupling direction and determine vertical/horizontal center positions
-    coupling_direction = config["coupling_direction"]
-    
-    if coupling_direction == "lateral":
-        x_coupler_center = -(W/2 + g/2)
-        x_bus_center     = (W/2 + g/2)
-        y_coupler_center = 0
-        y_bus_center     = 0
-    elif coupling_direction == "vertical":
-        y_coupler_center = (H/2 + g/2)
-        y_bus_center     = -(H/2 + g/2)
-        x_coupler_center = 0
-        x_bus_center     = 0
-    else:
-        raise ValueError(f"Unknown coupling direction: {coupling_direction}")
+    # Set waveguide centers from config
+    x_coupler_center = config["x_coupler_center"]
+    x_bus_center = config["x_bus_center"]
+    y_coupler_center = config["y_coupler_center"]
+    y_bus_center = config["y_bus_center"]
     
     lum_project.putv("x_coupler_center", x_coupler_center)
     lum_project.putv("x_bus_center", x_bus_center)
-
     lum_project.putv("y_coupler_center", y_coupler_center)
     lum_project.putv("y_bus_center", y_bus_center)
+    
+    # Get coupling direction for later use
+    coupling_direction = config["coupling_direction"]
 
     # Evaluate the Lumerical script to compute modes and coupling parameters
     lum_project.eval(lsf_script)

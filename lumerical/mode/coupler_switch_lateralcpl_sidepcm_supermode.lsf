@@ -18,8 +18,8 @@ deleteall;
 
 ?y_bus_center;    # y-center of bus waveguide
 ?y_coupler_center; # y-center of coupler waveguide 
-?x_bus_center = (W/2 + g/2);    # x-center of bus waveguide
-?x_coupler_center = -(W/2 + g/2); # x-center of coupler waveguide
+?x_bus_center;    # x-center of bus waveguide
+?x_coupler_center; # x-center of coupler waveguide
 
 ?pcm_mat_coupler;   # PCM material on TOP (coupler) waveguide (active switching layer)
 ?pcm_mat_bus;  # PCM material on BOTTOM (bus) waveguide (fixed crystalline/amorphous)

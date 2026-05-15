@@ -134,8 +134,6 @@ for t_pcm in t_pcm_values:
             # Waveguide positions based on coupling direction
             # ----------------------------------------------
 
-            coupling_direction = WG_COUPLING_CONFIG["coupling_direction"]
-
             if coupling_direction == "lateral":
 
                 antisym_config["x_coupler_center"] = -(antisym_config["W"]/2 + antisym_config["g"]/2)

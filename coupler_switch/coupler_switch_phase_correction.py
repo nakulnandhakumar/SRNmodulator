@@ -66,38 +66,38 @@ def run_coupling_phase_correction(
 
     # Load the sweep results
     df = pd.read_csv(csv_path)
-    y_um = df["y_vertical_um"].values
+    pull_away_um = df["pull_away_um"].values
     kappa = df["kappa_per_m"].values
 
     # Use only clean region before mode-tracking gets weird
-    clean = (y_um >= 0.0) & (y_um <= 0.9)
-    y_clean = y_um[clean]
+    clean = (pull_away_um >= 0.0) & (pull_away_um <= 0.9)
+    pull_away_clean = pull_away_um[clean]
     k_clean = kappa[clean]
 
     # Smooth interpolation over measured region
-    k_interp = PchipInterpolator(y_clean, k_clean)
+    k_interp = PchipInterpolator(pull_away_clean, k_clean)
 
     # Fit exponential tail over final clean segment
-    tail_fit = (y_clean >= 0.55) & (y_clean <= 0.9)
+    tail_fit = (pull_away_clean >= 0.55) & (pull_away_clean <= 0.9)
 
     def exp_tail(y, A, b):
         return A * np.exp(-b * y)
 
-    popt, _ = curve_fit(exp_tail, y_clean[tail_fit], k_clean[tail_fit], p0=[1e5, 5])
+    popt, _ = curve_fit(exp_tail, pull_away_clean[tail_fit], k_clean[tail_fit], p0=[1e5, 5])
     A_fit, b_fit = popt
 
-    def kappa_model(y_um):
-        y_um = np.asarray(y_um)
-        k = np.zeros_like(y_um, dtype=float)
+    def kappa_model(pull_away_um):
+        pull_away_um = np.asarray(pull_away_um)
+        k = np.zeros_like(pull_away_um, dtype=float)
 
-        measured = y_um <= 0.9
-        tail = y_um > 0.9
+        measured = pull_away_um <= 0.9
+        tail = pull_away_um > 0.9
 
-        k[measured] = k_interp(y_um[measured])
+        k[measured] = k_interp(pull_away_um[measured])
 
         # continuous tail after 0.9 um
         k_09 = k_interp(0.9)
-        k[tail] = k_09 * np.exp(-b_fit * (y_um[tail] - 0.9))
+        k[tail] = k_09 * np.exp(-b_fit * (pull_away_um[tail] - 0.9))
 
         return k
 

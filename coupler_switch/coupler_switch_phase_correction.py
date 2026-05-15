@@ -14,6 +14,7 @@ def run_coupling_phase_correction(
     lum_project,
     lsf_script,
     coupling_direction,
+    polarization,
     W,
     H,
     g,
@@ -59,6 +60,7 @@ def run_coupling_phase_correction(
             lum_project=lum_project,
             lsf_script=lsf_script,
             coupling_direction=coupling_direction,
+            polarization=polarization,
             W=W,
             H=H,
             g=g

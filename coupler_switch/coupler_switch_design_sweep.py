@@ -216,6 +216,8 @@ for t_pcm in t_pcm_values:
 
                 coupling_direction=WG_COUPLING_CONFIG["coupling_direction"],
 
+                polarization=WG_COUPLING_CONFIG["polarization"],
+
                 W=WG_COUPLING_CONFIG["W"],
                 H=WG_COUPLING_CONFIG["H"],
 
@@ -345,8 +347,11 @@ t_pcm_max_nm = int(t_pcm_values[-1] * 1e9)
 t_gap_min_nm = int(t_gap_pcm_values[0] * 1e9)
 t_gap_max_nm = int(t_gap_pcm_values[-1] * 1e9)
 
+polarization = WG_COUPLING_CONFIG["polarization"]
+
 filename = (
     f"design_"
+    f"{polarization}_"
     f"W{W_nm}nm_"
     f"H{H_nm}nm_"
     f"g{g_min_nm}-{g_max_nm}nm_"

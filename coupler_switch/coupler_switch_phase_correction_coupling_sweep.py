@@ -11,6 +11,7 @@ def phase_correction_coupling_sweep(
     lum_project,
     lsf_script,
     coupling_direction,
+    polarization,
     W,
     H,
     g
@@ -44,6 +45,7 @@ def phase_correction_coupling_sweep(
         config = copy.deepcopy(WG_COUPLING_CONFIG)
         
         config["coupling_direction"] = coupling_direction
+        config["polarization"] = polarization
         config["W"] = W
         config["H"] = H
         config["g"] = g
@@ -145,6 +147,7 @@ def phase_correction_coupling_sweep(
 
     filename = (
         f"pullaway_"
+        f"{polarization}_"
         f"W{W_nm}nm_"
         f"H{H_nm}nm_"
         f"g{g_nm}nm.csv"

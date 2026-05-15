@@ -324,14 +324,47 @@ def run_single(config, lum_project, lsf_script):
     # MODE SELECTION
     # =====================
 
+    polarization = config["polarization"]
+
     valid = []
+
     for md in mode_data:
-        if md["TEfrac"] > 0.9:
-            if md["eta_pcm_coupler"] < 0.15 and md["eta_pcm_bus"] < 0.15:   # <-- critical filter
-                valid.append(md)
+
+        # --------------------------------------------------------
+        # Polarization filtering
+        # --------------------------------------------------------
+
+        if polarization == "TE":
+            polarization_valid = md["TEfrac"] > 0.9
+
+        elif polarization == "TM":
+            polarization_valid = md["TEfrac"] < 0.1
+
+        else:
+            raise ValueError(
+                f'Unknown polarization: {polarization}'
+            )
+
+        # --------------------------------------------------------
+        # PCM overlap filtering
+        # --------------------------------------------------------
+
+        pcm_valid = (
+            md["eta_pcm_coupler"] < 0.15 and
+            md["eta_pcm_bus"] < 0.15
+        )
+
+        # --------------------------------------------------------
+        # Final validity
+        # --------------------------------------------------------
+
+        if polarization_valid and pcm_valid:
+            valid.append(md)
 
     if len(valid) < 2:
-        print("ERROR: not enough valid modes")
+        print(
+            f"ERROR: not enough valid {polarization} modes"
+        )
         return None
 
     modes = sorted(valid, key=lambda x: x["neff"], reverse=True)

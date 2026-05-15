@@ -16,4 +16,6 @@ WG_COUPLING_CONFIG = {
     
     "coupling_direction": "vertical",  # "vertical" or "lateral"
     "pcm_loading_direction": "side_pcm",  # "side_pcm" or "top_pcm"
+    
+    "polarization": "TE",  # "TE" or "TM"
 }

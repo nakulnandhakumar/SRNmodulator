@@ -532,5 +532,10 @@ def run_single(config, lum_project, lsf_script):
         
         "TEfrac1": m1["TEfrac"],
         "TEfrac2": m2["TEfrac"],
-        "polarization": polarization
+        "polarization": polarization,
+        
+        "parity1": m1["parity"],
+        "parity2": m2["parity"],
+        "parity_label1": m1["parity_label"],
+        "parity_label2": m2["parity_label"],
     }

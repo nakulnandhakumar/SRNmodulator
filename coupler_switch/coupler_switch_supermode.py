@@ -50,6 +50,9 @@ def run_single(config, lum_project, lsf_script):
     
     # Get coupling direction for later use
     coupling_direction = config["coupling_direction"]
+    
+    # get polarization for later use
+    polarization = config["polarization"]
 
     # Evaluate the Lumerical script to compute modes and coupling parameters
     lum_project.eval(lsf_script)
@@ -91,6 +94,19 @@ def run_single(config, lum_project, lsf_script):
 
         X, Y = np.meshgrid(x, y, indexing='ij')
         E2 = np.abs(Ex)**2 + np.abs(Ey)**2 + np.abs(Ez)**2
+        
+        # ============================================================
+        # FIELD COMPONENT FOR PARITY CHECK
+        # ============================================================
+
+        if polarization == "TE":
+            Epar = Ex
+        elif polarization == "TM":
+            Epar = Ey
+        else:
+            raise ValueError(
+                f"Unknown polarization: {polarization}"
+            )
 
         margin = 20e-9
         buffer = 2e-9
@@ -303,11 +319,29 @@ def run_single(config, lum_project, lsf_script):
         
         eta_srn_total = eta_coupler + eta_bus
         eta_pcm_total = eta_pcm_coupler + eta_pcm_bus
+        
+        # ============================================================
+        # PARITY CHECK
+        # ============================================================
+
+        field_coupler = np.sum(np.real(Epar) * srn_mask_coupler)
+        field_bus = np.sum(np.real(Epar) * srn_mask_bus)
+
+        parity = field_coupler * field_bus
+
+        if parity > 0:
+            parity_label = "symmetric"
+        else:
+            parity_label = "antisymmetric"
 
         mode_data.append({
             "mode": m,
             "neff": neff,
             "TEfrac": TEfrac,
+            
+            "parity": parity,
+            "parity_label": parity_label,
+            
             "loss_dB_cm": loss_dB_cm,
             "eta_coupler": eta_coupler,
             "eta_bus": eta_bus,
@@ -328,8 +362,6 @@ def run_single(config, lum_project, lsf_script):
     # =====================
     # MODE SELECTION
     # =====================
-
-    polarization = config["polarization"]
 
     valid = []
 
@@ -376,6 +408,74 @@ def run_single(config, lum_project, lsf_script):
 
     m1 = modes[0]
     m2 = modes[1]
+    
+    # Warn if selected modes have same parity, which may lead to weak coupling and low extinction ratio
+    if m1["parity"] * m2["parity"] > 0:
+        print(
+            f"WARNING: selected modes have same parity: "
+            f"mode {m1['mode']} = {m1['parity_label']}, "
+            f"mode {m2['mode']} = {m2['parity_label']}"
+        )
+    
+    # Not implemented yet: more advanced supermode pairing based on parity and 
+    # SRN confinement, instead of just neff proximity
+    """
+    # ============================================================
+    # PARITY-BASED SUPERMODE PAIRING
+    # ============================================================
+
+    sym_modes = []
+    antisym_modes = []
+
+    # Classify modes into symmetric and antisymmetric based on parity
+    for md in valid:
+        if md["parity"] > 0:
+            sym_modes.append(md)
+        elif md["parity"] < 0:
+            antisym_modes.append(md)
+
+    # Make sure both parity families exist
+    if len(sym_modes) == 0 or len(antisym_modes) == 0:
+        print(
+            f"ERROR: could not find both symmetric "
+            f"and antisymmetric {polarization} modes"
+        )
+        return None
+
+    # Sort by SRN confinement
+    sym_modes = sorted(
+        sym_modes,
+        key=lambda x: x["eta_srn_total"],
+        reverse=True
+    )
+
+    antisym_modes = sorted(
+        antisym_modes,
+        key=lambda x: x["eta_srn_total"],
+        reverse=True
+    )
+
+    # Fundamental supermode pair
+    m1 = sym_modes[0]
+    m2 = antisym_modes[0]
+    
+    # Diagnostic printout of selected modes
+    print(
+        f"\nSelected supermode pair:"
+    )
+    print(
+        f"m1 = mode {m1['mode']} | "
+        f"{m1['parity_label']} | "
+        f"neff = {m1['neff']:.6f} | "
+        f"TEfrac = {m1['TEfrac']:.3f}"
+    )
+    print(
+        f"m2 = mode {m2['mode']} | "
+        f"{m2['parity_label']} | "
+        f"neff = {m2['neff']:.6f} | "
+        f"TEfrac = {m2['TEfrac']:.3f}"
+    )
+    """
 
     # =====================
     # PHYSICS

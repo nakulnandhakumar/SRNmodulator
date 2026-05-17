@@ -1,0 +1,203 @@
+# ============================================================
+# Coupled Waveguide Supermode Solver (MODE)
+# Asymmetric TOP-loaded PCM directional coupler
+#
+# PCM placement:
+#   - PCM below top/coupler waveguide
+#   - PCM above bottom/bus waveguide
+#
+# This places the PCM INSIDE the coupling region.
+# ============================================================
+
+switchtolayout;
+deleteall;
+
+# ===================== PARAMETERS ============================
+
+?lambda;
+
+?W;
+?H;
+
+?g;             # waveguide-to-waveguide gap
+?t_gap_pcm;     # vertical SiO2 gap between SRN and PCM
+?t_pcm;         # PCM thickness
+
+?y_bus_center;
+?y_coupler_center;
+
+?x_bus_center;
+?x_coupler_center;
+
+?pcm_mat_coupler;
+?pcm_mat_bus;
+
+?num_trial_modes;
+
+core_mat = "SRN 3.1 (Silicon Rich Nitride)";
+clad_mat = "SiO2 (Glass) - Palik";
+
+x_span = 3e-6;
+y_span = 3e-6;
+
+if (g <= 0) {
+    ? "ERROR: g must be > 0";
+    break;
+}
+
+if (t_pcm <= 0) {
+    ? "ERROR: t_pcm must be > 0";
+    break;
+}
+
+if (t_gap_pcm < 0) {
+    ? "ERROR: t_gap_pcm must be >= 0";
+    break;
+}
+
+# ===================== GEOMETRY ==============================
+
+# Background SiO2
+addrect;
+set("name","cladding_background");
+set("material", clad_mat);
+
+set("x",0);
+set("x span", x_span);
+
+set("y",0);
+set("y span", y_span);
+
+# ===================== TOP / COUPLER WG =====================
+
+addrect;
+set("name","wg_coupler");
+set("material", core_mat);
+
+set("x", x_coupler_center);
+set("x span", W);
+
+set("y", y_coupler_center);
+set("y span", H);
+
+# ===================== BOTTOM / BUS WG ======================
+
+addrect;
+set("name","wg_bus");
+set("material", core_mat);
+
+set("x", x_bus_center);
+set("x span", W);
+
+set("y", y_bus_center);
+set("y span", H);
+
+# ============================================================
+# PCM BELOW TOP / COUPLER WG
+# ============================================================
+
+addrect;
+set("name","pcm_coupler");
+set("material", pcm_mat_coupler);
+
+# PCM below top waveguide
+set("x", x_coupler_center);
+set("x span", W);
+
+set("y", y_coupler_center - H/2 - t_gap_pcm - t_pcm/2);
+set("y span", t_pcm);
+
+# Optional spacer
+if (t_gap_pcm > 0) {
+    addrect;
+    set("name","gap_between_pcm_coupler");
+    set("material", clad_mat);
+
+    set("x", x_coupler_center);
+    set("x span", W);
+
+    set("y", y_coupler_center - H/2 - t_gap_pcm/2);
+    set("y span", t_gap_pcm);
+}
+
+# ============================================================
+# PCM ABOVE BOTTOM / BUS WG
+# ============================================================
+
+addrect;
+set("name","pcm_bus");
+set("material", pcm_mat_bus);
+
+# PCM above bottom waveguide
+set("x", x_bus_center);
+set("x span", W);
+
+set("y", y_bus_center + H/2 + t_gap_pcm + t_pcm/2);
+set("y span", t_pcm);
+
+# Optional spacer
+if (t_gap_pcm > 0) {
+    addrect;
+    set("name","gap_between_pcm_bus");
+    set("material", clad_mat);
+
+    set("x", x_bus_center);
+    set("x span", W);
+
+    set("y", y_bus_center + H/2 + t_gap_pcm/2);
+    set("y span", t_gap_pcm);
+}
+
+# ===================== MODE SOLVER ===========================
+
+addfde;
+select("FDE");
+
+set("solver type","2D Z normal");
+
+set("x",0);
+set("x span", x_span);
+
+set("y",0);
+set("y span", y_span);
+
+set("wavelength", lambda);
+
+set("number of trial modes", num_trial_modes);
+
+set("search","near n");
+
+# Global mesh
+set("mesh cells x", 200);
+set("mesh cells y", 200);
+
+# ===================== MESH OVERRIDE =========================
+
+addmesh;
+set("name","mesh_coupler");
+
+# Horizontal extent
+x_left_edge  = x_bus_center - W/2;
+x_right_edge = x_bus_center + W/2;
+
+set("x", (x_left_edge + x_right_edge)/2);
+set("x span", abs(x_right_edge - x_left_edge) + 1e-6);
+
+# Vertical extent INCLUDING PCM layers
+y_top_edge = y_coupler_center + H/2;
+y_bottom_edge = y_bus_center - H/2;
+
+set("y", (y_top_edge + y_bottom_edge)/2);
+set("y span", abs(y_top_edge - y_bottom_edge) + 2*t_pcm + 2*t_gap_pcm + 1e-6);
+
+set("z", 0);
+set("z span", 0.5e-6);
+
+set("dx", 5e-9);
+set("dy", 5e-9);
+
+set("enabled", 1);
+
+# ===================== SOLVE ================================
+
+findmodes;

@@ -31,7 +31,7 @@ def run_coupling_phase_correction(
     g_nm = int(g * 1e9)
 
     save_dir = (
-        f"./phase_correction_coupling_sweep/"
+        f"./coupler_switch/phase_correction_coupling_sweep/"
         f"{coupling_direction}_coupling"
     )
 

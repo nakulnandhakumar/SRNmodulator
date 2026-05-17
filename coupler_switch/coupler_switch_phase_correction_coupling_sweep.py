@@ -135,7 +135,7 @@ def phase_correction_coupling_sweep(
 
     # Create save directory based on coupling direction
     save_dir = (
-        f"./phase_correction_coupling_sweep/"
+        f"./coupler_switch/phase_correction_coupling_sweep/"
         f"{coupling_direction}_coupling"
     )
     os.makedirs(save_dir, exist_ok=True)

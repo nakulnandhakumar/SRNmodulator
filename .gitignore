@@ -1,6 +1,6 @@
 *.data
 *.log
-*.csv
+modulator_analysis/modulator_data/*.csv
 *.mat
 test/
 *.ldev

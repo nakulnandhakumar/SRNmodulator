@@ -37,6 +37,7 @@ def run_coupling_phase_correction(
 
     filename = (
         f"pullaway_"
+        f"{polarization}_"
         f"W{W_nm}nm_"
         f"H{H_nm}nm_"
         f"g{g_nm}nm.csv"

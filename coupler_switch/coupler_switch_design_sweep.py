@@ -327,7 +327,7 @@ coupling_direction = WG_COUPLING_CONFIG["coupling_direction"]
 pcm_loading_direction = WG_COUPLING_CONFIG["pcm_loading_direction"]
 
 save_dir = (
-    f"./coupler_switch_design_sweep_results/"
+    f"./coupler_switch/coupler_switch_design_sweep_results/"
     f"{coupling_direction}_coupling/"
     f"{pcm_loading_direction}"
 )

@@ -6,7 +6,7 @@
 #   - PCM below top/coupler waveguide
 #   - PCM above bottom/bus waveguide
 #
-# This places the PCM INSIDE the coupling region.
+# This places the PCM INSIDE the coupling region
 # ============================================================
 
 switchtolayout;

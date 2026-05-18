@@ -1,6 +1,6 @@
 WG_COUPLING_CONFIG = {
-    "W": 450e-9, # waveguide width
-    "H": 350e-9, # waveguide height
+    "W": 350e-9, # waveguide width
+    "H": 450e-9, # waveguide height
     
     "t_gap_pcm": 0e-9,  # gap between PCM and waveguide
     "t_pcm": 50e-9,      # PCM thickness
@@ -17,6 +17,6 @@ WG_COUPLING_CONFIG = {
     "coupling_direction": "vertical",  # "vertical" or "lateral"
     "pcm_loading_direction": "top_pcm",  # "side_pcm" or "top_pcm"
     
-    "polarization": "TE",  # "TE" or "TM"
+    "polarization": "TM",  # "TE" or "TM"
     "num_trial_modes": 6,  # number of trial modes for MODE solver
 }

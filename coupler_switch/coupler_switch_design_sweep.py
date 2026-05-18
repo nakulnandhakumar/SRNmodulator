@@ -86,7 +86,7 @@ with open(script_path) as f:
 
 t_gap_pcm_values = np.arange(0, 41, 5) * 1e-9
 t_pcm_values = np.arange(5, 41, 5) * 1e-9
-gap_values = np.arange(200, 301, 10) * 1e-9
+gap_values = np.arange(300, 401, 10) * 1e-9
 
 results = []
 

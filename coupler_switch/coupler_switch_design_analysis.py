@@ -7,7 +7,7 @@ import os
 
 # Directory structure
 coupling_direction = "vertical"  # "lateral" or "vertical"
-pcm_loading_direction = "side_pcm" # "side_pcm" or "top_pcm"
+pcm_loading_direction = "top_pcm" # "side_pcm" or "top_pcm"
 
 design_dir = (
     f"./coupler_switch/coupler_switch_design_sweep_results/"
@@ -16,8 +16,11 @@ design_dir = (
 )
 
 # Filename parameters
-W_nm = 450
-H_nm = 350
+W_bus_nm = 350
+H_bus_nm = 450
+
+W_coupler_nm = 350
+H_coupler_nm = 450
 
 g_min_nm = 200
 g_max_nm = 300
@@ -28,13 +31,15 @@ t_pcm_max_nm = 40
 t_gap_min_nm = 0
 t_gap_max_nm = 40
 
-polarization = "TE" # "TE" or "TM"
+polarization = "TM" # "TE" or "TM"
 
 filename = (
     f"design_"
     f"{polarization}_"
-    f"W{W_nm}nm_"
-    f"H{H_nm}nm_"
+    f"Wbus{W_bus_nm}nm_"
+    f"Hbus{H_bus_nm}nm_"
+    f"Wcpl{W_coupler_nm}nm_"
+    f"Hcpl{H_coupler_nm}nm_"
     f"g{g_min_nm}-{g_max_nm}nm_"
     f"tpcm{t_pcm_min_nm}-{t_pcm_max_nm}nm_"
     f"tgap{t_gap_min_nm}-{t_gap_max_nm}nm.csv"
@@ -48,13 +53,13 @@ df = pd.read_csv(csv_path)
 # FILTER DESIGNS
 # Keep only ER >= 20 dB
 # =====================
-filtered = df[df["ER_dB"] >= 20]
+#filtered = df[df["ER_dB"] >= 20]
 
 # =====================
 # SORT BY COUPLING LENGTH
 # Smallest coupling length first
 # =====================
-filtered = filtered.sort_values(by="L_corrected_design_um", ascending=True)
+filtered = df.sort_values(by="ER_dB", ascending=False)
 
 # =====================
 # SELECT TOP N

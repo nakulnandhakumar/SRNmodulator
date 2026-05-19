@@ -28,10 +28,11 @@ def run_coupling_phase_correction(
     # PHASE SWEEP FILE PATH
     # ============================================================
 
+    # Clamping waveguide dimensions to be identical even for asymmetric loading for now
     W_bus_nm = int(W_bus * 1e9)
     H_bus_nm = int(H_bus * 1e9)
-    W_coupler_nm = int(W_coupler * 1e9)
-    H_coupler_nm = int(H_coupler * 1e9)
+    W_coupler_nm = int(W_bus * 1e9)
+    H_coupler_nm = int(H_bus * 1e9)
     g_nm = int(g * 1e9)
 
     save_dir = (

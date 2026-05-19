@@ -89,8 +89,8 @@ with open(script_path) as f:
 # SWEEP PARAMETERS
 # ============================================================
 
-t_gap_pcm_values = np.arange(0, 31, 5) * 1e-9
-t_pcm_values = np.arange(20, 51, 5) * 1e-9
+t_gap_pcm_values = np.arange(0, 1, 5) * 1e-9
+t_pcm_values = np.arange(15, 51, 5) * 1e-9
 gap_values = np.arange(200, 301, 10) * 1e-9
 
 results = []

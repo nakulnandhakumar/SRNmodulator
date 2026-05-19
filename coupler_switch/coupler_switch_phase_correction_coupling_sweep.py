@@ -12,8 +12,10 @@ def phase_correction_coupling_sweep(
     lsf_script,
     coupling_direction,
     polarization,
-    W,
-    H,
+    W_bus,
+    H_bus,
+    W_coupler,
+    H_coupler,
     g
 ):
     
@@ -46,8 +48,10 @@ def phase_correction_coupling_sweep(
         
         config["coupling_direction"] = coupling_direction
         config["polarization"] = polarization
-        config["W"] = W
-        config["H"] = H
+        config["W_bus"] = W_bus
+        config["H_bus"] = H_bus
+        config["W_coupler"] = W_coupler
+        config["H_coupler"] = H_coupler
         config["g"] = g
 
         # --------------------------------------------------------
@@ -63,16 +67,18 @@ def phase_correction_coupling_sweep(
 
         if config["coupling_direction"] == "lateral":
 
-            config["x_coupler_center"] = -(W/2 + g/2)
-            config["x_bus_center"] = (W/2 + g/2)
+            center_sep_x = W_coupler/2 + g + W_bus/2
+            config["x_coupler_center"] = -center_sep_x/2
+            config["x_bus_center"] = center_sep_x/2
 
             config["y_coupler_center"] = pull_away
             config["y_bus_center"] = 0
 
         elif config["coupling_direction"] == "vertical":
 
-            config["y_coupler_center"] = (H/2 + g/2)
-            config["y_bus_center"] = -(H/2 + g/2)
+            center_sep_y = H_coupler/2 + g + H_bus/2
+            config["y_coupler_center"] = center_sep_y/2
+            config["y_bus_center"] = -center_sep_y/2
 
             config["x_coupler_center"] = pull_away
             config["x_bus_center"] = 0
@@ -141,15 +147,19 @@ def phase_correction_coupling_sweep(
     os.makedirs(save_dir, exist_ok=True)
 
     # Create filename based on key parameters
-    W_nm = int(W * 1e9)
-    H_nm = int(H * 1e9)
+    W_bus_nm = int(W_bus * 1e9)
+    H_bus_nm = int(H_bus * 1e9)
+    W_coupler_nm = int(W_coupler * 1e9)
+    H_coupler_nm = int(H_coupler * 1e9)
     g_nm = int(g * 1e9)
 
     filename = (
         f"pullaway_"
         f"{polarization}_"
-        f"W{W_nm}nm_"
-        f"H{H_nm}nm_"
+        f"Wbus{W_bus_nm}nm_"
+        f"Hbus{H_bus_nm}nm_"
+        f"Wcpl{W_coupler_nm}nm_"
+        f"Hcpl{H_coupler_nm}nm_"
         f"g{g_nm}nm.csv"
     )
 

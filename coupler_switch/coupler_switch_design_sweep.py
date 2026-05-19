@@ -116,8 +116,11 @@ save_dir = (
 os.makedirs(save_dir, exist_ok=True)
 
 # Filename parameters
-W_nm = int(WG_COUPLING_CONFIG["W"] * 1e9)
-H_nm = int(WG_COUPLING_CONFIG["H"] * 1e9)
+W_bus_nm = int(WG_COUPLING_CONFIG["W_bus"] * 1e9)
+H_bus_nm = int(WG_COUPLING_CONFIG["H_bus"] * 1e9)
+
+W_coupler_nm = int(WG_COUPLING_CONFIG["W_coupler"] * 1e9)
+H_coupler_nm = int(WG_COUPLING_CONFIG["H_coupler"] * 1e9)
 
 g_min_nm = int(gap_values[0] * 1e9)
 g_max_nm = int(gap_values[-1] * 1e9)
@@ -133,8 +136,10 @@ polarization = WG_COUPLING_CONFIG["polarization"]
 filename = (
     f"design_"
     f"{polarization}_"
-    f"W{W_nm}nm_"
-    f"H{H_nm}nm_"
+    f"Wbus{W_bus_nm}nm_"
+    f"Hbus{H_bus_nm}nm_"
+    f"Wcpl{W_coupler_nm}nm_"
+    f"Hcpl{H_coupler_nm}nm_"
     f"g{g_min_nm}-{g_max_nm}nm_"
     f"tpcm{t_pcm_min_nm}-{t_pcm_max_nm}nm_"
     f"tgap{t_gap_min_nm}-{t_gap_max_nm}nm.csv"
@@ -277,6 +282,16 @@ try:
                     sym["eta_pcm_bus_2"] > 0.15
                 ):
                     continue
+                
+                # Determine which state is "on" vs "off" based on coupling strength
+                if sym["D"] <= antisym["D"]:
+                    design_state = sym
+                    design_state_name = "sym"
+                    off_state = antisym
+                else:
+                    design_state = antisym
+                    design_state_name = "antisym"
+                    off_state = sym
 
                 # ---------------------------------
                 # PHASE-CORRECTED COUPLING LENGTH
@@ -289,12 +304,14 @@ try:
 
                     polarization=WG_COUPLING_CONFIG["polarization"],
 
-                    W=WG_COUPLING_CONFIG["W"],
-                    H=WG_COUPLING_CONFIG["H"],
+                    W_bus=WG_COUPLING_CONFIG["W_bus"],
+                    H_bus=WG_COUPLING_CONFIG["H_bus"],
+                    W_coupler=WG_COUPLING_CONFIG["W_coupler"],
+                    H_coupler=WG_COUPLING_CONFIG["H_coupler"],
 
                     g=g,
 
-                    Omega_sym=sym["Omega"],
+                    Omega=design_state["Omega"],
                     R=15e-6
                 )
 

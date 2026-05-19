@@ -15,10 +15,12 @@ def run_coupling_phase_correction(
     lsf_script,
     coupling_direction,
     polarization,
-    W,
-    H,
+    W_bus,
+    H_bus,
+    W_coupler,
+    H_coupler,
     g,
-    Omega_sym,
+    Omega,
     R=15e-6
 ):
 
@@ -26,8 +28,10 @@ def run_coupling_phase_correction(
     # PHASE SWEEP FILE PATH
     # ============================================================
 
-    W_nm = int(W * 1e9)
-    H_nm = int(H * 1e9)
+    W_bus_nm = int(W_bus * 1e9)
+    H_bus_nm = int(H_bus * 1e9)
+    W_coupler_nm = int(W_coupler * 1e9)
+    H_coupler_nm = int(H_coupler * 1e9)
     g_nm = int(g * 1e9)
 
     save_dir = (
@@ -38,10 +42,12 @@ def run_coupling_phase_correction(
     filename = (
         f"pullaway_"
         f"{polarization}_"
-        f"W{W_nm}nm_"
-        f"H{H_nm}nm_"
+        f"Wbus{W_bus_nm}nm_"
+        f"Hbus{H_bus_nm}nm_"
+        f"Wcpl{W_coupler_nm}nm_"
+        f"Hcpl{H_coupler_nm}nm_"
         f"g{g_nm}nm.csv"
-    )
+)
 
     csv_path = os.path.join(save_dir, filename)
 
@@ -62,8 +68,10 @@ def run_coupling_phase_correction(
             lsf_script=lsf_script,
             coupling_direction=coupling_direction,
             polarization=polarization,
-            W=W,
-            H=H,
+            W_bus=W_bus,
+            H_bus=H_bus,
+            W_coupler=W_coupler,
+            H_coupler=H_coupler,
             g=g
         )
 
@@ -136,14 +144,14 @@ def run_coupling_phase_correction(
     # ORIGINAL PCM DESIGN VALUES
     # ==============================================
 
-    # Omega_sym defined in function
-    Lc_old = np.pi / (2 * Omega_sym)
+    # Omega defined in function
+    Lc_old = np.pi / (2 * Omega)
 
     # ==============================================
     # CORRECTED STRAIGHT COUPLING LENGTH
     # ==============================================
 
-    L_tail_equiv = theta_tail / Omega_sym
+    L_tail_equiv = theta_tail / Omega
     Lc_corrected = Lc_old - L_tail_equiv
 
     # ==============================================

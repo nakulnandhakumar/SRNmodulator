@@ -179,8 +179,15 @@ addmesh;
 set("name","mesh_coupler");
 
 # Horizontal extent
-x_left_edge  = x_bus_center - W_bus/2;
+x_left_edge = x_bus_center - W_bus/2;
+if ((x_coupler_center - W_coupler/2) < x_left_edge) {
+    x_left_edge = x_coupler_center - W_coupler/2;
+}
+
 x_right_edge = x_bus_center + W_bus/2;
+if ((x_coupler_center + W_coupler/2) > x_right_edge) {
+    x_right_edge = x_coupler_center + W_coupler/2;
+}
 
 set("x", (x_left_edge + x_right_edge)/2);
 set("x span", abs(x_right_edge - x_left_edge) + 1e-6);

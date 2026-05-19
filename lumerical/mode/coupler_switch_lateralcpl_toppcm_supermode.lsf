@@ -142,12 +142,51 @@ set("mesh cells y", 200);
 addmesh;
 set("name","mesh_coupler");
 
-set("x", 0);
-set("x span", 2*W_bus + g + 1e-6);
+# -------------------- X EXTENT -----------------------------
 
-# include both SRN waveguides + PCM above right guide
-set("y", y_coupler_center + y_bus_center + H_coupler/2 + t_gap_pcm/2 + t_pcm/2);
-set("y span", H_coupler + t_gap_pcm + t_pcm + 1e-6);
+x_left_edge = x_bus_center - W_bus/2;
+
+if ((x_coupler_center - W_coupler/2) < x_left_edge) {
+    x_left_edge = x_coupler_center - W_coupler/2;
+}
+
+x_right_edge = x_bus_center + W_bus/2;
+
+if ((x_coupler_center + W_coupler/2) > x_right_edge) {
+    x_right_edge = x_coupler_center + W_coupler/2;
+}
+
+set("x", (x_left_edge + x_right_edge)/2);
+
+set(
+    "x span",
+    abs(x_right_edge - x_left_edge) + 1e-6
+);
+
+# --------------------- Y EXTENT -----------------------------
+
+y_bottom_edge = y_bus_center - H_bus/2;
+
+if ((y_coupler_center - H_coupler/2) < y_bottom_edge) {
+    y_bottom_edge = y_coupler_center - H_coupler/2;
+}
+
+y_top_edge = y_bus_center + H_bus/2 + t_gap_pcm + t_pcm;
+
+if (
+    (y_coupler_center + H_coupler/2 + t_gap_pcm + t_pcm)
+    > y_top_edge
+) {
+    y_top_edge =
+        y_coupler_center + H_coupler/2 + t_gap_pcm + t_pcm;
+}
+
+set("y", (y_top_edge + y_bottom_edge)/2);
+
+set(
+    "y span",
+    abs(y_top_edge - y_bottom_edge) + 1e-6
+);
 
 set("z", 0);
 set("z span", 0.5e-6);

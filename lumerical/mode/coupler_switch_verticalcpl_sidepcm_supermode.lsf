@@ -158,8 +158,20 @@ set("mesh cells y", 200);
 addmesh;
 set("name","mesh_coupler");
 
-x_right_edge = x_coupler_center + W_coupler/2 + t_gap_pcm + t_pcm;
-x_left_edge  = x_coupler_center - W_coupler/2;
+# ============================================================
+# X EXTENT
+# ============================================================
+
+x_left_edge = x_bus_center - W_bus/2;
+if ((x_coupler_center - W_coupler/2) < x_left_edge) {
+    x_left_edge = x_coupler_center - W_coupler/2;
+}
+
+x_right_edge = x_bus_center + W_bus/2 + t_gap_pcm + t_pcm;
+if ((x_coupler_center + W_coupler/2 + t_gap_pcm + t_pcm) > x_right_edge) {
+    x_right_edge =
+        x_coupler_center + W_coupler/2 + t_gap_pcm + t_pcm;
+}
 
 set("x", (x_right_edge + x_left_edge)/2);
 set("x span", abs(x_right_edge - x_left_edge) + 1e-6);

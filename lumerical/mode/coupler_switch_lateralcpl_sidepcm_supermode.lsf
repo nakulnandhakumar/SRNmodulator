@@ -9,8 +9,10 @@ deleteall;
 
 ?lambda;
 
-?W;
-?H;
+?W_bus;
+?H_bus;
+?W_coupler;
+?H_coupler;
 
 ?g;             # waveguide-to-waveguide gap
 ?t_gap_pcm;     # vertical SiO2 gap between SRN and PCM
@@ -63,26 +65,26 @@ addrect;
 set("name","wg_coupler");
 set("material", core_mat);
 set("x", x_coupler_center);
-set("x span", W);
+set("x span", W_coupler);
 set("y", y_coupler_center);
-set("y span", H);
+set("y span", H_coupler);
 
 # Right / bus SRN waveguide
 addrect;
 set("name","wg_bus");
 set("material", core_mat);
 set("x", x_bus_center);
-set("x span", W);
+set("x span", W_bus);
 set("y", y_bus_center);
-set("y span", H);
+set("y span", H_bus);
 
 # PCM film on top of LEFT (coupler) waveguide
 addrect;
 set("name","pcm_coupler");
 set("material", pcm_mat_coupler);
 set("x", x_coupler_center);   # <-- moved to LEFT WG
-set("x span", W);
-set("y", y_coupler_center + H/2 + t_gap_pcm + t_pcm/2);
+set("x span", W_coupler);
+set("y", y_coupler_center + H_coupler/2 + t_gap_pcm + t_pcm/2);
 set("y span", t_pcm);
 
 # Optional SiO2 spacer between coupler waveguide and PCM
@@ -91,8 +93,8 @@ if (t_gap_pcm > 0) {
     set("name","gap_between_pcm_coupler");
     set("material", clad_mat);
     set("x", x_coupler_center);   # <-- also moved LEFT
-    set("x span", W);
-    set("y", y_coupler_center + H/2 + t_gap_pcm/2);
+    set("x span", W_coupler);
+    set("y", y_coupler_center + H_coupler/2 + t_gap_pcm/2);
     set("y span", t_gap_pcm);
 }
 
@@ -101,8 +103,8 @@ addrect;
 set("name","pcm_bus");
 set("material", pcm_mat_bus);
 set("x", x_bus_center);   # <-- moved to RIGHT WG
-set("x span", W);
-set("y", y_bus_center + H/2 + t_gap_pcm + t_pcm/2);
+set("x span", W_bus);
+set("y", y_bus_center + H_bus/2 + t_gap_pcm + t_pcm/2);
 set("y span", t_pcm);
 
 # Optional SiO2 spacer between bus waveguide and PCM
@@ -111,8 +113,8 @@ if (t_gap_pcm > 0) {
     set("name","gap_between_pcm_bus");
     set("material", clad_mat);
     set("x", x_bus_center);   # <-- also moved RIGHT
-    set("x span", W);
-    set("y", y_bus_center + H/2 + t_gap_pcm/2);
+    set("x span", W_bus);
+    set("y", y_bus_center + H_bus/2 + t_gap_pcm/2);
     set("y span", t_gap_pcm);
 }
 
@@ -141,11 +143,11 @@ addmesh;
 set("name","mesh_coupler");
 
 set("x", 0);
-set("x span", 2*W + g + 1e-6);
+set("x span", 2*W_bus + g + 1e-6);
 
 # include both SRN waveguides + PCM above right guide
-set("y", y_coupler_center + y_bus_center + H/2 + t_gap_pcm/2 + t_pcm/2);
-set("y span", H + t_gap_pcm + t_pcm + 1e-6);
+set("y", y_coupler_center + y_bus_center + H_coupler/2 + t_gap_pcm/2 + t_pcm/2);
+set("y span", H_coupler + t_gap_pcm + t_pcm + 1e-6);
 
 set("z", 0);
 set("z span", 0.5e-6);

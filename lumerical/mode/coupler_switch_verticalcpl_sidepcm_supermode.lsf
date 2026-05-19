@@ -9,8 +9,10 @@ deleteall;
 
 ?lambda;
 
-?W;
-?H;
+?W_bus;
+?H_bus;
+?W_coupler;
+?H_coupler;
 
 ?g;             # waveguide-to-waveguide gap
 ?t_gap_pcm;     # vertical SiO2 gap between SRN and PCM
@@ -64,9 +66,9 @@ addrect;
 set("name","wg_coupler");
 set("material", core_mat);
 set("x", x_coupler_center);
-set("x span", W);
+set("x span", W_coupler);
 set("y", y_coupler_center);
-set("y span", H);
+set("y span", H_coupler);
 
 # ===================== BOTTOM / BUS WG ======================
 
@@ -74,9 +76,9 @@ addrect;
 set("name","wg_bus");
 set("material", core_mat);
 set("x", x_bus_center);
-set("x span", W);
+set("x span", W_bus);
 set("y", y_bus_center);
-set("y span", H);
+set("y span", H_bus);
 
 # ===================== PCM ON TOP WG ========================
 
@@ -85,11 +87,11 @@ set("name","pcm_coupler");
 set("material", pcm_mat_coupler);
 
 # PCM placed on RIGHT side of coupler waveguide
-set("x", x_coupler_center + W/2 + t_gap_pcm + t_pcm/2);
+set("x", x_coupler_center + W_coupler/2 + t_gap_pcm + t_pcm/2);
 set("x span", t_pcm);
 
 set("y", y_coupler_center);
-set("y span", H);
+set("y span", H_coupler);
 
 # Optional spacer
 if (t_gap_pcm > 0) {
@@ -98,11 +100,11 @@ if (t_gap_pcm > 0) {
     set("name","gap_between_pcm_coupler");
     set("material", clad_mat);
 
-    set("x", x_coupler_center + W/2 + t_gap_pcm/2);
+    set("x", x_coupler_center + W_coupler/2 + t_gap_pcm/2);
     set("x span", t_gap_pcm);
 
     set("y", y_coupler_center);
-    set("y span", H);
+    set("y span", H_coupler);
 }
 
 # ===================== PCM ON BOTTOM WG =====================
@@ -112,11 +114,11 @@ set("name","pcm_bus");
 set("material", pcm_mat_bus);
 
 # PCM placed on RIGHT side of bus waveguide
-set("x", x_bus_center + W/2 + t_gap_pcm + t_pcm/2);
+set("x", x_bus_center + W_bus/2 + t_gap_pcm + t_pcm/2);
 set("x span", t_pcm);
 
 set("y", y_bus_center);
-set("y span", H);
+set("y span", H_bus);
 
 # Optional spacer
 if (t_gap_pcm > 0) {
@@ -125,11 +127,11 @@ if (t_gap_pcm > 0) {
     set("name","gap_between_pcm_bus");
     set("material", clad_mat);
 
-    set("x", x_bus_center + W/2 + t_gap_pcm/2);
+    set("x", x_bus_center + W_bus/2 + t_gap_pcm/2);
     set("x span", t_gap_pcm);
 
     set("y", y_bus_center);
-    set("y span", H);
+    set("y span", H_bus);
 }
 
 # ===================== MODE SOLVER ===========================
@@ -156,15 +158,15 @@ set("mesh cells y", 200);
 addmesh;
 set("name","mesh_coupler");
 
-x_right_edge = x_coupler_center + W/2 + t_gap_pcm + t_pcm;
-x_left_edge  = x_coupler_center - W/2;
+x_right_edge = x_coupler_center + W_coupler/2 + t_gap_pcm + t_pcm;
+x_left_edge  = x_coupler_center - W_coupler/2;
 
 set("x", (x_right_edge + x_left_edge)/2);
 set("x span", abs(x_right_edge - x_left_edge) + 1e-6);
 
 # cover both stacked guides + PCM
-y_top_edge = y_coupler_center + H/2;
-y_bottom_edge = y_bus_center - H/2;
+y_top_edge = y_coupler_center + H_coupler/2;
+y_bottom_edge = y_bus_center - H_bus/2;
 set("y", (y_top_edge + y_bottom_edge)/2);
 set("y span", abs(y_top_edge - y_bottom_edge) + 1e-6);
 

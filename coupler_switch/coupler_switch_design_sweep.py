@@ -64,6 +64,11 @@ elif coupling_direction == "vertical":
             r"./lumerical/mode/"
             r"coupler_switch_verticalcpl_sidepcm_supermode.lsf"
         )
+    elif pcm_loading_direction == "asym_pcm":
+        script_path = (
+            r"./lumerical/mode/"
+            r"coupler_switch_verticalcpl_asympcm_supermode.lsf"
+        )
     else:
         raise ValueError(
             f'Unknown PCM loading direction: '
@@ -182,14 +187,14 @@ try:
 
                 if coupling_direction == "lateral":
 
-                    antisym_config["x_coupler_center"] = -(antisym_config["W"]/2 + antisym_config["g"]/2)
-                    antisym_config["x_bus_center"] = (antisym_config["W"]/2 + antisym_config["g"]/2)
+                    antisym_config["x_coupler_center"] = -(antisym_config["W_coupler"]/2 + antisym_config["g"]/2)
+                    antisym_config["x_bus_center"] = antisym_config["W_bus"]/2 + antisym_config["g"]/2
+
+                    sym_config["x_coupler_center"] = -(sym_config["W_coupler"]/2 + sym_config["g"]/2)
+                    sym_config["x_bus_center"] = sym_config["W_bus"]/2 + sym_config["g"]/2
 
                     antisym_config["y_coupler_center"] = 0
                     antisym_config["y_bus_center"] = 0
-
-                    sym_config["x_coupler_center"] = -(sym_config["W"]/2 + sym_config["g"]/2)
-                    sym_config["x_bus_center"] = (sym_config["W"]/2 + sym_config["g"]/2)
 
                     sym_config["y_coupler_center"] = 0
                     sym_config["y_bus_center"] = 0
@@ -199,14 +204,34 @@ try:
                     antisym_config["x_coupler_center"] = 0
                     antisym_config["x_bus_center"] = 0
 
-                    antisym_config["y_coupler_center"] = (antisym_config["H"]/2 + antisym_config["g"]/2)
-                    antisym_config["y_bus_center"] = -(antisym_config["H"]/2 + antisym_config["g"]/2)
-
                     sym_config["x_coupler_center"] = 0
                     sym_config["x_bus_center"] = 0
 
-                    sym_config["y_coupler_center"] = (sym_config["H"]/2 + sym_config["g"]/2)
-                    sym_config["y_bus_center"] = -(sym_config["H"]/2 + sym_config["g"]/2)
+                    # ========================================================
+                    # Different heights for bus and coupler waveguides
+                    # ========================================================
+
+                    H_bus_antisym = antisym_config["H_bus"]
+                    H_coupler_antisym = antisym_config["H_coupler"]
+
+                    H_bus_sym = sym_config["H_bus"]
+                    H_coupler_sym = sym_config["H_coupler"]
+
+                    # ========================================================
+                    # True center-to-center spacing
+                    # ========================================================
+
+                    center_sep_antisym = H_bus_antisym/2 + antisym_config["g"] + H_coupler_antisym/2
+                    center_sep_sym = H_bus_sym/2 + sym_config["g"] + H_coupler_sym/2
+
+                    # ========================================================
+                    # Place guides symmetrically about y=0
+                    # ========================================================
+
+                    antisym_config["y_coupler_center"] = center_sep_antisym / 2
+                    antisym_config["y_bus_center"] = -(center_sep_antisym / 2)
+                    sym_config["y_coupler_center"] = center_sep_sym / 2
+                    sym_config["y_bus_center"] = -(center_sep_sym / 2)
 
                 else:
                     raise ValueError(f"Unknown coupling direction: {coupling_direction}")

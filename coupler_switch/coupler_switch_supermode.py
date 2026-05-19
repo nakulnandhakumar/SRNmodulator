@@ -25,11 +25,16 @@ def run_single(config, lum_project, lsf_script):
     # ============================================================
     
     # Set waveguide geometry in Lumerical
-    W = config["W"]
-    H = config["H"]
+    W_bus = config["W_bus"]
+    H_bus = config["H_bus"]
+
+    W_coupler = config["W_coupler"]
+    H_coupler = config["H_coupler"]
     
-    lum_project.putv("W", W)
-    lum_project.putv("H", H)
+    lum_project.putv("W_bus", W_bus)
+    lum_project.putv("H_bus", H_bus)
+    lum_project.putv("W_coupler", W_coupler)
+    lum_project.putv("H_coupler", H_coupler)
     
     # Set PCM geometry in Lumerical
     g = config["g"]
@@ -138,17 +143,17 @@ def run_single(config, lum_project, lsf_script):
         y_bus = y_bus_center
 
         # Core edges
-        x_left_core_coupler  = x_coupler - W/2
-        x_right_core_coupler = x_coupler + W/2
+        x_left_core_coupler = x_coupler - W_coupler/2
+        x_right_core_coupler = x_coupler + W_coupler/2
 
-        x_left_core_bus  = x_bus - W/2
-        x_right_core_bus = x_bus + W/2
+        x_left_core_bus = x_bus - W_bus/2
+        x_right_core_bus = x_bus + W_bus/2
 
-        y_top_core_coupler = y_coupler + H/2
-        y_bot_core_coupler = y_coupler - H/2
+        y_top_core_coupler = y_coupler + H_coupler/2
+        y_bot_core_coupler = y_coupler - H_coupler/2
 
-        y_top_core_bus = y_bus + H/2
-        y_bot_core_bus = y_bus - H/2
+        y_top_core_bus = y_bus + H_bus/2
+        y_bot_core_bus = y_bus - H_bus/2
 
         # ============================================================
         # LATERAL COUPLING
@@ -353,6 +358,41 @@ def run_single(config, lum_project, lsf_script):
                     (Y >= y_pcm_bottom_bus) &
                     (Y <= y_pcm_top_bus)
                 )
+            
+            # ========================================================
+            # ASYMMETRIC TOP PCM
+            # ========================================================
+
+            elif pcm_loading_direction == "asym_pcm":
+                
+                # PCM inside coupling gap, but only on coupler side:
+                # - below top/coupler guide
+
+                y_pcm_top_coupler = y_bot_core_coupler - t_gap_pcm
+                y_pcm_bottom_coupler = y_pcm_top_coupler - t_pcm
+
+                srn_mask_coupler = (
+                    (X >= x_left_core_coupler - margin) &
+                    (X <= x_right_core_coupler + margin) &
+                    (Y >= y_bot_core_coupler - margin) &
+                    (Y <= y_top_core_coupler + margin)
+                )
+
+                srn_mask_bus = (
+                    (X >= x_left_core_bus - margin) &
+                    (X <= x_right_core_bus + margin) &
+                    (Y >= y_bot_core_bus - margin) &
+                    (Y <= y_top_core_bus + margin)
+                )
+
+                mask_pcm_coupler = (
+                    (X >= x_left_core_coupler - margin) &
+                    (X <= x_right_core_coupler + margin) &
+                    (Y >= y_pcm_bottom_coupler) &
+                    (Y <= y_pcm_top_coupler)
+                )
+
+                mask_pcm_bus = np.zeros_like(mask_pcm_coupler, dtype=bool)
 
             else:
                 raise ValueError(

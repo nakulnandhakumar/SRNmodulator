@@ -1,6 +1,8 @@
 WG_COUPLING_CONFIG = {
-    "W": 350e-9, # waveguide width
-    "H": 450e-9, # waveguide height
+    "W_bus": 350e-9, # waveguide width
+    "H_bus": 450e-9, # waveguide height
+    "W_coupler": 350e-9, # coupler waveguide width
+    "H_coupler": 350e-9, # coupler waveguide height
     
     "t_gap_pcm": 0e-9,  # gap between PCM and waveguide
     "t_pcm": 50e-9,      # PCM thickness
@@ -15,7 +17,7 @@ WG_COUPLING_CONFIG = {
     "pcm_mat_bus": "SBS Crystalline",   # PCM material on bus waveguide (fixed layer)
     
     "coupling_direction": "vertical",  # "vertical" or "lateral"
-    "pcm_loading_direction": "side_pcm",  # "side_pcm" or "top_pcm"
+    "pcm_loading_direction": "asym_pcm",  # "side_pcm" or "top_pcm" or "asym_pcm"
     
     "polarization": "TM",  # "TE" or "TM"
     "num_trial_modes": 6,  # number of trial modes for MODE solver

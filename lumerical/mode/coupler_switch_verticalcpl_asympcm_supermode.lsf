@@ -197,38 +197,26 @@ set("name","mesh_coupler");
 
 # ===================== X EXTENT ==============================
 
-x_left_edge = min(
-    x_bus_center - W_bus/2,
-    x_coupler_center - W_coupler/2
-);
+x_left_edge = x_bus_center - W_bus/2;
+if ((x_coupler_center - W_coupler/2) < x_left_edge) {
+    x_left_edge = x_coupler_center - W_coupler/2;
+}
 
-x_right_edge = max(
-    x_bus_center + W_bus/2,
-    x_coupler_center + W_coupler/2
-);
+x_right_edge = x_bus_center + W_bus/2;
+if ((x_coupler_center + W_coupler/2) > x_right_edge) {
+    x_right_edge = x_coupler_center + W_coupler/2;
+}
 
 set("x", (x_left_edge + x_right_edge)/2);
-
-set(
-    "x span",
-    abs(x_right_edge - x_left_edge) + 1e-6
-);
+set("x span",abs(x_right_edge - x_left_edge) + 1e-6);
 
 # ===================== Y EXTENT ==============================
 
 y_top_edge = y_coupler_center + H_coupler/2;
-
 y_bottom_edge = y_bus_center - H_bus/2;
 
 set("y", (y_top_edge + y_bottom_edge)/2);
-
-set(
-    "y span",
-    abs(y_top_edge - y_bottom_edge)
-    + 2*t_pcm
-    + 2*t_gap_pcm
-    + 1e-6
-);
+set("y span", abs(y_top_edge - y_bottom_edge) + 2*t_pcm + 2*t_gap_pcm + 1e-6);
 
 # ===================== Z EXTENT ==============================
 

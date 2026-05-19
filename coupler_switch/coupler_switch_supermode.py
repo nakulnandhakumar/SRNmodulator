@@ -129,7 +129,6 @@ def run_single(config, lum_project, lsf_script):
             )
 
         margin = 20e-9
-        buffer = 2e-9
         
         # ============================================================
         # UNIVERSAL WAVEGUIDE GEOMETRY

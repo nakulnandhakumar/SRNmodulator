@@ -98,15 +98,21 @@ def phase_correction_coupling_sweep(
         if result is None:
             continue
 
-        # identical-guide coupling coefficient
-        kappa = result["Omega"]
-        D = result["D"] # just for verification, should be near 0 for identical guides
+        Omega = result["Omega"]
+        D = result["D"]
+
+        A_max = max(1 - D**2, 0.0)
+
+        # effective local coupling coefficient after removing detuning effect
+        kappa = Omega * np.sqrt(A_max)
 
         results.append({
             "pull_away_um": pull_away * 1e6,
+            "Omega_per_m": Omega,
             "kappa_per_m": kappa,
             "dneff": result["dneff"],
-            "D": D
+            "D": D,
+            "A_max": A_max
         })
         
         # ---------------------------------------------------------
@@ -127,7 +133,8 @@ def phase_correction_coupling_sweep(
 
         print(
             f"pull away = {pull_away*1e6:.3f} um | "
-            f"kappa = {kappa:.3e} 1/m | "
+            f"Omega = {Omega:.3e} 1/m | "
+            f"kappa_eff = {kappa:.3e} 1/m | "
             f"D = {D:.3e} | "
             f"{percent:.1f}% complete | "
             f"ETA: {eta_hours}h {eta_minutes}m {eta_secs}s"

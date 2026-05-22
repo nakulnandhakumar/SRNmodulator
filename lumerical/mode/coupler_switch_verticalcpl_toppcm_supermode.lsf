@@ -1,12 +1,12 @@
 # ============================================================
 # Coupled Waveguide Supermode Solver (MODE)
-# Asymmetric TOP-loaded PCM directional coupler
+# OUTSIDE-loaded PCM vertical directional coupler
 #
 # PCM placement:
-#   - PCM below top/coupler waveguide
-#   - PCM above bottom/bus waveguide
+#   - PCM ABOVE top/coupler waveguide
+#   - PCM BELOW bottom/bus waveguide
 #
-# This places the PCM INSIDE the coupling region
+# This keeps PCM OUTSIDE the coupling region.
 # ============================================================
 
 switchtolayout;
@@ -21,9 +21,9 @@ deleteall;
 ?W_coupler;
 ?H_coupler;
 
-?g;             # waveguide-to-waveguide gap
-?t_gap_pcm;     # vertical SiO2 gap between SRN and PCM
-?t_pcm;         # PCM thickness
+?g;
+?t_gap_pcm;
+?t_pcm;
 
 ?y_bus_center;
 ?y_coupler_center;
@@ -57,16 +57,13 @@ if (t_gap_pcm < 0) {
     break;
 }
 
-# ===================== GEOMETRY ==============================
+# ===================== BACKGROUND ============================
 
-# Background SiO2
 addrect;
 set("name","cladding_background");
 set("material", clad_mat);
-
 set("x",0);
 set("x span", x_span);
-
 set("y",0);
 set("y span", y_span);
 
@@ -75,10 +72,8 @@ set("y span", y_span);
 addrect;
 set("name","wg_coupler");
 set("material", core_mat);
-
 set("x", x_coupler_center);
 set("x span", W_coupler);
-
 set("y", y_coupler_center);
 set("y span", H_coupler);
 
@@ -87,29 +82,26 @@ set("y span", H_coupler);
 addrect;
 set("name","wg_bus");
 set("material", core_mat);
-
 set("x", x_bus_center);
 set("x span", W_bus);
-
 set("y", y_bus_center);
 set("y span", H_bus);
 
 # ============================================================
-# PCM BELOW TOP / COUPLER WG
+# PCM ABOVE TOP / COUPLER WG
 # ============================================================
 
 addrect;
 set("name","pcm_coupler");
 set("material", pcm_mat_coupler);
 
-# PCM below top waveguide
 set("x", x_coupler_center);
 set("x span", W_coupler);
 
-set("y", y_coupler_center - H_coupler/2 - t_gap_pcm - t_pcm/2);
+set("y", y_coupler_center + H_coupler/2 + t_gap_pcm + t_pcm/2);
 set("y span", t_pcm);
 
-# Optional spacer
+# Optional spacer above coupler
 if (t_gap_pcm > 0) {
     addrect;
     set("name","gap_between_pcm_coupler");
@@ -118,26 +110,25 @@ if (t_gap_pcm > 0) {
     set("x", x_coupler_center);
     set("x span", W_coupler);
 
-    set("y", y_coupler_center - H_coupler/2 - t_gap_pcm/2);
+    set("y", y_coupler_center + H_coupler/2 + t_gap_pcm/2);
     set("y span", t_gap_pcm);
 }
 
 # ============================================================
-# PCM ABOVE BOTTOM / BUS WG
+# PCM BELOW BOTTOM / BUS WG
 # ============================================================
 
 addrect;
 set("name","pcm_bus");
 set("material", pcm_mat_bus);
 
-# PCM above bottom waveguide
 set("x", x_bus_center);
 set("x span", W_bus);
 
-set("y", y_bus_center + H_bus/2 + t_gap_pcm + t_pcm/2);
+set("y", y_bus_center - H_bus/2 - t_gap_pcm - t_pcm/2);
 set("y span", t_pcm);
 
-# Optional spacer
+# Optional spacer below bus
 if (t_gap_pcm > 0) {
     addrect;
     set("name","gap_between_pcm_bus");
@@ -146,7 +137,7 @@ if (t_gap_pcm > 0) {
     set("x", x_bus_center);
     set("x span", W_bus);
 
-    set("y", y_bus_center + H_bus/2 + t_gap_pcm/2);
+    set("y", y_bus_center - H_bus/2 - t_gap_pcm/2);
     set("y span", t_gap_pcm);
 }
 
@@ -164,12 +155,9 @@ set("y",0);
 set("y span", y_span);
 
 set("wavelength", lambda);
-
 set("number of trial modes", num_trial_modes);
-
 set("search","near n");
 
-# Global mesh
 set("mesh cells x", 200);
 set("mesh cells y", 200);
 
@@ -192,12 +180,12 @@ if ((x_coupler_center + W_coupler/2) > x_right_edge) {
 set("x", (x_left_edge + x_right_edge)/2);
 set("x span", abs(x_right_edge - x_left_edge) + 1e-6);
 
-# Vertical extent INCLUDING PCM layers
-y_top_edge = y_coupler_center + H_coupler/2;
-y_bottom_edge = y_bus_center - H_bus/2;
+# Vertical extent including outside PCM layers
+y_top_edge = y_coupler_center + H_coupler/2 + t_gap_pcm + t_pcm;
+y_bottom_edge = y_bus_center - H_bus/2 - t_gap_pcm - t_pcm;
 
 set("y", (y_top_edge + y_bottom_edge)/2);
-set("y span", abs(y_top_edge - y_bottom_edge) + 2*t_pcm + 2*t_gap_pcm + 1e-6);
+set("y span", abs(y_top_edge - y_bottom_edge) + 1e-6);
 
 set("z", 0);
 set("z span", 0.5e-6);

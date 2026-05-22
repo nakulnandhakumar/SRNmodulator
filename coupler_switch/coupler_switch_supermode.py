@@ -165,46 +165,48 @@ def run_single(config, lum_project, lsf_script):
             # ========================================================
 
             if pcm_loading_direction == "side_pcm":
+                
+                """Needs to be updated"""
+                
+                # # PCM on RIGHT side of guides
 
-                # PCM on RIGHT side of guides
+                # x_pcm_left_coupler  = x_right_core_coupler + t_gap_pcm
+                # x_pcm_right_coupler = x_pcm_left_coupler + t_pcm
 
-                x_pcm_left_coupler  = x_right_core_coupler + t_gap_pcm
-                x_pcm_right_coupler = x_pcm_left_coupler + t_pcm
+                # x_pcm_left_bus  = x_right_core_bus + t_gap_pcm
+                # x_pcm_right_bus = x_pcm_left_bus + t_pcm
 
-                x_pcm_left_bus  = x_right_core_bus + t_gap_pcm
-                x_pcm_right_bus = x_pcm_left_bus + t_pcm
+                # # SRN masks
 
-                # SRN masks
+                # srn_mask_coupler = (
+                #     (X >= x_left_core_coupler - margin) &
+                #     (X <= x_right_core_coupler + margin) &
+                #     (Y >= y_bot_core_coupler - margin) &
+                #     (Y <= y_top_core_coupler + margin)
+                # )
 
-                srn_mask_coupler = (
-                    (X >= x_left_core_coupler - margin) &
-                    (X <= x_right_core_coupler + margin) &
-                    (Y >= y_bot_core_coupler - margin) &
-                    (Y <= y_top_core_coupler + margin)
-                )
+                # srn_mask_bus = (
+                #     (X >= x_left_core_bus - margin) &
+                #     (X <= x_right_core_bus + margin) &
+                #     (Y >= y_bot_core_bus - margin) &
+                #     (Y <= y_top_core_bus + margin)
+                # )
 
-                srn_mask_bus = (
-                    (X >= x_left_core_bus - margin) &
-                    (X <= x_right_core_bus + margin) &
-                    (Y >= y_bot_core_bus - margin) &
-                    (Y <= y_top_core_bus + margin)
-                )
+                # # PCM masks
 
-                # PCM masks
+                # mask_pcm_coupler = (
+                #     (X >= x_pcm_left_coupler) &
+                #     (X <= x_pcm_right_coupler) &
+                #     (Y >= y_bot_core_coupler - margin) &
+                #     (Y <= y_top_core_coupler + margin)
+                # )
 
-                mask_pcm_coupler = (
-                    (X >= x_pcm_left_coupler) &
-                    (X <= x_pcm_right_coupler) &
-                    (Y >= y_bot_core_coupler - margin) &
-                    (Y <= y_top_core_coupler + margin)
-                )
-
-                mask_pcm_bus = (
-                    (X >= x_pcm_left_bus) &
-                    (X <= x_pcm_right_bus) &
-                    (Y >= y_bot_core_bus - margin) &
-                    (Y <= y_top_core_bus + margin)
-                )
+                # mask_pcm_bus = (
+                #     (X >= x_pcm_left_bus) &
+                #     (X <= x_pcm_right_bus) &
+                #     (Y >= y_bot_core_bus - margin) &
+                #     (Y <= y_top_core_bus + margin)
+                # )
 
             # ========================================================
             # TOP PCM
@@ -320,15 +322,15 @@ def run_single(config, lum_project, lsf_script):
 
             elif pcm_loading_direction == "top_pcm":
 
-                # PCM inside coupling gap:
-                # - below top/coupler guide
-                # - above bottom/bus guide
+                # PCM outside coupling gap:
+                # - above top/coupler guide
+                # - below bottom/bus guide
 
-                y_pcm_top_coupler = y_bot_core_coupler - t_gap_pcm
-                y_pcm_bottom_coupler = y_pcm_top_coupler - t_pcm
+                y_pcm_bottom_coupler = y_top_core_coupler + t_gap_pcm
+                y_pcm_top_coupler = y_pcm_bottom_coupler + t_pcm
 
-                y_pcm_bottom_bus = y_top_core_bus + t_gap_pcm
-                y_pcm_top_bus = y_pcm_bottom_bus + t_pcm
+                y_pcm_top_bus = y_bot_core_bus - t_gap_pcm
+                y_pcm_bottom_bus = y_pcm_top_bus - t_pcm
 
                 srn_mask_coupler = (
                     (X >= x_left_core_coupler - margin) &

@@ -20,11 +20,11 @@ lambda0 = 1.55e-6;
 W = 450e-9;
 H = 350e-9;
 
-gap_12 = 250e-9;
+gap_12 = 280e-9;
 
 R = 15e-6;
 
-Lc_NS = 31.27e-6;
+Lc_NS = 46.1835e-6;
 
 mat_core = "SRN (Silicon Rich Nitride)";
 mat_clad = "SiO2 (Glass) - Palik";
@@ -36,7 +36,7 @@ pad_z      = 2e-6;
 
 overlap_safe = 30e-9;
 
-t_pcm = 50e-9;
+t_pcm = 40e-9;
 t_gap_pcm = 0e-9;
 
 pcm_mat_coupler = "SBS Crystalline";
@@ -286,7 +286,7 @@ set("z span",W + 400e-9);
 
 set("center wavelength",lambda0);
 set("wavelength span",0);
-set("mode selection","fundamental TE mode");
+set("mode selection","fundamental TM mode");
 
 ############################################################
 # SOURCE CHECK FIELD
@@ -322,7 +322,7 @@ set("y",y_far);
 set("z",z_L1);
 set("z span",1.2e-6);
 
-set("mode selection","fundamental TE mode");
+set("mode selection","fundamental TM mode");
 
 addprofile;
 set("name","through_field");
@@ -354,7 +354,7 @@ set("y span",1.2e-6);
 set("z",z_L2);
 set("z span",1.2e-6);
 
-set("mode selection","fundamental TE mode");
+set("mode selection","fundamental TM mode");
 
 addprofile;
 set("name","bend_output_field");
@@ -428,6 +428,67 @@ set("y",y_end_monitor);
 
 set("z",0.5*(z_L1+z_L2));
 set("z span",2.0e-6);
+
+############################################################
+# PRE-BEND DIAGNOSTICS
+# Right after straight coupler, before bend
+############################################################
+
+y_prebend = y_NS_stop + 0.1e-6;
+
+# ----------------------------------------------------------
+# FIELD MONITOR
+# ----------------------------------------------------------
+
+addprofile;
+set("name","prebend_field");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.6e-6);
+
+set("y",y_prebend);
+
+set("z",0.5*(z_L1+z_L2));
+set("z span",2.0e-6);
+
+# ----------------------------------------------------------
+# MODE EXPANSION MONITOR
+# ----------------------------------------------------------
+
+addmodeexpansion;
+set("name","prebend_exp");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.2e-6);
+
+set("y",y_prebend);
+
+# centered on upper/coupler guide
+set("z",z_L2);
+set("z span",0.75e-6);
+
+set("mode selection","fundamental TM mode");
+
+############################################################
+# TOTAL POWER MONITOR AFTER BEND
+############################################################
+
+addpower;
+set("name","bend_output_power");
+
+set("monitor type","2D X-normal");
+
+set("x",x_mon);
+
+set("y",0);
+set("y span",1.6e-6);
+
+set("z",z_L2);
+set("z span",1.6e-6);
 
 ############################################################
 # RUN

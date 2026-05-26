@@ -19,6 +19,6 @@ WG_COUPLING_CONFIG = {
     "coupling_direction": "vertical",  # "vertical" or "lateral"
     "pcm_loading_direction": "top_pcm",  # "side_pcm" or "top_pcm" or "asym_pcm"
     
-    "polarization": "TE",  # "TE" or "TM"
+    "polarization": "TM",  # "TE" or "TM"
     "num_trial_modes": 6,  # number of trial modes for MODE solver
 }

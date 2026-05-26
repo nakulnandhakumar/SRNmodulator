@@ -469,7 +469,7 @@ set("y",y_prebend);
 
 # centered on upper/coupler guide
 set("z",z_L2);
-set("z span",1.2e-6);
+set("z span",0.75e-6);
 
 set("mode selection","fundamental TM mode");
 

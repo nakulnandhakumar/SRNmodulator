@@ -209,7 +209,7 @@ if antisym and sym:
 
         Omega=design_state["Omega"],
 
-        R=15e-6
+        R=WG_COUPLING_CONFIG["bend_radius"]
     )
 
     theta_tail = phase_adjustment["theta_tail_rad"]

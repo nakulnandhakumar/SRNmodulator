@@ -434,7 +434,7 @@ set("z span",2.0e-6);
 # Right after straight coupler, before bend
 ############################################################
 
-y_prebend = y_NS_stop - 0.5e-6;
+y_prebend = y_NS_stop + 0.1e-6;
 
 # ----------------------------------------------------------
 # FIELD MONITOR

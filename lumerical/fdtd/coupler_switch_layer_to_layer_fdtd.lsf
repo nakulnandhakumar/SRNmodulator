@@ -430,6 +430,67 @@ set("z",0.5*(z_L1+z_L2));
 set("z span",2.0e-6);
 
 ############################################################
+# PRE-BEND DIAGNOSTICS
+# Right after straight coupler, before bend
+############################################################
+
+y_prebend = y_NS_stop - 0.5e-6;
+
+# ----------------------------------------------------------
+# FIELD MONITOR
+# ----------------------------------------------------------
+
+addprofile;
+set("name","prebend_field");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.6e-6);
+
+set("y",y_prebend);
+
+set("z",0.5*(z_L1+z_L2));
+set("z span",2.0e-6);
+
+# ----------------------------------------------------------
+# MODE EXPANSION MONITOR
+# ----------------------------------------------------------
+
+addmodeexpansion;
+set("name","prebend_exp");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.2e-6);
+
+set("y",y_prebend);
+
+# centered on upper/coupler guide
+set("z",z_L2);
+set("z span",1.2e-6);
+
+set("mode selection","fundamental TM mode");
+
+############################################################
+# TOTAL POWER MONITOR AFTER BEND
+############################################################
+
+addpower;
+set("name","bend_output_power");
+
+set("monitor type","2D X-normal");
+
+set("x",x_mon);
+
+set("y",0);
+set("y span",1.6e-6);
+
+set("z",z_L2);
+set("z span",1.6e-6);
+
+############################################################
 # RUN
 ############################################################
 

@@ -25,11 +25,11 @@ H_coupler_nm = 450
 g_min_nm = 200
 g_max_nm = 300
 
-t_pcm_min_nm = 5
+t_pcm_min_nm = 10
 t_pcm_max_nm = 40
 
 t_gap_min_nm = 0
-t_gap_max_nm = 40
+t_gap_max_nm = 20
 
 polarization = "TM" # "TE" or "TM"
 

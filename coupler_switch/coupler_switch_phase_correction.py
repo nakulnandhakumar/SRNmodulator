@@ -21,7 +21,7 @@ def run_coupling_phase_correction(
     H_coupler,
     g,
     Omega,
-    R=15e-6
+    R
 ):
 
     # ============================================================

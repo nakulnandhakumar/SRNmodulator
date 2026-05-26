@@ -7,6 +7,7 @@ WG_COUPLING_CONFIG = {
     "t_gap_pcm": 0e-9,  # gap between PCM and waveguide
     "t_pcm": 50e-9,      # PCM thickness
     "g": 250e-9,         # coupling gap between waveguides
+    "bend_radius": 15e-6, # bend radius for directional coupler tails (for phase correction)
     
     "x_coupler_center": 0, # x-center of coupler waveguide (to be set based on coupling direction)
     "x_bus_center": 0,     # x-center of bus waveguide (to be set based on coupling direction)

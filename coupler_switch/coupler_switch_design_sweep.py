@@ -132,10 +132,12 @@ t_gap_min_nm = int(t_gap_pcm_values[0] * 1e9)
 t_gap_max_nm = int(t_gap_pcm_values[-1] * 1e9)
 
 polarization = WG_COUPLING_CONFIG["polarization"]
+bend_radius_um = int(WG_COUPLING_CONFIG["bend_radius"] * 1e6)
 
 filename = (
     f"design_"
     f"{polarization}_"
+    f"R{bend_radius_um}um_"
     f"Wbus{W_bus_nm}nm_"
     f"Hbus{H_bus_nm}nm_"
     f"Wcpl{W_coupler_nm}nm_"
@@ -312,7 +314,7 @@ try:
                     g=g,
 
                     Omega=design_state["Omega"],
-                    R=15e-6
+                    R=WG_COUPLING_CONFIG["bend_radius"]
                 )
 
                 # phase correction from the tail region of the coupling profile

@@ -173,38 +173,46 @@ set("z",z_L2);
 set("z span",W);
 
 ############################################################
-# PCM SIDEWALLS
+# PCM ABOVE COUPLER + BELOW BUS
 ############################################################
 
-x_pcm = H/2 + t_gap_pcm + t_pcm/2;
+# ----------------------------------------------------------
+# Coupler PCM (TOP of upper waveguide)
+# ----------------------------------------------------------
 
-# Bus PCM
-addrect;
-set("name","pcm_L1");
-set("material",pcm_mat_bus);
+z_pcm_coupler = z_L2 + W/2 + t_gap_pcm + t_pcm/2;
 
-set("x",x_pcm);
-set("x span",t_pcm);
-
-set("y",0.5*(y_NS_start+y_NS_stop));
-set("y span",Lc_NS);
-
-set("z",z_L1);
-set("z span",W);
-
-# Coupler PCM
 addrect;
 set("name","pcm_L2");
 set("material",pcm_mat_coupler);
 
-set("x",x_pcm);
-set("x span",t_pcm);
+set("x",0);
+set("x span",H);
 
 set("y",0.5*(y_NS_start+y_NS_stop));
 set("y span",Lc_NS);
 
-set("z",z_L2);
-set("z span",W);
+set("z",z_pcm_coupler);
+set("z span",t_pcm);
+
+# ----------------------------------------------------------
+# Bus PCM (BOTTOM of lower waveguide)
+# ----------------------------------------------------------
+
+z_pcm_bus = z_L1 - W/2 - t_gap_pcm - t_pcm/2;
+
+addrect;
+set("name","pcm_L1");
+set("material",pcm_mat_bus);
+
+set("x",0);
+set("x span",H);
+
+set("y",0.5*(y_NS_start+y_NS_stop));
+set("y span",Lc_NS);
+
+set("z",z_pcm_bus);
+set("z span",t_pcm);
 
 ############################################################
 # FDTD
@@ -251,7 +259,7 @@ set("y",0.5*(y_NS_start+y_NS_stop));
 set("y span",Lc_NS + 1e-6);
 
 set("z",0.5*(z_L1+z_L2));
-set("z span",2*W + gap_12 + 0.3e-6);
+set("z span",2*W + gap_12 + 2*t_pcm + 2*t_gap_pcm + 0.3e-6);
 
 set("dx",40e-9);
 set("dy",40e-9);

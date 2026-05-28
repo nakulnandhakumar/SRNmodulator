@@ -23,9 +23,9 @@ H = 350e-9;
 gap_12 = 280e-9;
 t_pcm = 40e-9;
 t_gap_pcm = 0e-9;
-R = 25e-6;
+R = 15e-6;
 
-Lc_NS = 44.616e-6;
+Lc_NS = 46.18e-6;
 
 mat_core = "SRN (Silicon Rich Nitride)";
 mat_clad = "SiO2 (Glass) - Palik";
@@ -264,6 +264,26 @@ set("dy",40e-9);
 set("dz",35e-9);
 
 ############################################################
+# BEND + OUTPUT FINE MESH
+############################################################
+
+addmesh;
+set("name","mesh_bend_output");
+
+set("x",0.5*R);
+set("x span",R + 6e-6);
+
+set("y",-0.5*R);
+set("y span",R + 3e-6);
+
+set("z",z_L2);
+set("z span",W + 2*t_pcm + 2*t_gap_pcm + 0.5e-6);
+
+set("dx",30e-9);
+set("dy",30e-9);
+set("dz",25e-9);
+
+############################################################
 # MODE SOURCE
 ############################################################
 
@@ -335,38 +355,6 @@ set("z",z_L1);
 set("z span",1.2e-6);
 
 ############################################################
-# OUTPUT MONITOR AFTER BEND
-############################################################
-
-x_mon = x_out_stop - 2e-6;
-
-addmodeexpansion;
-set("name","bend_output_exp");
-set("monitor type","2D X-normal");
-
-set("x",x_mon);
-
-set("y",0);
-set("y span",1.2e-6);
-
-set("z",z_L2);
-set("z span",1.2e-6);
-
-set("mode selection","fundamental TM mode");
-
-addprofile;
-set("name","bend_output_field");
-set("monitor type","2D X-normal");
-
-set("x",x_mon);
-
-set("y",0);
-set("y span",1.2e-6);
-
-set("z",z_L2);
-set("z span",1.2e-6);
-
-############################################################
 # COUPLING EVOLUTION MONITORS
 ############################################################
 
@@ -428,65 +416,188 @@ set("z",0.5*(z_L1+z_L2));
 set("z span",2.0e-6);
 
 ############################################################
-# PRE-BEND DIAGNOSTICS
-# Right after straight coupler, before bend
+# BEND EVOLUTION FIELD MONITORS
 ############################################################
 
-y_prebend = y_NS_stop + 0.1e-6;
+# Bend center
+x_bend_c = R;
+y_bend_c = -R;
 
-# ----------------------------------------------------------
-# FIELD MONITOR
-# ----------------------------------------------------------
+# Function-style manual angle points
+# Angle convention:
+# theta = 180 deg -> bend start at x=0, y=-R
+# theta = 90 deg  -> bend end at x=R, y=0
 
+# ---------------- 0 deg into bend / start ----------------
 addprofile;
-set("name","prebend_field");
-
+set("name","bend_field_0deg_start");
 set("monitor type","2D Y-normal");
 
 set("x",0);
-set("x span",1.6e-6);
+set("x span",2.5e-6);
 
-set("y",y_prebend);
+set("y",y_NS_stop);
 
-set("z",0.5*(z_L1+z_L2));
+set("z",z_L2);
 set("z span",2.0e-6);
 
-# ----------------------------------------------------------
-# MODE EXPANSION MONITOR
-# ----------------------------------------------------------
-
+# MODE EXPANSION MONITOR for the 0 deg point
 addmodeexpansion;
 set("name","prebend_exp");
-
 set("monitor type","2D Y-normal");
 
 set("x",0);
 set("x span",1.2e-6);
 
-set("y",y_prebend);
+set("y",y_NS_stop);
 
-# centered on upper/coupler guide
 set("z",z_L2);
 set("z span",0.75e-6);
 
 set("mode selection","fundamental TM mode");
 
-############################################################
-# TOTAL POWER MONITOR AFTER BEND
-############################################################
+# ---------------- 22.5 deg into bend ----------------
+theta = 157.5*pi/180;
+x_m = x_bend_c + R*cos(theta);
+y_m = y_bend_c + R*sin(theta);
 
+addprofile;
+set("name","bend_field_22p5deg");
+set("monitor type","3D");
+
+set("x",x_m);
+set("x span",2.0e-6);
+
+set("y",y_m);
+set("y span",2.0e-6);
+
+set("z",z_L2);
+set("z span",2.0e-6);
+
+# ---------------- 45 deg into bend ----------------
+theta = 135*pi/180;
+x_m = x_bend_c + R*cos(theta);
+y_m = y_bend_c + R*sin(theta);
+
+addprofile;
+set("name","bend_field_45deg");
+set("monitor type","3D");
+
+set("x",x_m);
+set("x span",2.0e-6);
+
+set("y",y_m);
+set("y span",2.0e-6);
+
+set("z",z_L2);
+set("z span",2.0e-6);
+
+# ---------------- 67.5 deg into bend ----------------
+theta = 112.5*pi/180;
+x_m = x_bend_c + R*cos(theta);
+y_m = y_bend_c + R*sin(theta);
+
+addprofile;
+set("name","bend_field_67p5deg");
+set("monitor type","3D");
+
+set("x",x_m);
+set("x span",2.0e-6);
+
+set("y",y_m);
+set("y span",2.0e-6);
+
+set("z",z_L2);
+set("z span",2.0e-6);
+
+# ---------------- bend end / before output straight ----------------
+addprofile;
+set("name","bend_field_90deg_end");
+set("monitor type","2D X-normal");
+
+set("x",R);
+
+set("y",0);
+set("y span",2.5e-6);
+
+set("z",z_L2);
+set("z span",2.0e-6);
+
+# MODE EXPANSION AT BEND END
+addmodeexpansion;
+set("name","bend_end_exp");
+set("monitor type","2D X-normal");
+
+set("x",R);
+
+set("y",0);
+set("y span",1.2e-6);
+
+set("z",z_L2);
+set("z span",1.2e-6);
+
+set("mode selection","fundamental TM mode");
+
+# POWER MONITOR AT BEND END
 addpower;
-set("name","bend_output_power");
+set("name","bend_end_power");
+set("monitor type","2D X-normal");
 
+set("x",R);
+
+set("y",0);
+set("y span",5e-6);
+
+set("z",z_L2);
+set("z span",5e-6);
+
+############################################################
+# COUPLER OUTPUT MONITOR AFTER BEND
+############################################################
+
+x_mon = x_out_stop - 2e-6;
+
+addmodeexpansion;
+set("name","bend_output_exp");
 set("monitor type","2D X-normal");
 
 set("x",x_mon);
 
 set("y",0);
-set("y span",1.6e-6);
+set("y span",1.2e-6);
 
 set("z",z_L2);
-set("z span",1.6e-6);
+set("z span",1.2e-6);
+
+set("mode selection","fundamental TM mode");
+
+addprofile;
+set("name","bend_output_field");
+set("monitor type","2D X-normal");
+
+set("x",x_mon);
+
+set("y",0);
+set("y span",1.2e-6);
+
+set("z",z_L2);
+set("z span",1.2e-6);
+
+############################################################
+# TOTAL POWER MONITOR AFTER BEND - LARGE
+############################################################
+
+addpower;
+set("name","bend_output_power_large");
+set("monitor type","2D X-normal");
+
+set("x",x_mon);
+
+set("y",0);
+set("y span",5e-6);
+
+set("z",z_L2);
+set("z span",5e-6);
 
 ############################################################
 # RUN

@@ -270,11 +270,11 @@ set("dz",35e-9);
 addmesh;
 set("name","mesh_bend_and_output");
 
-set("x",0.5*(0 + x_out_stop));
-set("x span",x_out_stop + 2e-6);
+set("x",0.5*R);
+set("x span",R + 6e-6);
 
 set("y",-0.5*R);
-set("y span",R + 6e-6);
+set("y span",R + 3e-6);
 
 set("z",z_L2);
 set("z span",W + 2*t_pcm + 2*t_gap_pcm + 0.5e-6);

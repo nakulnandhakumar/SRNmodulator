@@ -57,7 +57,7 @@ y_NS_stop  = -R;
 
 # Bend output
 x_out_start = R;
-x_out_stop  = R + 4e-6;
+x_out_stop  = R + 10e-6;
 
 ############################################################
 # DOMAIN
@@ -259,29 +259,29 @@ set("y span",Lc_NS + 1e-6);
 set("z",0.5*(z_L1+z_L2));
 set("z span",2*W + gap_12 + 2*t_pcm + 2*t_gap_pcm + 0.3e-6);
 
-set("dx",40e-9);
-set("dy",40e-9);
-set("dz",35e-9);
+set("dx",20e-9);
+set("dy",20e-9);
+set("dz",20e-9);
 
 ############################################################
 # BEND + OUTPUT FINE MESH
 ############################################################
 
 addmesh;
-set("name","mesh_bend_output");
+set("name","mesh_bend_and_output");
 
-set("x",0.5*R);
-set("x span",R + 6e-6);
+set("x",0.5*(0 + x_out_stop));
+set("x span",x_out_stop + 2e-6);
 
 set("y",-0.5*R);
-set("y span",R + 3e-6);
+set("y span",R + 6e-6);
 
 set("z",z_L2);
 set("z span",W + 2*t_pcm + 2*t_gap_pcm + 0.5e-6);
 
-set("dx",30e-9);
-set("dy",30e-9);
-set("dz",25e-9);
+set("dx",15e-9);
+set("dy",15e-9);
+set("dz",15e-9);
 
 ############################################################
 # MODE SOURCE
@@ -505,7 +505,8 @@ x_0p5 = R + 0.5e-6;
 x_1p0 = R + 1.0e-6;
 x_1p5 = R + 1.5e-6;
 x_2p0 = R + 2.0e-6;
-x_3p0 = R + 3.0e-6;
+x_4p0 = R + 4.0e-6;
+x_5p0 = R + 5.0e-6;
 
 # ----------------------------------------------------------
 # 0.5 um AFTER BEND
@@ -676,14 +677,14 @@ set("z",z_L2);
 set("z span",5e-6);
 
 # ----------------------------------------------------------
-# 3.0 um AFTER BEND
+# 4.0 um AFTER BEND
 # ----------------------------------------------------------
 
 addprofile;
-set("name","out_3p0_field");
+set("name","out_4p0_field");
 set("monitor type","2D X-normal");
 
-set("x",x_3p0);
+set("x",x_4p0);
 
 set("y",0);
 set("y span",2.5e-6);
@@ -692,10 +693,10 @@ set("z",z_L2);
 set("z span",2.5e-6);
 
 addmodeexpansion;
-set("name","out_3p0_exp");
+set("name","out_4p0_exp");
 set("monitor type","2D X-normal");
 
-set("x",x_3p0);
+set("x",x_4p0);
 
 set("y",0);
 set("y span",1.6e-6);
@@ -706,10 +707,52 @@ set("z span",1.6e-6);
 set("mode selection","fundamental TM mode");
 
 addpower;
-set("name","out_3p0_power");
+set("name","out_4p0_power");
 set("monitor type","2D X-normal");
 
-set("x",x_3p0);
+set("x",x_4p0);
+
+set("y",0);
+set("y span",5e-6);
+
+set("z",z_L2);
+set("z span",5e-6);
+
+# ----------------------------------------------------------
+# 5.0 um AFTER BEND
+# ----------------------------------------------------------
+
+addprofile;
+set("name","out_5p0_field");
+set("monitor type","2D X-normal");
+
+set("x",x_5p0);
+
+set("y",0);
+set("y span",2.5e-6);
+
+set("z",z_L2);
+set("z span",2.5e-6);
+
+addmodeexpansion;
+set("name","out_5p0_exp");
+set("monitor type","2D X-normal");
+
+set("x",x_5p0);
+
+set("y",0);
+set("y span",1.6e-6);
+
+set("z",z_L2);
+set("z span",1.6e-6);
+
+set("mode selection","fundamental TM mode");
+
+addpower;
+set("name","out_5p0_power");
+set("monitor type","2D X-normal");
+
+set("x",x_5p0);
 
 set("y",0);
 set("y span",5e-6);

@@ -517,6 +517,18 @@ set("y span",5e-6);
 set("z",z_L3);
 set("z span",5e-6);
 
+addprofile;
+set("name","L3_out_0p5_field");
+set("monitor type","2D X-normal");
+
+set("x",x_L3_0p5);
+
+set("y",0);
+set("y span",2.5e-6);
+
+set("z",z_L3);
+set("z span",2.5e-6);
+
 # -- monitor at x = x_WE_stop + 1.0 microns --
 
 addmodeexpansion;
@@ -544,6 +556,18 @@ set("y span",5e-6);
 
 set("z",z_L3);
 set("z span",5e-6);
+
+addprofile;
+set("name","L3_out_1p0_field");
+set("monitor type","2D X-normal");
+
+set("x",x_L3_1p0);
+
+set("y",0);
+set("y span",2.5e-6);
+
+set("z",z_L3);
+set("z span",2.5e-6);
 
 # -- monitor at x = x_WE_stop + 2.0 microns --
 
@@ -573,6 +597,18 @@ set("y span",5e-6);
 set("z",z_L3);
 set("z span",5e-6);
 
+addprofile;
+set("name","L3_out_2p0_field");
+set("monitor type","2D X-normal");
+
+set("x",x_L3_2p0);
+
+set("y",0);
+set("y span",2.5e-6);
+
+set("z",z_L3);
+set("z span",2.5e-6);
+
 # -- monitor at x = x_WE_stop + 4.0 microns --
 
 addmodeexpansion;
@@ -601,6 +637,18 @@ set("y span",5e-6);
 set("z",z_L3);
 set("z span",5e-6);
 
+addprofile;
+set("name","L3_out_4p0_field");
+set("monitor type","2D X-normal");
+
+set("x",x_L3_4p0);
+
+set("y",0);
+set("y span",2.5e-6);
+
+set("z",z_L3);
+set("z span",2.5e-6);
+
 # -- monitor at x = x_WE_stop + 5.0 microns --
 
 addmodeexpansion;
@@ -628,6 +676,18 @@ set("y span",5e-6);
 
 set("z",z_L3);
 set("z span",5e-6);
+
+addprofile;
+set("name","L3_out_5p0_field");
+set("monitor type","2D X-normal");
+
+set("x",x_L3_5p0);
+
+set("y",0);
+set("y span",2.5e-6);
+
+set("z",z_L3);
+set("z span",2.5e-6);
 
 ############################################################
 # RUN

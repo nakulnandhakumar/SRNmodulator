@@ -23,15 +23,15 @@ deleteall;
 
 lambda0 = 1.55e-6;
 
-W = 450e-9;          # vertical thickness, z span
-H = 350e-9;          # in-plane waveguide width
+W = 350e-9;          # vertical thickness, z span
+H = 450e-9;          # in-plane waveguide width
 
-gap_12 = 250e-9;     # vertical gap between layer 1 and layer 2
-gap_23 = 250e-9;     # vertical gap between layer 2 and layer 3
+gap_12 = 280e-9;     # vertical gap between layer 1 and layer 2
+gap_23 = 280e-9;     # vertical gap between layer 2 and layer 3
 
 R = 15e-6;           # 90 degree bend radius
-Lc_NS = 27.173e-6;       # layer-2 NS coupling length with layer-1 bus
-Lc_WE = 27.173e-6;       # layer-2 WE coupling length with layer-3 bus
+Lc_NS = 46.1835e-6;       # layer-2 NS coupling length with layer-1 bus
+Lc_WE = 46.1835e-6;       # layer-2 WE coupling length with layer-3 bus
 
 mat_core = "SRN (Silicon Rich Nitride)";
 mat_clad = "SiO2 (Glass) - Palik";
@@ -39,10 +39,10 @@ mat_clad = "SiO2 (Glass) - Palik";
 pad = 6e-6;
 overlap_safe = 30e-9;
 
-t_pcm = 50e-9;
+t_pcm = 40e-9;
 t_gap_pcm = 0e-9;
 
-pcm_mat_coupler = "SBS Amorphous";     # active PCM material on layer 2 coupling waveguides
+pcm_mat_coupler = "SBS Crystalline";     # active PCM material on layer 2 coupling waveguides
 pcm_mat_bus = "SBS Crystalline";       # fixed PCM state on bus waveguides
 
 ############################################################
@@ -181,71 +181,89 @@ set("z",z_L2);
 set("z span",W);
 
 ############################################################
-# PCM FILMS ON LATERAL OUTER SURFACES OF COUPLING REGIONS
-# Not on z-facing coupling surfaces
+# PCM FILMS OUTSIDE THE COUPLING REGION
+# (NOT in the vertical coupling gap)
 ############################################################
 
-# ============================
-# NS COUPLING REGION
-# Propagation = y
-# Lateral sidewall direction = x
-# Put PCM on +x side of both L1_NS_bus and L2_NS_coupler
-# ============================
+############################################################
+# NS COUPLER (L1 <-> L2)
+#
+# L1 = bus (bottom)
+# L2 = coupler (top)
+#
+# PCM BELOW L1
+# PCM ABOVE L2
+############################################################
 
-x_pcm_NS = H/2 + t_gap_pcm + t_pcm/2;
+z_pcm_L1_NS = z_L1 - W/2 - t_gap_pcm - t_pcm/2;
 
-# PCM on Layer 1 NS bus, only over NS coupling region
 addrect;
-set("name","pcm_L1_NS_bus_sidewall");
+set("name","pcm_L1_NS_bottom");
 set("material",pcm_mat_bus);
-set("x",x_pcm_NS);
-set("x span",t_pcm);
+
+set("x",0);
+set("x span",H);
+
 set("y",0.5*(y_NS_start+y_NS_stop));
 set("y span",Lc_NS);
-set("z",z_L1);
-set("z span",W);
 
-# PCM on Layer 2 NS coupling waveguide
+set("z",z_pcm_L1_NS);
+set("z span",t_pcm);
+
+z_pcm_L2_NS = z_L2 + W/2 + t_gap_pcm + t_pcm/2;
+
 addrect;
-set("name","pcm_L2_NS_sidewall");
+set("name","pcm_L2_NS_top");
 set("material",pcm_mat_coupler);
-set("x",x_pcm_NS);
-set("x span",t_pcm);
+
+set("x",0);
+set("x span",H);
+
 set("y",0.5*(y_NS_start+y_NS_stop));
 set("y span",Lc_NS);
-set("z",z_L2);
-set("z span",W);
 
-# ============================
-# WE COUPLING REGION
-# Propagation = x
-# Lateral sidewall direction = y
-# Put PCM on +y side of both L2_WE_coupler and L3_WE_bus
-# ============================
+set("z",z_pcm_L2_NS);
+set("z span",t_pcm);
 
-y_pcm_WE = H/2 + t_gap_pcm + t_pcm/2;
+############################################################
+# WE COUPLER (L2 <-> L3)
+#
+# L2 = coupler (bottom)
+# L3 = bus (top)
+#
+# PCM BELOW L2
+# PCM ABOVE L3
+############################################################
 
-# PCM on Layer 2 WE coupling waveguide
+z_pcm_L2_WE = z_L2 - W/2 - t_gap_pcm - t_pcm/2;
+
 addrect;
-set("name","pcm_L2_WE_sidewall");
+set("name","pcm_L2_WE_bottom");
 set("material",pcm_mat_coupler);
-set("x",0.5*(x_WE_start+x_WE_stop));
-set("x span",Lc_WE);
-set("y",y_pcm_WE);
-set("y span",t_pcm);
-set("z",z_L2);
-set("z span",W);
 
-# PCM on Layer 3 WE bus, only over WE coupling region
-addrect;
-set("name","pcm_L3_WE_bus_sidewall");
-set("material",pcm_mat_bus);
 set("x",0.5*(x_WE_start+x_WE_stop));
 set("x span",Lc_WE);
-set("y",y_pcm_WE);
-set("y span",t_pcm);
-set("z",z_L3);
-set("z span",W);
+
+set("y",0);
+set("y span",H);
+
+set("z",z_pcm_L2_WE);
+set("z span",t_pcm);
+
+z_pcm_L3_WE = z_L3 + W/2 + t_gap_pcm + t_pcm/2;
+
+addrect;
+set("name","pcm_L3_WE_top");
+set("material",pcm_mat_bus);
+
+set("x",0.5*(x_WE_start+x_WE_stop));
+set("x span",Lc_WE);
+
+set("y",0);
+set("y span",H);
+
+set("z",z_pcm_L3_WE);
+set("z span",t_pcm);
 
 ############################################################
 # FDTD REGION
@@ -460,6 +478,156 @@ set("z span",1.2e-6);
 # set("y",0);
 # set("z",0.5*(z_L2+z_L3));
 # set("z span",2*W + gap_23 + 0.8e-6);
+
+############################################################
+# LAYER 3 OUTPUT EVOLUTION MONITORS
+############################################################
+
+x_L3_0p5 = x_WE_stop + 0.5e-6;
+x_L3_1p0 = x_WE_stop + 1.0e-6;
+x_L3_2p0 = x_WE_stop + 2.0e-6;
+x_L3_4p0 = x_WE_stop + 4.0e-6;
+x_L3_5p0 = x_WE_stop + 5.0e-6;
+
+# -- monitor at x = x_WE_stop + 0.5 microns --
+
+addmodeexpansion;
+set("name","L3_out_0p5_exp");
+set("monitor type","2D X-normal");
+
+set("x",x_L3_0p5);
+
+set("y",0);
+set("y span",1.2e-6);
+
+set("z",z_L3);
+set("z span",1.2e-6);
+
+set("mode selection","fundamental TE mode");
+
+addpower;
+set("name","L3_out_0p5_power");
+set("monitor type","2D X-normal");
+
+set("x",x_L3_0p5);
+
+set("y",0);
+set("y span",5e-6);
+
+set("z",z_L3);
+set("z span",5e-6);
+
+# -- monitor at x = x_WE_stop + 1.0 microns --
+
+addmodeexpansion;
+set("name","L3_out_1p0_exp");
+set("monitor type","2D X-normal");
+
+set("x",x_L3_1p0);
+
+set("y",0);
+set("y span",1.2e-6);
+
+set("z",z_L3);
+set("z span",1.2e-6);
+
+set("mode selection","fundamental TE mode");
+
+addpower;
+set("name","L3_out_1p0_power");
+set("monitor type","2D X-normal");
+
+set("x",x_L3_1p0);
+
+set("y",0);
+set("y span",5e-6);
+
+set("z",z_L3);
+set("z span",5e-6);
+
+# -- monitor at x = x_WE_stop + 2.0 microns --
+
+addmodeexpansion;
+set("name","L3_out_2p0_exp");
+set("monitor type","2D X-normal");
+
+set("x",x_L3_2p0);
+
+set("y",0);
+set("y span",1.2e-6);
+
+set("z",z_L3);
+set("z span",1.2e-6);
+
+set("mode selection","fundamental TE mode");
+
+addpower;
+set("name","L3_out_2p0_power");
+set("monitor type","2D X-normal");
+
+set("x",x_L3_2p0);
+
+set("y",0);
+set("y span",5e-6);
+
+set("z",z_L3);
+set("z span",5e-6);
+
+# -- monitor at x = x_WE_stop + 4.0 microns --
+
+addmodeexpansion;
+set("name","L3_out_4p0_exp");
+set("monitor type","2D X-normal");
+
+set("x",x_L3_4p0);
+
+set("y",0);
+set("y span",1.2e-6);
+
+set("z",z_L3);
+set("z span",1.2e-6);
+
+set("mode selection","fundamental TE mode");
+
+addpower;
+set("name","L3_out_4p0_power");
+set("monitor type","2D X-normal");
+
+set("x",x_L3_4p0);
+
+set("y",0);
+set("y span",5e-6);
+
+set("z",z_L3);
+set("z span",5e-6);
+
+# -- monitor at x = x_WE_stop + 5.0 microns --
+
+addmodeexpansion;
+set("name","L3_out_5p0_exp");
+set("monitor type","2D X-normal");
+
+set("x",x_L3_5p0);
+
+set("y",0);
+set("y span",1.2e-6);
+
+set("z",z_L3);
+set("z span",1.2e-6);
+
+set("mode selection","fundamental TE mode");
+
+addpower;
+set("name","L3_out_5p0_power");
+set("monitor type","2D X-normal");
+
+set("x",x_L3_5p0);
+
+set("y",0);
+set("y span",5e-6);
+
+set("z",z_L3);
+set("z span",5e-6);
 
 ############################################################
 # RUN

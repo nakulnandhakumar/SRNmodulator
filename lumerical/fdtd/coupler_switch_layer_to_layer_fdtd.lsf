@@ -57,7 +57,7 @@ y_NS_stop  = -R;
 
 # Bend output
 x_out_start = R;
-x_out_stop  = R + 30e-6;
+x_out_stop  = R + 10e-6;
 
 ############################################################
 # DOMAIN

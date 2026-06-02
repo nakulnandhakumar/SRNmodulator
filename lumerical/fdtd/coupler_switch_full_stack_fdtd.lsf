@@ -344,7 +344,7 @@ set("z span",W+400e-9);
 
 set("center wavelength",lambda0);
 set("wavelength span",0);
-set("mode selection","fundamental TE mode");
+set("mode selection","fundamental TM mode");
 
 # FIELD MONITOR RIGHT AFTER MODE EXCITATION
 # Check whether source is exciting only Layer 1 bus
@@ -381,7 +381,7 @@ set("z span",1.2e-6);
 # set("y",y_NS_stop + 1.0e-6);
 # set("z",z_L1);
 # set("z span",1.2e-6);
-# set("mode selection","fundamental TE mode");
+# set("mode selection","fundamental TM mode");
 
 # # Layer 2 after bend / WE section monitor
 # addprofile;
@@ -401,7 +401,7 @@ set("z span",1.2e-6);
 # set("y span",1.2e-6);
 # set("z",z_L2);
 # set("z span",1.2e-6);
-# set("mode selection","fundamental TE mode");
+# set("mode selection","fundamental TM mode");
 
 # L3 WE output monitor
 addprofile;
@@ -421,7 +421,7 @@ set("y",0);
 set("y span",1.2e-6);
 set("z",z_L3);
 set("z span",1.2e-6);
-set("mode selection","fundamental TE mode");
+set("mode selection","fundamental TM mode");
 
 # Far field NS bus monitor
 y_NS_bus_far_mon = y_max - 2.0e-6;
@@ -434,7 +434,7 @@ set("x span",1.2e-6);
 set("y",y_NS_bus_far_mon);
 set("z",z_L1);
 set("z span",1.2e-6);
-set("mode selection","fundamental TE mode");
+set("mode selection","fundamental TM mode");
 
 addprofile;
 set("name","L1_NS_far_field");
@@ -503,7 +503,7 @@ set("y span",1.2e-6);
 set("z",z_L3);
 set("z span",1.2e-6);
 
-set("mode selection","fundamental TE mode");
+set("mode selection","fundamental TM mode");
 
 addpower;
 set("name","L3_out_0p5_power");
@@ -543,7 +543,7 @@ set("y span",1.2e-6);
 set("z",z_L3);
 set("z span",1.2e-6);
 
-set("mode selection","fundamental TE mode");
+set("mode selection","fundamental TM mode");
 
 addpower;
 set("name","L3_out_1p0_power");
@@ -583,7 +583,7 @@ set("y span",1.2e-6);
 set("z",z_L3);
 set("z span",1.2e-6);
 
-set("mode selection","fundamental TE mode");
+set("mode selection","fundamental TM mode");
 
 addpower;
 set("name","L3_out_2p0_power");
@@ -623,7 +623,7 @@ set("y span",1.2e-6);
 set("z",z_L3);
 set("z span",1.2e-6);
 
-set("mode selection","fundamental TE mode");
+set("mode selection","fundamental TM mode");
 
 addpower;
 set("name","L3_out_4p0_power");
@@ -663,7 +663,7 @@ set("y span",1.2e-6);
 set("z",z_L3);
 set("z span",1.2e-6);
 
-set("mode selection","fundamental TE mode");
+set("mode selection","fundamental TM mode");
 
 addpower;
 set("name","L3_out_5p0_power");

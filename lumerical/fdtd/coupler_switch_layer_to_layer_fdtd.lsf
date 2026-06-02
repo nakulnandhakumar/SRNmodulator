@@ -31,7 +31,7 @@ mat_core = "SRN (Silicon Rich Nitride)";
 mat_clad = "SiO2 (Glass) - Palik";
 
 pad_input  = 6e-6;
-pad_output = 2e-6;
+pad_output = 6e-6;
 pad_side   = 2e-6;
 pad_z      = 2e-6;
 
@@ -267,21 +267,21 @@ set("dz",35e-9);
 # BEND + OUTPUT FINE MESH
 ############################################################
 
-addmesh;
-set("name","mesh_bend_and_output");
+# addmesh;
+# set("name","mesh_bend_and_output");
 
-set("x",0.5*R);
-set("x span",R + 6e-6);
+# set("x",0.5*R);
+# set("x span",R + 6e-6);
 
-set("y",-0.5*R);
-set("y span",R + 3e-6);
+# set("y",-0.5*R);
+# set("y span",R + 3e-6);
 
-set("z",z_L2);
-set("z span",W + 2*t_pcm + 2*t_gap_pcm + 0.5e-6);
+# set("z",z_L2);
+# set("z span",W + 2*t_pcm + 2*t_gap_pcm + 0.5e-6);
 
-set("dx",30e-9);
-set("dy",30e-9);
-set("dz",25e-9);
+# set("dx",30e-9);
+# set("dy",30e-9);
+# set("dz",25e-9);
 
 ############################################################
 # MODE SOURCE
@@ -760,6 +760,23 @@ set("y span",5e-6);
 set("z",z_L2);
 set("z span",5e-6);
 
+############################################################
+# TOP-DOWN FIELD SLICE THROUGH LAYER 2 ROUTED COUPLER PLANE
+# Shows NS coupler -> bend -> output straight
+############################################################
+
+addprofile;
+set("name","field_xy_L2_full_route");
+
+set("monitor type","2D Z-normal");
+
+set("x",x_center);
+set("x span",x_span_total);
+
+set("y",y_center);
+set("y span",y_span_total);
+
+set("z",z_L2);
 
 ############################################################
 # RUN

@@ -30,7 +30,7 @@ Lc_NS = 46.18e-6;
 mat_core = "SRN (Silicon Rich Nitride)";
 mat_clad = "SiO2 (Glass) - Palik";
 
-pad_input  = 6e-6;
+pad_input  = 10e-6;
 pad_output = 6e-6;
 pad_side   = 2e-6;
 pad_z      = 2e-6;
@@ -264,42 +264,62 @@ set("dy",40e-9);
 set("dz",35e-9);
 
 ############################################################
-# BEND + OUTPUT FINE MESH
-############################################################
-
-# addmesh;
-# set("name","mesh_bend_and_output");
-
-# set("x",0.5*R);
-# set("x span",R + 6e-6);
-
-# set("y",-0.5*R);
-# set("y span",R + 3e-6);
-
-# set("z",z_L2);
-# set("z span",W + 2*t_pcm + 2*t_gap_pcm + 0.5e-6);
-
-# set("dx",30e-9);
-# set("dy",30e-9);
-# set("dz",25e-9);
-
-############################################################
 # MODE SOURCE
 ############################################################
 
-y_src = y_min + 1e-6;
+# y_src = y_min + 1e-6;
+
+# addmode;
+# set("name","source");
+# set("injection axis","y");
+# set("direction","forward");
+
+# set("x",0);
+# set("x span",H + 400e-9);
+
+# set("y",y_src);
+
+# set("z",z_L1);
+# set("z span",W + 400e-9);
+
+# set("center wavelength",lambda0);
+# set("wavelength span",0);
+# set("mode selection","fundamental TM mode");
+
+############################################################
+# SOURCE CHECK FIELD
+############################################################
+
+# addprofile;
+# set("name","source_check");
+# set("monitor type","2D Y-normal");
+
+# set("x",0);
+# set("x span",1.2e-6);
+
+# set("y",y_src + 1e-6);
+
+# set("z",z_L1);
+# set("z span",1.6e-6);
+
+############################################################
+# REVERSE MODE SOURCE
+# Launch from L2 output straight, propagating in -x direction
+############################################################
+
+x_src = x_out_stop - 1e-6;
 
 addmode;
-set("name","source");
-set("injection axis","y");
-set("direction","forward");
+set("name","source_reverse_L2");
+set("injection axis","x");
+set("direction","backward");
 
-set("x",0);
-set("x span",H + 400e-9);
+set("x",x_src);
 
-set("y",y_src);
+set("y",0);
+set("y span",H + 400e-9);
 
-set("z",z_L1);
+set("z",z_L2);
 set("z span",W + 400e-9);
 
 set("center wavelength",lambda0);
@@ -307,26 +327,26 @@ set("wavelength span",0);
 set("mode selection","fundamental TM mode");
 
 ############################################################
-# SOURCE CHECK FIELD
+# REVERSE SOURCE CHECK FIELD
 ############################################################
 
 addprofile;
-set("name","source_check");
-set("monitor type","2D Y-normal");
+set("name","reverse_source_check");
+set("monitor type","2D X-normal");
 
-set("x",0);
-set("x span",1.2e-6);
+set("x",x_src - 1e-6);
 
-set("y",y_src + 1e-6);
+set("y",0);
+set("y span",1.6e-6);
 
-set("z",z_L1);
+set("z",z_L2);
 set("z span",1.6e-6);
 
 ############################################################
-# THROUGH MONITOR
+# THROUGH MONITOR (Forward Y source from L1 bus)
 ############################################################
 
-y_far = y_max - 2e-6;
+y_far = y_max - 4e-6;
 
 addmodeexpansion;
 set("name","through_exp");
@@ -759,6 +779,111 @@ set("y span",5e-6);
 
 set("z",z_L2);
 set("z span",5e-6);
+
+############################################################
+# L1 BUS MONITORS BELOW COUPLER
+# (reverse-launch coupled power measurement)
+############################################################
+
+y_L1_m1 = y_NS_start - 2e-6;
+y_L1_m2 = y_NS_start - 4e-6;
+y_L1_m3 = y_NS_start - 6e-6;
+
+############################################################
+# 1 um BEFORE COUPLER START
+############################################################
+
+addmodeexpansion;
+set("name","L1_minus1um_exp");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.2e-6);
+
+set("y",y_L1_m1);
+
+set("z",z_L1);
+set("z span",1.2e-6);
+
+set("mode selection","fundamental TM mode");
+
+addprofile;
+set("name","L1_minus1um_field");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",2.5e-6);
+
+set("y",y_L1_m1);
+
+set("z",z_L1);
+set("z span",2.5e-6);
+
+############################################################
+# 2 um BEFORE COUPLER START
+############################################################
+
+addmodeexpansion;
+set("name","L1_minus2um_exp");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.2e-6);
+
+set("y",y_L1_m2);
+
+set("z",z_L1);
+set("z span",1.2e-6);
+
+set("mode selection","fundamental TM mode");
+
+addprofile;
+set("name","L1_minus2um_field");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",2.5e-6);
+
+set("y",y_L1_m2);
+
+set("z",z_L1);
+set("z span",2.5e-6);
+
+############################################################
+# 3 um BEFORE COUPLER START
+############################################################
+
+addmodeexpansion;
+set("name","L1_minus3um_exp");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.2e-6);
+
+set("y",y_L1_m3);
+
+set("z",z_L1);
+set("z span",1.2e-6);
+
+set("mode selection","fundamental TM mode");
+
+addprofile;
+set("name","L1_minus3um_field");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",2.5e-6);
+
+set("y",y_L1_m3);
+
+set("z",z_L1);
+set("z span",2.5e-6);
 
 ############################################################
 # TOP-DOWN FIELD SLICE THROUGH LAYER 2 ROUTED COUPLER PLANE

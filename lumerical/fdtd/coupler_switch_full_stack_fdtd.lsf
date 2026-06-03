@@ -23,8 +23,8 @@ deleteall;
 
 lambda0 = 1.55e-6;
 
-W = 350e-9;          # vertical thickness, z span
-H = 450e-9;          # in-plane waveguide width
+W = 450e-9;          # vertical thickness, z span
+H = 350e-9;          # in-plane waveguide width
 
 gap_12 = 280e-9;     # vertical gap between layer 1 and layer 2
 gap_23 = 280e-9;     # vertical gap between layer 2 and layer 3

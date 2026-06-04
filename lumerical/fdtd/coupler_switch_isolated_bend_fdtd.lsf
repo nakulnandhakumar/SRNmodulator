@@ -1,0 +1,463 @@
+switchtolayout;
+deleteall;
+
+############################################################
+# PARAMETERS
+############################################################
+
+lambda0 = 1.55e-6;
+
+W = 450e-9;
+H = 350e-9;
+
+R = 15e-6;
+
+L_in  = 10e-6;
+L_out = 10e-6;
+
+mat_core = "SRN (Silicon Rich Nitride)";
+mat_clad = "SiO2 (Glass) - Palik";
+
+############################################################
+# CLADDING
+############################################################
+
+addrect;
+set("name","cladding");
+set("material",mat_clad);
+
+set("x",R/2 + L_out/2);
+set("x span",R + L_out + 6e-6);
+
+set("y",-R/2 - L_in/2);
+set("y span",R + L_in + 6e-6);
+
+set("z",0);
+set("z span",6e-6);
+
+#############################################################
+# WAVEGUIDE GEOMETRY
+#############################################################
+
+# ------------------------------------------------------------
+# Input straight
+# ------------------------------------------------------------
+
+addrect;
+set("name","input_straight");
+set("material",mat_core);
+
+set("x",0);
+set("x span",H);
+
+set("y",-R - L_in/2);
+set("y span",L_in);
+
+set("z",0);
+set("z span",W);
+
+# ------------------------------------------------------------
+# Bend
+# ------------------------------------------------------------
+
+addring;
+set("name","bend");
+set("material",mat_core);
+
+set("x",R);
+set("y",-R);
+
+set("z",0);
+set("z span",W);
+
+set("inner radius",R-H/2);
+set("outer radius",R+H/2);
+
+set("theta start",90);
+set("theta stop",180);
+
+# ------------------------------------------------------------
+# Output straight
+# ------------------------------------------------------------
+
+addrect;
+set("name","output_straight");
+set("material",mat_core);
+
+set("x",R + L_out/2);
+set("x span",L_out);
+
+set("y",0);
+set("y span",H);
+
+set("z",0);
+set("z span",W);
+
+############################################################
+# FDTD
+############################################################
+
+addfdtd;
+
+set("dimension","3D");
+
+set("x",R/2 + L_out/2);
+set("x span",R + L_out + 4e-6);
+
+set("y",-R/2 - L_in/2);
+set("y span",R + L_in + 4e-6);
+
+set("z",0);
+set("z span",4e-6);
+
+set("mesh accuracy",2);
+
+set("simulation wavelength min",lambda0);
+set("simulation wavelength max",lambda0);
+
+set("x min bc","PML");
+set("x max bc","PML");
+
+set("y min bc","PML");
+set("y max bc","PML");
+
+set("z min bc","PML");
+set("z max bc","PML");
+
+#################################################
+# LOCAL BEND MESH
+#################################################
+
+addmesh;
+set("name","bend_mesh");
+
+set("x",R/2);
+set("x span",R + 4e-6);
+
+set("y",-R/2);
+set("y span",R + 4e-6);
+
+set("z",0);
+set("z span",W + 1e-6);
+
+set("dx",25e-9);
+set("dy",25e-9);
+set("dz",25e-9);
+
+###############################################
+# SOURCE
+###############################################
+
+y_src = -R - L_in + 4e-6;
+
+addmode;
+set("name","source");
+set("injection axis","y");
+set("direction","forward");
+
+set("x",0);
+set("x span",0.550e-6);
+
+set("y",y_src);
+
+set("z",0);
+set("z span",0.650e-6);
+
+set("center wavelength",lambda0);
+set("wavelength span",0);
+
+set("mode selection","fundamental TM mode");
+
+# ------------------------------------------------------------
+# Source Check Field
+# ------------------------------------------------------------
+
+addprofile;
+set("name","source_check");
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.2e-6);
+
+set("y",y_src + 1e-6);
+
+set("z",0);
+set("z span",1.2e-6);
+
+###############################################################
+# MONITORS
+###############################################################
+
+# ------------------------------------------------------------
+# BEFORE BEND MONITORS
+# ------------------------------------------------------------
+
+y_b1 = -R - 1e-6;
+y_b2 = -R - 2e-6;
+y_b3 = -R - 3e-6;
+
+# 1 um BEFORE BEND
+addmodeexpansion;
+set("name","before1_exp");
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.5e-6);
+
+set("y",y_b1);
+
+set("z",0);
+set("z span",1.5e-6);
+
+set("mode selection","fundamental TM mode");
+
+addprofile;
+set("name","before1_field");
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",2.5e-6);
+
+set("y",y_b1);
+
+set("z",0);
+set("z span",2.5e-6);
+
+addpower;
+set("name","before1_power");
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",3e-6);
+
+set("y",y_b1);
+
+set("z",0);
+set("z span",3e-6);
+
+# 2 um BEFORE BEND
+addmodeexpansion;
+set("name","before2_exp");
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.5e-6);
+
+set("y",y_b2);
+
+set("z",0);
+set("z span",1.5e-6);
+
+set("mode selection","fundamental TM mode");
+
+addprofile;
+set("name","before2_field");
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",2.5e-6);
+
+set("y",y_b2);
+
+set("z",0);
+set("z span",2.5e-6);
+
+addpower;
+set("name","before2_power");
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",3e-6);
+
+set("y",y_b2);
+
+set("z",0);
+set("z span",3e-6);
+
+# 3 um BEFORE BEND
+addmodeexpansion;
+set("name","before3_exp");
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.5e-6);
+
+set("y",y_b3);
+
+set("z",0);
+set("z span",1.5e-6);
+
+set("mode selection","fundamental TM mode");
+
+addprofile;
+set("name","before3_field");
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",2.5e-6);
+
+set("y",y_b3);
+
+set("z",0);
+set("z span",2.5e-6);
+
+addpower;
+set("name","before3_power");
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",3e-6);
+
+set("y",y_b3);
+
+set("z",0);
+set("z span",3e-6);
+
+# ------------------------------------------------------------
+# AFTER BEND MONITORS
+# ------------------------------------------------------------
+
+x_a1 = R + 1e-6;
+x_a2 = R + 2e-6;
+x_a3 = R + 3e-6;
+
+# 1 um AFTER BEND
+addmodeexpansion;
+set("name","after1_exp");
+set("monitor type","2D X-normal");
+
+set("x",x_a1);
+
+set("y",0);
+set("y span",1.5e-6);
+
+set("z",0);
+set("z span",1.5e-6);
+
+set("mode selection","fundamental TM mode");
+
+addprofile;
+set("name","after1_field");
+set("monitor type","2D X-normal");
+
+set("x",x_a1);
+
+set("y",0);
+set("y span",2.5e-6);
+
+set("z",0);
+set("z span",2.5e-6);
+
+addpower;
+set("name","after1_power");
+set("monitor type","2D X-normal");
+
+set("x",x_a1);
+
+set("y",0);
+set("y span",3e-6);
+
+set("z",0);
+set("z span",3e-6);
+
+# 2 um AFTER BEND
+addmodeexpansion;
+set("name","after2_exp");
+set("monitor type","2D X-normal");
+
+set("x",x_a2);
+
+set("y",0);
+set("y span",1.5e-6);
+
+set("z",0);
+set("z span",1.5e-6);
+
+set("mode selection","fundamental TM mode");
+
+addprofile;
+set("name","after2_field");
+set("monitor type","2D X-normal");
+
+set("x",x_a2);
+
+set("y",0);
+set("y span",2.5e-6);
+
+set("z",0);
+set("z span",2.5e-6);
+
+addpower;
+set("name","after2_power");
+set("monitor type","2D X-normal");
+
+set("x",x_a2);
+
+set("y",0);
+set("y span",3e-6);
+
+set("z",0);
+set("z span",3e-6);
+
+# 3 um AFTER BEND
+addmodeexpansion;
+set("name","after3_exp");
+set("monitor type","2D X-normal");
+
+set("x",x_a3);
+
+set("y",0);
+set("y span",1.5e-6);
+
+set("z",0);
+set("z span",1.5e-6);
+
+set("mode selection","fundamental TM mode");
+
+addprofile;
+set("name","after3_field");
+set("monitor type","2D X-normal");
+
+set("x",x_a3);
+
+set("y",0);
+set("y span",2.5e-6);
+
+set("z",0);
+set("z span",2.5e-6);
+
+addpower;
+set("name","after3_power");
+set("monitor type","2D X-normal");
+
+set("x",x_a3);
+
+set("y",0);
+set("y span",3e-6);
+
+set("z",0);
+set("z span",3e-6);
+
+# ------------------------------------------------------------
+# FULL DEVICE TOP-DOWN FIELD MONITOR
+# ------------------------------------------------------------
+
+addprofile;
+set("name","full_device_topdown");
+set("monitor type","2D Z-normal");
+
+# center roughly in middle of whole structure
+set("x",0.5*(R + L_out));
+set("y",-0.5*(R + L_in));
+
+# cover input straight + bend + output straight
+set("x span",R + L_out + 8e-6);
+set("y span",R + L_in + 8e-6);
+
+set("z",0);
+
+################################################
+# RUN
+################################################
+
+# run;

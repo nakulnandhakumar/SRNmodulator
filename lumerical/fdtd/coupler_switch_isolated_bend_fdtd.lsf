@@ -466,20 +466,23 @@ set("z",0);
 set("z span",3e-6);
 
 # ------------------------------------------------------------
-# FULL DEVICE TOP-DOWN FIELD MONITOR
+# BEND + TRANSITION TOP-DOWN FIELD MONITOR
 # ------------------------------------------------------------
 
 addprofile;
-set("name","full_device_topdown");
+set("name","bend_transition_topdown");
 set("monitor type","2D Z-normal");
 
-# center roughly in middle of whole structure
-set("x",0.5*(R + L_out));
-set("y",-0.5*(R + L_in));
+# center around bend
+set("x",R/2);
+set("y",-R/2);
 
-# cover input straight + bend + output straight
-set("x span",R + L_out + 3e-6);
-set("y span",R + L_in + 3e-6);
+# captures:
+# ~3 um before bend
+# entire 90 deg bend
+# ~4-5 um after bend
+set("x span",R + 6e-6);
+set("y span",R + 6e-6);
 
 set("z",0);
 

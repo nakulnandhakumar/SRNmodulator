@@ -903,20 +903,24 @@ set("z",z_L1);
 set("z span",2.5e-6);
 
 ############################################################
-# TOP-DOWN FIELD SLICE THROUGH LAYER 2 ROUTED COUPLER PLANE
-# Shows NS coupler -> bend -> output straight
+# BEND + OUTPUT TRANSITION TOP-DOWN FIELD MONITOR
 ############################################################
 
 addprofile;
-set("name","field_xy_L2_full_route");
+set("name","field_xy_L2_bend_region");
 
 set("monitor type","2D Z-normal");
 
-set("x",x_center);
-set("x span",x_span_total);
+# centered on bend
+set("x",R/2);
+set("y",-R/2);
 
-set("y",y_center);
-set("y span",y_span_total);
+# capture:
+# - last few um of coupler before bend
+# - entire bend
+# - first several um of output straight
+set("x span",R + 8e-6);
+set("y span",R + 8e-6);
 
 set("z",z_L2);
 

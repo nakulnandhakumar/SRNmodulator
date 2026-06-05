@@ -57,6 +57,33 @@ set("z",0);
 set("z span",W);
 
 # ------------------------------------------------------------
+# PCM on top of input straight before bend
+# ------------------------------------------------------------
+
+t_pcm = 40e-9;
+t_gap_pcm = 0e-9;
+pcm_mat = "SBS Crystalline";
+
+# Put PCM only on the straight section right before the bend
+L_pcm_in = 3e-6;                 # length of PCM before bend
+y_pcm_center = -R - L_pcm_in/2;  # spans from y=-R-L_pcm_in to y=-R
+
+z_pcm = W/2 + t_gap_pcm + t_pcm/2;
+
+addrect;
+set("name","pcm_input_top");
+set("material",pcm_mat);
+
+set("x",0);
+set("x span",H);
+
+set("y",y_pcm_center);
+set("y span",L_pcm_in);
+
+set("z",z_pcm);
+set("z span",t_pcm);
+
+# ------------------------------------------------------------
 # Bend
 # ------------------------------------------------------------
 

@@ -478,8 +478,8 @@ set("x",0.5*(R + L_out));
 set("y",-0.5*(R + L_in));
 
 # cover input straight + bend + output straight
-set("x span",R + L_out + 8e-6);
-set("y span",R + L_in + 8e-6);
+set("x span",R + L_out + 3e-6);
+set("y span",R + L_in + 3e-6);
 
 set("z",0);
 

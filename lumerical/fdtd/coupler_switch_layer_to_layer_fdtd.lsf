@@ -78,6 +78,25 @@ y_span_total = y_max - y_min;
 z_span_total = 2*W + gap_12 + 2*t_pcm + 2*pad_z;
 
 ############################################################
+# EXTENDED GEOMETRY REGION
+# Geometry extends beyond FDTD/PML
+############################################################
+
+geo_extra = 3e-6;
+
+x_geo_min = x_min - geo_extra;
+x_geo_max = x_max + geo_extra;
+
+y_geo_min = y_min - geo_extra;
+y_geo_max = y_max + geo_extra;
+
+x_geo_center = 0.5*(x_geo_min+x_geo_max);
+y_geo_center = 0.5*(y_geo_min+y_geo_max);
+
+x_geo_span = x_geo_max - x_geo_min;
+y_geo_span = y_geo_max - y_geo_min;
+
+############################################################
 # BACKGROUND
 ############################################################
 
@@ -85,14 +104,14 @@ addrect;
 set("name","cladding");
 set("material",mat_clad);
 
-set("x",x_center);
-set("x span",x_span_total);
+set("x",x_geo_center);
+set("x span",x_geo_span);
 
-set("y",y_center);
-set("y span",y_span_total);
+set("y",y_geo_center);
+set("y span",y_geo_span);
 
 set("z",0);
-set("z span",z_span_total);
+set("z span",z_span_total + 2*geo_extra);
 
 ############################################################
 # LAYER 1 BUS
@@ -105,8 +124,8 @@ set("material",mat_core);
 set("x",0);
 set("x span",H);
 
-set("y",y_center);
-set("y span",y_span_total);
+set("y",y_geo_center);
+set("y span",y_geo_span);
 
 set("z",z_L1);
 set("z span",W);
@@ -156,13 +175,11 @@ set("theta stop",180);
 ############################################################
 
 addrect;
-
 set("name","L2_output");
-
 set("material",mat_core);
 
-set("x",0.5*(x_out_start+x_out_stop));
-set("x span",x_out_stop-x_out_start + overlap_safe);
+set("x",0.5*(x_out_start + x_geo_max));
+set("x span",x_geo_max - x_out_start);
 
 set("y",0);
 set("y span",H);
@@ -267,59 +284,19 @@ set("dz",35e-9);
 # MODE SOURCE
 ############################################################
 
-# y_src = y_min + 1e-6;
-
-# addmode;
-# set("name","source");
-# set("injection axis","y");
-# set("direction","forward");
-
-# set("x",0);
-# set("x span",H + 400e-9);
-
-# set("y",y_src);
-
-# set("z",z_L1);
-# set("z span",W + 400e-9);
-
-# set("center wavelength",lambda0);
-# set("wavelength span",0);
-# set("mode selection","fundamental TM mode");
-
-############################################################
-# SOURCE CHECK FIELD
-############################################################
-
-# addprofile;
-# set("name","source_check");
-# set("monitor type","2D Y-normal");
-
-# set("x",0);
-# set("x span",1.2e-6);
-
-# set("y",y_src + 1e-6);
-
-# set("z",z_L1);
-# set("z span",1.6e-6);
-
-############################################################
-# REVERSE MODE SOURCE
-# Launch from L2 output straight, propagating in -x direction
-############################################################
-
-x_src = x_out_stop - 1e-6;
+y_src = y_min + 1e-6;
 
 addmode;
-set("name","source_reverse_L2");
-set("injection axis","x");
-set("direction","backward");
+set("name","source");
+set("injection axis","y");
+set("direction","forward");
 
-set("x",x_src);
+set("x",0);
+set("x span",H + 400e-9);
 
-set("y",0);
-set("y span",H + 400e-9);
+set("y",y_src);
 
-set("z",z_L2);
+set("z",z_L1);
 set("z span",W + 400e-9);
 
 set("center wavelength",lambda0);
@@ -327,20 +304,60 @@ set("wavelength span",0);
 set("mode selection","fundamental TM mode");
 
 ############################################################
-# REVERSE SOURCE CHECK FIELD
+# SOURCE CHECK FIELD
 ############################################################
 
 addprofile;
-set("name","reverse_source_check");
-set("monitor type","2D X-normal");
+set("name","source_check");
+set("monitor type","2D Y-normal");
 
-set("x",x_src - 1e-6);
+set("x",0);
+set("x span",1.2e-6);
 
-set("y",0);
-set("y span",1.6e-6);
+set("y",y_src + 1e-6);
 
-set("z",z_L2);
+set("z",z_L1);
 set("z span",1.6e-6);
+
+############################################################
+# REVERSE MODE SOURCE
+# Launch from L2 output straight, propagating in -x direction
+############################################################
+
+# x_src = x_out_stop - 1e-6;
+
+# addmode;
+# set("name","source_reverse_L2");
+# set("injection axis","x");
+# set("direction","backward");
+
+# set("x",x_src);
+
+# set("y",0);
+# set("y span",H + 400e-9);
+
+# set("z",z_L2);
+# set("z span",W + 400e-9);
+
+# set("center wavelength",lambda0);
+# set("wavelength span",0);
+# set("mode selection","fundamental TM mode");
+
+############################################################
+# REVERSE SOURCE CHECK FIELD
+############################################################
+
+# addprofile;
+# set("name","reverse_source_check");
+# set("monitor type","2D X-normal");
+
+# set("x",x_src - 1e-6);
+
+# set("y",0);
+# set("y span",1.6e-6);
+
+# set("z",z_L2);
+# set("z span",1.6e-6);
 
 ############################################################
 # THROUGH MONITOR (Forward Y source from L1 bus)

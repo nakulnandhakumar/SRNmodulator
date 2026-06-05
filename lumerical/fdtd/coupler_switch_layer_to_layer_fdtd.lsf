@@ -1005,8 +1005,8 @@ set("y",-R/2);
 # - last few um of coupler before bend
 # - entire bend
 # - first several um of output straight
-set("x span",R + 5e-6);
-set("y span",R + 5e-6);
+set("x span",R + 4e-6);
+set("y span",R + 4e-6);
 
 set("z",z_L2);
 

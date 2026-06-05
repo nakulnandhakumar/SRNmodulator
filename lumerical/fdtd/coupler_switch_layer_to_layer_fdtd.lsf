@@ -255,7 +255,7 @@ set("y max bc","PML");
 set("z min bc","PML");
 set("z max bc","PML");
 
-set("mesh accuracy",2);
+set("mesh accuracy",3);
 
 set("simulation wavelength min",lambda0);
 set("simulation wavelength max",lambda0);
@@ -264,21 +264,21 @@ set("simulation wavelength max",lambda0);
 # MESH
 ############################################################
 
-addmesh;
-set("name","mesh_coupler");
+# addmesh;
+# set("name","mesh_coupler");
 
-set("x",0);
-set("x span",H + 2*t_pcm + 0.4e-6);
+# set("x",0);
+# set("x span",H + 2*t_pcm + 0.4e-6);
 
-set("y",0.5*(y_NS_start+y_NS_stop));
-set("y span",Lc_NS + 1e-6);
+# set("y",0.5*(y_NS_start+y_NS_stop));
+# set("y span",Lc_NS + 1e-6);
 
-set("z",0.5*(z_L1+z_L2));
-set("z span",2*W + gap_12 + 2*t_pcm + 2*t_gap_pcm + 0.3e-6);
+# set("z",0.5*(z_L1+z_L2));
+# set("z span",2*W + gap_12 + 2*t_pcm + 2*t_gap_pcm + 0.3e-6);
 
-set("dx",40e-9);
-set("dy",40e-9);
-set("dz",35e-9);
+# set("dx",40e-9);
+# set("dy",40e-9);
+# set("dz",35e-9);
 
 ############################################################
 # MODE SOURCE
@@ -538,12 +538,98 @@ set("z span",5e-6);
 # OUTPUT STRAIGHT EVOLUTION MONITORS
 ############################################################
 
+x_0p1 = R + 0.1e-6;
+x_0p25 = R + 0.25e-6;
 x_0p5 = R + 0.5e-6;
 x_1p0 = R + 1.0e-6;
 x_1p5 = R + 1.5e-6;
 x_2p0 = R + 2.0e-6;
 x_4p0 = R + 4.0e-6;
 x_5p0 = R + 5.0e-6;
+
+# ----------------------------------------------------------
+# 0.10 um AFTER BEND
+# ----------------------------------------------------------
+
+addprofile;
+set("name","out_0p1_field");
+set("monitor type","2D X-normal");
+
+set("x",x_0p1);
+
+set("y",0);
+set("y span",2.5e-6);
+
+set("z",z_L2);
+set("z span",2.5e-6);
+
+addmodeexpansion;
+set("name","out_0p1_exp");
+set("monitor type","2D X-normal");
+
+set("x",x_0p1);
+
+set("y",0);
+set("y span",1.6e-6);
+
+set("z",z_L2);
+set("z span",1.6e-6);
+
+set("mode selection","fundamental TM mode");
+
+addpower;
+set("name","out_0p1_power");
+set("monitor type","2D X-normal");
+
+set("x",x_0p1);
+
+set("y",0);
+set("y span",5e-6);
+
+set("z",z_L2);
+set("z span",5e-6);
+
+# ----------------------------------------------------------
+# 0.25 um AFTER BEND
+# ----------------------------------------------------------
+
+addprofile;
+set("name","out_0p25_field");
+set("monitor type","2D X-normal");
+
+set("x",x_0p25);
+
+set("y",0);
+set("y span",2.5e-6);
+
+set("z",z_L2);
+set("z span",2.5e-6);
+
+addmodeexpansion;
+set("name","out_0p25_exp");
+set("monitor type","2D X-normal");
+
+set("x",x_0p25);
+
+set("y",0);
+set("y span",1.6e-6);
+
+set("z",z_L2);
+set("z span",1.6e-6);
+
+set("mode selection","fundamental TM mode");
+
+addpower;
+set("name","out_0p25_power");
+set("monitor type","2D X-normal");
+
+set("x",x_0p25);
+
+set("y",0);
+set("y span",5e-6);
+
+set("z",z_L2);
+set("z span",5e-6);
 
 # ----------------------------------------------------------
 # 0.5 um AFTER BEND

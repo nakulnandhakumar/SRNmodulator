@@ -7,7 +7,7 @@ import os
 
 # Directory structure
 coupling_direction = "vertical"  # "lateral" or "vertical"
-pcm_loading_direction = "top_pcm" # "side_pcm" or "top_pcm"
+pcm_loading_direction = "side_pcm" # "side_pcm" or "top_pcm"
 
 design_dir = (
     f"./coupler_switch/coupler_switch_design_sweep_results/"
@@ -16,20 +16,20 @@ design_dir = (
 )
 
 # Filename parameters
-W_bus_nm = 350
-H_bus_nm = 450
+W_bus_nm = 450
+H_bus_nm = 350
 
-W_coupler_nm = 350
-H_coupler_nm = 450
+W_coupler_nm = 450
+H_coupler_nm = 350
 
 g_min_nm = 200
-g_max_nm = 400
+g_max_nm = 300
 
-t_pcm_min_nm = 5
+t_pcm_min_nm = 20
 t_pcm_max_nm = 50
 
 t_gap_min_nm = 0
-t_gap_max_nm = 50
+t_gap_max_nm = 30
 
 polarization = "TM" # "TE" or "TM"
 

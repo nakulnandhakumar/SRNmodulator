@@ -332,29 +332,329 @@ set("z",z_L1);
 set("z span",1.2e-6);
 
 ############################################################
-# OUTPUT MONITOR AFTER BEND
+# BEND START / 0 DEG MONITOR
+# At start of bend: x = 0, y = -R
 ############################################################
 
-x_mon = x_out_stop - 2e-6;
-
 addmodeexpansion;
-set("name","bend_output_exp");
-set("monitor type","2D X-normal");
-set("x",x_mon);
-set("y",0);
-set("y span",1.2e-6);
+set("name","bend_0deg_start_exp");
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.2e-6);
+
+set("y",y_NS_stop);
+
 set("z",z_L2);
-set("z span",1.2e-6);
+set("z span",0.7e-6);
+
 set("mode selection","fundamental TM mode");
 
 addprofile;
-set("name","bend_output_field");
-set("monitor type","2D X-normal");
-set("x",x_mon);
-set("y",0);
-set("y span",1.2e-6);
+set("name","bend_0deg_start_field");
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.2e-6);
+
+set("y",y_NS_stop);
+
 set("z",z_L2);
 set("z span",1.2e-6);
+
+addpower;
+set("name","bend_0deg_start_power");
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.2e-6);
+
+set("y",y_NS_stop);
+
+set("z",z_L2);
+set("z span",0.8e-6);
+
+############################################################
+# BEND END / 90 DEG MONITOR
+# At end of bend: x = R, y = 0
+############################################################
+
+addmodeexpansion;
+set("name","bend_90deg_end_exp");
+set("monitor type","2D X-normal");
+
+set("x",R);
+
+set("y",0);
+set("y span",1.2e-6);
+
+set("z",z_L2);
+set("z span",1.2e-6);
+
+set("mode selection","fundamental TM mode");
+
+addprofile;
+set("name","bend_90deg_end_field");
+set("monitor type","2D X-normal");
+
+set("x",R);
+
+set("y",0);
+set("y span",1.2e-6);
+
+set("z",z_L2);
+set("z span",1.2e-6);
+
+addpower;
+set("name","bend_90deg_end_power");
+set("monitor type","2D X-normal");
+
+set("x",R);
+
+set("y",0);
+set("y span",4e-6);
+
+set("z",z_L2);
+set("z span",5e-6);
+
+############################################################
+# OUTPUT STRAIGHT EVOLUTION MONITORS
+############################################################
+
+x_0p5 = R + 0.5e-6;
+x_1p0 = R + 1.0e-6;
+x_1p5 = R + 1.5e-6;
+x_2p0 = R + 2.0e-6;
+x_3p0 = R + 3.0e-6;
+
+############################################################
+# 0.5 um AFTER BEND
+############################################################
+
+addmodeexpansion;
+set("name","out_0p5_exp");
+set("monitor type","2D X-normal");
+
+set("x",x_0p5);
+
+set("y",0);
+set("y span",1.2e-6);
+
+set("z",z_L2);
+set("z span",1.2e-6);
+
+set("mode selection","fundamental TM mode");
+
+addprofile;
+set("name","out_0p5_field");
+set("monitor type","2D X-normal");
+
+set("x",x_0p5);
+
+set("y",0);
+set("y span",1.2e-6);
+
+set("z",z_L2);
+set("z span",1.2e-6);
+
+addpower;
+set("name","out_0p5_power");
+set("monitor type","2D X-normal");
+
+set("x",x_0p5);
+
+set("y",0);
+set("y span",4e-6);
+
+set("z",z_L2);
+set("z span",5e-6);
+
+############################################################
+# 1.0 um AFTER BEND
+############################################################
+
+addmodeexpansion;
+set("name","out_1p0_exp");
+set("monitor type","2D X-normal");
+
+set("x",x_1p0);
+
+set("y",0);
+set("y span",1.2e-6);
+
+set("z",z_L2);
+set("z span",1.2e-6);
+
+set("mode selection","fundamental TM mode");
+
+addprofile;
+set("name","out_1p0_field");
+set("monitor type","2D X-normal");
+
+set("x",x_1p0);
+
+set("y",0);
+set("y span",1.2e-6);
+
+set("z",z_L2);
+set("z span",1.2e-6);
+
+addpower;
+set("name","out_1p0_power");
+set("monitor type","2D X-normal");
+
+set("x",x_1p0);
+
+set("y",0);
+set("y span",4e-6);
+
+set("z",z_L2);
+set("z span",5e-6);
+
+############################################################
+# 1.5 um AFTER BEND
+############################################################
+
+addmodeexpansion;
+set("name","out_1p5_exp");
+set("monitor type","2D X-normal");
+
+set("x",x_1p5);
+
+set("y",0);
+set("y span",1.2e-6);
+
+set("z",z_L2);
+set("z span",1.2e-6);
+
+set("mode selection","fundamental TM mode");
+
+addprofile;
+set("name","out_1p5_field");
+set("monitor type","2D X-normal");
+
+set("x",x_1p5);
+
+set("y",0);
+set("y span",1.2e-6);
+
+set("z",z_L2);
+set("z span",1.2e-6);
+
+addpower;
+set("name","out_1p5_power");
+set("monitor type","2D X-normal");
+
+set("x",x_1p5);
+
+set("y",0);
+set("y span",4e-6);
+
+set("z",z_L2);
+set("z span",5e-6);
+
+############################################################
+# 2.0 um AFTER BEND
+############################################################
+
+addmodeexpansion;
+set("name","out_2p0_exp");
+set("monitor type","2D X-normal");
+
+set("x",x_2p0);
+
+set("y",0);
+set("y span",1.2e-6);
+
+set("z",z_L2);
+set("z span",1.2e-6);
+
+set("mode selection","fundamental TM mode");
+
+addprofile;
+set("name","out_2p0_field");
+set("monitor type","2D X-normal");
+
+set("x",x_2p0);
+
+set("y",0);
+set("y span",1.2e-6);
+
+set("z",z_L2);
+set("z span",1.2e-6);
+
+addpower;
+set("name","out_2p0_power");
+set("monitor type","2D X-normal");
+
+set("x",x_2p0);
+
+set("y",0);
+set("y span",4e-6);
+
+set("z",z_L2);
+set("z span",5e-6);
+
+############################################################
+# 3.0 um AFTER BEND
+############################################################
+
+addmodeexpansion;
+set("name","out_3p0_exp");
+set("monitor type","2D X-normal");
+
+set("x",x_3p0);
+
+set("y",0);
+set("y span",1.2e-6);
+
+set("z",z_L2);
+set("z span",1.2e-6);
+
+set("mode selection","fundamental TM mode");
+
+addprofile;
+set("name","out_3p0_field");
+set("monitor type","2D X-normal");
+
+set("x",x_3p0);
+
+set("y",0);
+set("y span",1.2e-6);
+
+set("z",z_L2);
+set("z span",1.2e-6);
+
+addpower;
+set("name","out_3p0_power");
+set("monitor type","2D X-normal");
+
+set("x",x_3p0);
+
+set("y",0);
+set("y span",4e-6);
+
+set("z",z_L2);
+set("z span",5e-6);
+
+############################################################
+# XY FIELD SLICE THROUGH JUST BEND REGION
+# L2 plane, covers bend + ~1 um straight before/after
+############################################################
+
+addprofile;
+set("name","bend_xy_slice_L2");
+set("monitor type","2D Z-normal");
+
+# center around the bend square from x=0..R, y=-R..0
+set("x",R/2);
+set("y",-R/2);
+
+# entire bend plus ~1 um margin on each side
+set("x span",R + 2e-6);
+set("y span",R + 2e-6);
+
+set("z",z_L2);
 
 ############################################################
 # RUN

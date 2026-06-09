@@ -270,9 +270,9 @@ set("y span",L_total_NS + 1e-6);
 set("z",0.5*(z_L1+z_L2));
 set("z span",2*W + gap_12 + 0.3e-6);
 
-set("dx",20e-9);
-set("dy",20e-9);
-set("dz",20e-9);
+set("dx",40e-9);
+set("dy",40e-9);
+set("dz",35e-9);
 
 ############################################################
 # MODE SOURCE

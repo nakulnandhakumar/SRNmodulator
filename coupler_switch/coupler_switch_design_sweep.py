@@ -289,11 +289,9 @@ try:
                 if sym["D"] <= antisym["D"]:
                     design_state = sym
                     design_state_name = "sym"
-                    off_state = antisym
                 else:
                     design_state = antisym
                     design_state_name = "antisym"
-                    off_state = sym
 
                 # ---------------------------------
                 # PHASE-CORRECTED COUPLING LENGTH

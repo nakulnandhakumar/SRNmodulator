@@ -173,6 +173,19 @@ for key, value in sym.items():
         print(f"{key} = {value}")
 
 if antisym and sym:
+    
+    # If PCM overlap is too high, results may be inaccurate due to non-perturbative effects
+    if (
+        antisym["eta_pcm_coupler_1"] > 0.15 or 
+        antisym["eta_pcm_bus_1"] > 0.15 or
+        antisym["eta_pcm_coupler_2"] > 0.15 or 
+        antisym["eta_pcm_bus_2"] > 0.15 or
+        sym["eta_pcm_coupler_1"] > 0.15 or 
+        sym["eta_pcm_bus_1"] > 0.15 or
+        sym["eta_pcm_coupler_2"] > 0.15 or 
+        sym["eta_pcm_bus_2"] > 0.15
+    ):
+        print("\nWARNING: PCM overlap is high in one or both states. Results may be inaccurate due to non-perturbative effects.")
 
     # ============================================================
     # DETERMINE DESIGN STATE
@@ -233,11 +246,13 @@ if antisym and sym:
 
     # avoid log(0)
     P_sym_safe = max(P_sym, 1e-12)
+    P_antisym_safe = max(P_antisym, 1e-12)
 
-    ER_dB = 10 * np.log10(P_sym_safe / P_antisym)
+    ER_dB = 10 * np.log10(P_sym_safe / P_antisym_safe)
 
     # PRINT RESULTS
     print("\n========== SWITCHING ==========")
+    print(f"\nDesign state = {design_state_name}")
     print(f"L_design (um) = {L*1e6:.3f}")
     print(f"P_antisym = {P_antisym:.4f}")
     print(f"P_sym  = {P_sym:.4f}")

@@ -315,18 +315,34 @@ y_far = y_max - 2e-6;
 addmodeexpansion;
 set("name","through_exp");
 set("monitor type","2D Y-normal");
+
 set("x",0);
 set("x span",1.2e-6);
+
 set("y",y_far);
+
 set("z",z_L1);
 set("z span",1.2e-6);
+
 set("mode selection","fundamental TM mode");
 
 addprofile;
 set("name","through_field");
 set("monitor type","2D Y-normal");
+
 set("x",0);
 set("x span",1.2e-6);
+
+set("y",y_far);
+
+set("z",z_L1);
+set("z span",1.2e-6);
+
+addpower;
+set("name","through_power");
+set("monitor type","2D Y-normal");
+set("x",0);
+set("x span",1.8e-6);
 set("y",y_far);
 set("z",z_L1);
 set("z span",1.2e-6);
@@ -416,6 +432,23 @@ set("y span",4e-6);
 
 set("z",z_L2);
 set("z span",5e-6);
+
+############################################################
+# MASSIVE POWER MONITOR BEFORE BEND START
+# Captures BOTH L1 bus + L2 coupler before bend
+############################################################
+
+addpower;
+set("name","bend_0deg_start_total_power");
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.8e-6);
+
+set("y",y_NS_stop - 0.2e-6);
+
+set("z",0.5*(z_L1+z_L2));
+set("z span",2*W + gap_12 + 1.0e-6);
 
 ############################################################
 # OUTPUT STRAIGHT EVOLUTION MONITORS

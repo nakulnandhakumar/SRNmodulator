@@ -24,8 +24,6 @@ gap_12 = 250e-9;
 
 R = 15e-6;
 
-Lc_NS = 27.17e-6;
-
 mat_core = "SRN (Silicon Rich Nitride)";
 mat_clad = "SiO2 (Glass) - Palik";
 
@@ -53,9 +51,26 @@ z_L1 = -(W + gap_12);
 # ROUTING GEOMETRY
 ############################################################
 
-# Straight NS coupler
-y_NS_start = -R - Lc_NS;
+# PCM-loaded coupling section only
+Lc_coupling = 26.17e-6;
+
+# relaxation section before bend
+L_relax = 1.0e-6;
+
+# total straight length
+L_total_NS = Lc_coupling + L_relax;
+
+# Coupling section:
+# y_NS_start -> y_cpl_stop
+#
+# Relaxation section:
+# y_cpl_stop -> y_NS_stop
+#
+# Bend starts at y_NS_stop = -R
+
 y_NS_stop  = -R;
+y_cpl_stop = y_NS_stop - L_relax;
+y_NS_start = y_cpl_stop - Lc_coupling;
 
 # Bend output
 x_out_start = R;
@@ -114,7 +129,7 @@ set("z",z_L1);
 set("z span",W);
 
 ############################################################
-# LAYER 2 STRAIGHT COUPLER
+# LAYER 2 STRAIGHT COUPLER + RELAXATION STRAIGHT
 ############################################################
 
 addrect;
@@ -126,7 +141,7 @@ set("x",0);
 set("x span",H);
 
 set("y",0.5*(y_NS_start+y_NS_stop));
-set("y span",Lc_NS + 2*overlap_safe);
+set("y span",L_total_NS + 2*overlap_safe);
 
 set("z",z_L2);
 set("z span",W);
@@ -174,38 +189,35 @@ set("z span",W);
 
 ############################################################
 # PCM SIDEWALLS
+# PCM only on coupling section, not relaxation section
 ############################################################
 
 x_pcm = H/2 + t_gap_pcm + t_pcm/2;
 
 # Bus PCM
 addrect;
-
 set("name","pcm_L1");
-
 set("material",pcm_mat_bus);
 
 set("x",x_pcm);
 set("x span",t_pcm);
 
-set("y",0.5*(y_NS_start+y_NS_stop));
-set("y span",Lc_NS);
+set("y",0.5*(y_NS_start+y_cpl_stop));
+set("y span",Lc_coupling);
 
 set("z",z_L1);
 set("z span",W);
 
 # Coupler PCM
 addrect;
-
 set("name","pcm_L2");
-
 set("material",pcm_mat_coupler);
 
 set("x",x_pcm);
 set("x span",t_pcm);
 
-set("y",0.5*(y_NS_start+y_NS_stop));
-set("y span",Lc_NS);
+set("y",0.5*(y_NS_start+y_cpl_stop));
+set("y span",Lc_coupling);
 
 set("z",z_L2);
 set("z span",W);
@@ -253,14 +265,14 @@ set("x",0);
 set("x span",H + 2*t_pcm + 0.4e-6);
 
 set("y",0.5*(y_NS_start+y_NS_stop));
-set("y span",Lc_NS + 1e-6);
+set("y span",L_total_NS + 1e-6);
 
 set("z",0.5*(z_L1+z_L2));
 set("z span",2*W + gap_12 + 0.3e-6);
 
-set("dx",40e-9);
-set("dy",40e-9);
-set("dz",35e-9);
+set("dx",20e-9);
+set("dy",20e-9);
+set("dz",20e-9);
 
 ############################################################
 # MODE SOURCE
@@ -348,6 +360,86 @@ set("z",z_L1);
 set("z span",1.2e-6);
 
 ############################################################
+# POWER AT END OF COUPLING REGION
+# BEFORE RELAXATION SECTION
+############################################################
+
+# ----------------------------------------------------------
+# TOTAL POWER AT END OF COUPLING REGION
+# ----------------------------------------------------------
+
+addpower;
+set("name","coupling_end_total_power");
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.8e-6);
+
+set("y",y_cpl_stop);
+
+set("z",0.5*(z_L1+z_L2));
+set("z span",2*W + gap_12 + 1.0e-6);
+
+# ----------------------------------------------------------
+# COUPLER FIELD AND POWER AT END OF COUPLING REGION
+# ----------------------------------------------------------
+
+addpower;
+set("name","coupling_end_coupler_power");
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.2e-6);
+
+set("y",y_cpl_stop);
+
+set("z",z_L2);
+set("z span",0.8e-6);
+
+addmodeexpansion;
+set("name","coupling_end_coupler_exp");
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.2e-6);
+
+set("y",y_cpl_stop);
+
+set("z",z_L2);
+set("z span",1.2e-6);
+
+set("mode selection","fundamental TM mode");
+
+addprofile;
+set("name","coupling_end_coupler_field");
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.2e-6);
+
+set("y",y_cpl_stop);
+
+set("z",z_L2);
+set("z span",1.2e-6);
+
+############################################################
+# MASSIVE POWER MONITOR BEFORE BEND START
+# Captures BOTH L1 bus + L2 coupler before bend
+############################################################
+
+addpower;
+set("name","bend_0deg_start_total_power");
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.8e-6);
+
+set("y",y_NS_stop - 0.2e-6);
+
+set("z",0.5*(z_L1+z_L2));
+set("z span",2*W + gap_12 + 1.0e-6);
+
+############################################################
 # BEND START / 0 DEG MONITOR
 # At start of bend: x = 0, y = -R
 ############################################################
@@ -432,23 +524,6 @@ set("y span",4e-6);
 
 set("z",z_L2);
 set("z span",5e-6);
-
-############################################################
-# MASSIVE POWER MONITOR BEFORE BEND START
-# Captures BOTH L1 bus + L2 coupler before bend
-############################################################
-
-addpower;
-set("name","bend_0deg_start_total_power");
-set("monitor type","2D Y-normal");
-
-set("x",0);
-set("x span",1.8e-6);
-
-set("y",y_NS_stop - 0.2e-6);
-
-set("z",0.5*(z_L1+z_L2));
-set("z span",2*W + gap_12 + 1.0e-6);
 
 ############################################################
 # OUTPUT STRAIGHT EVOLUTION MONITORS

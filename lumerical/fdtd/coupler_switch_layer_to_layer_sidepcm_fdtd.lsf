@@ -270,9 +270,29 @@ set("y span",L_total_NS + 1e-6);
 set("z",0.5*(z_L1+z_L2));
 set("z span",2*W + gap_12 + 0.3e-6);
 
-set("dx",20e-9);
-set("dy",20e-9);
-set("dz",20e-9);
+set("dx",40e-9);
+set("dy",40e-9);
+set("dz",35e-9);
+
+############################################################
+# MESH: BEND + OUTPUT STRAIGHT REGION
+############################################################
+
+addmesh;
+set("name","mesh_bend_output");
+
+set("x",R/2);
+set("x span",R + 5e-6);
+
+set("y",-R/2);
+set("y span",R + 3e-6);
+
+set("z",z_L2);
+set("z span",W + 0.8e-6);
+
+set("dx",25e-9);
+set("dy",25e-9);
+set("dz",25e-9);
 
 ############################################################
 # MODE SOURCE

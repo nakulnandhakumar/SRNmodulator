@@ -95,18 +95,36 @@ y_span_total = y_max - y_min;
 z_span_total = 2*W + gap_12 + 2*t_pcm + 2*pad_z;
 
 ############################################################
-# BACKGROUND
+# EXTENDED GEOMETRY REGION
+############################################################
+
+geo_extra = 3e-6;
+
+x_geo_min = x_min - geo_extra;
+x_geo_max = x_max + geo_extra;
+
+y_geo_min = y_min - geo_extra;
+y_geo_max = y_max + geo_extra;
+
+x_geo_center = 0.5*(x_geo_min+x_geo_max);
+y_geo_center = 0.5*(y_geo_min+y_geo_max);
+
+x_geo_span = x_geo_max - x_geo_min;
+y_geo_span = y_geo_max - y_geo_min;
+
+############################################################
+# CLADDING
 ############################################################
 
 addrect;
 set("name","cladding");
 set("material",mat_clad);
 
-set("x",x_center);
-set("x span",x_span_total);
+set("x",x_geo_center);
+set("x span",x_geo_span);
 
-set("y",y_center);
-set("y span",y_span_total);
+set("y",y_geo_center);
+set("y span",y_geo_span);
 
 set("z",0);
 set("z span",z_span_total);
@@ -122,8 +140,8 @@ set("material",mat_core);
 set("x",0);
 set("x span",H);
 
-set("y",y_center);
-set("y span",y_span_total);
+set("y",y_geo_center);
+set("y span",y_geo_span);
 
 set("z",z_L1);
 set("z span",W);
@@ -178,8 +196,8 @@ set("name","L2_output");
 
 set("material",mat_core);
 
-set("x",0.5*(x_out_start+x_out_stop));
-set("x span",x_out_stop-x_out_start + overlap_safe);
+set("x",0.5*(x_out_start+x_geo_max));
+set("x span",x_geo_max-x_out_start);
 
 set("y",0);
 set("y span",H);
@@ -254,11 +272,10 @@ set("simulation wavelength min",lambda0);
 set("simulation wavelength max",lambda0);
 
 ############################################################
-# MESH
+# COUPLING REGION MESH
 ############################################################
 
 addmesh;
-
 set("name","mesh_coupler");
 
 set("x",0);

@@ -69,7 +69,7 @@ y_NS_start = y_cpl_stop - Lc_coupling;
 
 # Bend output
 x_out_start = R;
-x_out_stop  = R + 10e-6;
+x_out_stop  = R + 6e-6;
 
 ############################################################
 # DOMAIN

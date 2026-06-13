@@ -65,7 +65,7 @@ t_gap_pcm = 0e-9;
 pcm_mat = "SBS Crystalline";
 
 # Put PCM only on the straight section right before the bend
-L_pcm_in = 5e-6;                 # length of PCM before bend
+L_pcm_in = 3e-6;                 # length of PCM before bend
 y_pcm_center = -R - L_pcm_in/2;  # spans from y=-R-L_pcm_in to y=-R
 
 z_pcm = W/2 + t_gap_pcm + t_pcm/2;
@@ -175,7 +175,7 @@ set("z max bc","PML");
 # SOURCE
 ###############################################
 
-y_src = -R - L_in + 2e-6;
+y_src = -R - L_in + 4e-6;
 
 addmode;
 set("name","source");

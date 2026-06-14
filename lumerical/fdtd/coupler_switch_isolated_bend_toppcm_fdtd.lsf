@@ -155,21 +155,21 @@ set("z max bc","PML");
 # LOCAL BEND MESH
 #################################################
 
-# addmesh;
-# set("name","bend_mesh");
+addmesh;
+set("name","bend_mesh");
 
-# set("x",R/2);
-# set("x span",R + 4e-6);
+set("x",R/2);
+set("x span",R + 4e-6);
 
-# set("y",-R/2);
-# set("y span",R + 4e-6);
+set("y",-R/2);
+set("y span",R + 4e-6);
 
-# set("z",0);
-# set("z span",W + 1e-6);
+set("z",0);
+set("z span",W + 1e-6);
 
-# set("dx",25e-9);
-# set("dy",25e-9);
-# set("dz",25e-9);
+set("dx",25e-9);
+set("dy",25e-9);
+set("dz",25e-9);
 
 ###############################################
 # SOURCE

@@ -53,7 +53,7 @@ z_L1 = -(W + gap_12);
 Lc_coupling = 45.18e-6;
 
 # Plain SRN relaxation section before bend
-L_relax = 1.0e-6;
+L_relax = 5.0e-6;
 
 # Total straight L2 length before bend
 L_total_NS = Lc_coupling + L_relax;

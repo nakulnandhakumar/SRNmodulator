@@ -295,21 +295,21 @@ set("dz",35e-9);
 # MESH: BEND + OUTPUT STRAIGHT REGION
 ############################################################
 
-# addmesh;
-# set("name","mesh_bend_output");
+addmesh;
+set("name","mesh_bend_output");
 
-# set("x",R/2);
-# set("x span",R + 5e-6);
+set("x",R/2);
+set("x span",R + 5e-6);
 
-# set("y",-R/2);
-# set("y span",R + 3e-6);
+set("y",-R/2);
+set("y span",R + 3e-6);
 
-# set("z",z_L2);
-# set("z span",W + 0.8e-6);
+set("z",z_L2);
+set("z span",W + 0.8e-6);
 
-# set("dx",25e-9);
-# set("dy",25e-9);
-# set("dz",25e-9);
+set("dx",25e-9);
+set("dy",25e-9);
+set("dz",25e-9);
 
 ############################################################
 # MODE SOURCE

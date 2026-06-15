@@ -302,10 +302,10 @@ set("x",R/2);
 set("x span",R + 5e-6);
 
 set("y",-R/2);
-set("y span",R + 3e-6);
+set("y span",R + 5e-6);
 
 set("z",z_L2);
-set("z span",W + 0.8e-6);
+set("z span",W + 1.0e-6);
 
 set("dx",25e-9);
 set("dy",25e-9);
@@ -318,9 +318,7 @@ set("dz",25e-9);
 y_src = y_min + 1e-6;
 
 addmode;
-
 set("name","source");
-
 set("injection axis","y");
 set("direction","forward");
 
@@ -334,7 +332,6 @@ set("z span",W + 400e-9);
 
 set("center wavelength",lambda0);
 set("wavelength span",0);
-
 set("mode selection","fundamental TM mode");
 
 ############################################################
@@ -342,9 +339,7 @@ set("mode selection","fundamental TM mode");
 ############################################################
 
 addprofile;
-
 set("name","source_check");
-
 set("monitor type","2D Y-normal");
 
 set("x",0);
@@ -390,11 +385,180 @@ set("z span",1.2e-6);
 addpower;
 set("name","through_power");
 set("monitor type","2D Y-normal");
+
 set("x",0);
 set("x span",1.8e-6);
+
 set("y",y_far);
 set("z",z_L1);
+
 set("z span",1.2e-6);
+
+############################################################
+# COUPLING EVOLUTION MONITORS
+############################################################
+
+# ----------------------------------------------------------
+# 1) START OF COUPLING REGION (JUST AFTER COUPLER START)
+# ----------------------------------------------------------
+
+y_start_monitor = y_NS_start + 0.5e-6;
+
+addprofile;
+set("name","field_start");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.6e-6);
+
+set("y",y_start_monitor);
+
+set("z",0.5*(z_L1+z_L2));
+set("z span",2.0e-6);
+
+# ----------------------------------------------------------
+# 2) HALFWAY THROUGH COUPLER
+# ----------------------------------------------------------
+
+y_mid_monitor = 0.5*(y_NS_start + y_NS_stop);
+
+addprofile;
+set("name","field_mid");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.6e-6);
+
+set("y",y_mid_monitor);
+
+set("z",0.5*(z_L1+z_L2));
+set("z span",2.0e-6);
+
+# ----------------------------------------------------------
+# 3) END OF STRAIGHT COUPLER (JUST BEFORE BEND)
+# ----------------------------------------------------------
+
+y_end_monitor = y_NS_stop - 0.5e-6;
+
+addprofile;
+set("name","field_end");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.6e-6);
+
+set("y",y_end_monitor);
+
+set("z",0.5*(z_L1+z_L2));
+set("z span",2.0e-6);
+
+############################################################
+# L1 BUS MONITORS BELOW COUPLER
+# (reverse-launch coupled power measurement)
+############################################################
+
+y_L1_m1 = y_NS_start - 2e-6;
+y_L1_m2 = y_NS_start - 4e-6;
+y_L1_m3 = y_NS_start - 6e-6;
+
+# ----------------------------------------------------------
+# 1 um BEFORE COUPLER START
+# ----------------------------------------------------------
+
+addmodeexpansion;
+set("name","L1_minus1um_exp");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.2e-6);
+
+set("y",y_L1_m1);
+
+set("z",z_L1);
+set("z span",1.2e-6);
+
+set("mode selection","fundamental TM mode");
+
+addprofile;
+set("name","L1_minus1um_field");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",2.5e-6);
+
+set("y",y_L1_m1);
+
+set("z",z_L1);
+set("z span",2.5e-6);
+
+# ----------------------------------------------------------
+# 2 um BEFORE COUPLER START
+# ----------------------------------------------------------
+
+addmodeexpansion;
+set("name","L1_minus2um_exp");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.2e-6);
+
+set("y",y_L1_m2);
+
+set("z",z_L1);
+set("z span",1.2e-6);
+
+set("mode selection","fundamental TM mode");
+
+addprofile;
+set("name","L1_minus2um_field");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",2.5e-6);
+
+set("y",y_L1_m2);
+
+set("z",z_L1);
+set("z span",2.5e-6);
+
+# ----------------------------------------------------------
+# 3 um BEFORE COUPLER START
+# ----------------------------------------------------------
+
+addmodeexpansion;
+set("name","L1_minus3um_exp");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.2e-6);
+
+set("y",y_L1_m3);
+
+set("z",z_L1);
+set("z span",1.2e-6);
+
+set("mode selection","fundamental TM mode");
+
+addprofile;
+set("name","L1_minus3um_field");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",2.5e-6);
+
+set("y",y_L1_m3);
+
+set("z",z_L1);
+set("z span",2.5e-6);
 
 ############################################################
 # POWER AT END OF COUPLING REGION
@@ -566,15 +730,101 @@ set("z span",5e-6);
 # OUTPUT STRAIGHT EVOLUTION MONITORS
 ############################################################
 
+x_0p1 = R + 0.1e-6;
+x_0p25 = R + 0.25e-6;
 x_0p5 = R + 0.5e-6;
 x_1p0 = R + 1.0e-6;
 x_1p5 = R + 1.5e-6;
 x_2p0 = R + 2.0e-6;
 x_3p0 = R + 3.0e-6;
 
-############################################################
+# ----------------------------------------------------------
+# 0.10 um AFTER BEND
+# ----------------------------------------------------------
+
+addprofile;
+set("name","out_0p1_field");
+set("monitor type","2D X-normal");
+
+set("x",x_0p1);
+
+set("y",0);
+set("y span",2.5e-6);
+
+set("z",z_L2);
+set("z span",2.5e-6);
+
+addmodeexpansion;
+set("name","out_0p1_exp");
+set("monitor type","2D X-normal");
+
+set("x",x_0p1);
+
+set("y",0);
+set("y span",1.6e-6);
+
+set("z",z_L2);
+set("z span",1.6e-6);
+
+set("mode selection","fundamental TM mode");
+
+addpower;
+set("name","out_0p1_power");
+set("monitor type","2D X-normal");
+
+set("x",x_0p1);
+
+set("y",0);
+set("y span",5e-6);
+
+set("z",z_L2);
+set("z span",5e-6);
+
+# ----------------------------------------------------------
+# 0.25 um AFTER BEND
+# ----------------------------------------------------------
+
+addprofile;
+set("name","out_0p25_field");
+set("monitor type","2D X-normal");
+
+set("x",x_0p25);
+
+set("y",0);
+set("y span",2.5e-6);
+
+set("z",z_L2);
+set("z span",2.5e-6);
+
+addmodeexpansion;
+set("name","out_0p25_exp");
+set("monitor type","2D X-normal");
+
+set("x",x_0p25);
+
+set("y",0);
+set("y span",1.6e-6);
+
+set("z",z_L2);
+set("z span",1.6e-6);
+
+set("mode selection","fundamental TM mode");
+
+addpower;
+set("name","out_0p25_power");
+set("monitor type","2D X-normal");
+
+set("x",x_0p25);
+
+set("y",0);
+set("y span",5e-6);
+
+set("z",z_L2);
+set("z span",5e-6);
+
+# ----------------------------------------------------------
 # 0.5 um AFTER BEND
-############################################################
+# ----------------------------------------------------------
 
 addmodeexpansion;
 set("name","out_0p5_exp");
@@ -614,9 +864,9 @@ set("y span",4e-6);
 set("z",z_L2);
 set("z span",5e-6);
 
-############################################################
+# ----------------------------------------------------------
 # 1.0 um AFTER BEND
-############################################################
+# ----------------------------------------------------------
 
 addmodeexpansion;
 set("name","out_1p0_exp");
@@ -656,9 +906,9 @@ set("y span",4e-6);
 set("z",z_L2);
 set("z span",5e-6);
 
-############################################################
+# ----------------------------------------------------------
 # 1.5 um AFTER BEND
-############################################################
+# ----------------------------------------------------------
 
 addmodeexpansion;
 set("name","out_1p5_exp");
@@ -698,9 +948,9 @@ set("y span",4e-6);
 set("z",z_L2);
 set("z span",5e-6);
 
-############################################################
+# ----------------------------------------------------------
 # 2.0 um AFTER BEND
-############################################################
+# ----------------------------------------------------------
 
 addmodeexpansion;
 set("name","out_2p0_exp");
@@ -740,9 +990,9 @@ set("y span",4e-6);
 set("z",z_L2);
 set("z span",5e-6);
 
-############################################################
+# ----------------------------------------------------------
 # 3.0 um AFTER BEND
-############################################################
+# ----------------------------------------------------------
 
 addmodeexpansion;
 set("name","out_3p0_exp");

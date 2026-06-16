@@ -52,29 +52,26 @@ z_L1 = -(W + gap_12);
 ############################################################
 
 # PCM-loaded coupling section only
-Lc_coupling = 26.17e-6;
+Lc_coupling = 27.17e-6;
 
-# relaxation section before bend
-L_relax = 1.0e-6;
+# Plain SRN relaxation section before bend
+L_relax = 0.0e-6;
 
-# total straight length
+# Total straight L2 length before bend
 L_total_NS = Lc_coupling + L_relax;
 
-# Coupling section:
-# y_NS_start -> y_cpl_stop
-#
-# Relaxation section:
-# y_cpl_stop -> y_NS_stop
-#
-# Bend starts at y_NS_stop = -R
-
+# Bend starts at y = -R
 y_NS_stop  = -R;
+
+# PCM coupling ends L_relax um before bend
 y_cpl_stop = y_NS_stop - L_relax;
+
+# Coupling starts here
 y_NS_start = y_cpl_stop - Lc_coupling;
 
 # Bend output
 x_out_start = R;
-x_out_stop  = R + 4e-6;
+x_out_stop  = R + 6e-6;
 
 ############################################################
 # DOMAIN

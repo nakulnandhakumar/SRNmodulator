@@ -35,8 +35,8 @@ pad_z      = 2e-6;
 
 overlap_safe = 30e-9;
 
-pcm_mat_coupler = "SBS Crystalline";
-pcm_mat_bus = "SBS Crystalline";
+pcm_mat_coupler = "SiO2 (Glass) - Palik";
+pcm_mat_bus = "SiO2 (Glass) - Palik";
 
 ############################################################
 # LAYER POSITIONS

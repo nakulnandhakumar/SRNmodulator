@@ -295,44 +295,69 @@ set("dz",35e-9);
 # BEND + TRANSITION MESH
 ############################################################
 
-addmesh;
-set("name","mesh_bend");
+# addmesh;
+# set("name","mesh_bend");
 
-set("x",R/2);
-set("x span",R + 5e-6);
+# set("x",R/2);
+# set("x span",R + 5e-6);
 
-set("y",-R/2);
-set("y span",R + 5e-6);
+# set("y",-R/2);
+# set("y span",R + 5e-6);
 
-set("z",z_L2);
-set("z span",W + 1.0e-6);
+# set("z",z_L2);
+# set("z span",W + 1.0e-6);
 
-set("dx",25e-9);
-set("dy",25e-9);
-set("dz",25e-9);
+# set("dx",25e-9);
+# set("dy",25e-9);
+# set("dz",25e-9);
 
 ############################################################
 # MODE SOURCE
 ############################################################
 
+# y_src = y_min + 1e-6;
+
+# addmode;
+# set("name","source");
+# set("injection axis","y");
+# set("direction","forward");
+
+# set("x",0);
+# set("x span",H + 400e-9);
+
+# set("y",y_src);
+
+# set("z",z_L1);
+# set("z span",W + 400e-9);
+
+# set("center wavelength",lambda0);
+# set("wavelength span",0);
+# set("mode selection","fundamental TM mode");
+
+############################################################
+# PORT 1 (INPUT BUS)
+############################################################
+
 y_src = y_min + 1e-6;
 
-addmode;
-set("name","source");
-set("injection axis","y");
+addport;
+set("name","port_in");
+
+set("injection axis","y-axis");
 set("direction","forward");
 
 set("x",0);
-set("x span",H + 400e-9);
+set("x span",1.2e-6);
 
 set("y",y_src);
 
 set("z",z_L1);
-set("z span",W + 400e-9);
+set("z span",1.2e-6);
 
-set("center wavelength",lambda0);
-set("wavelength span",0);
 set("mode selection","fundamental TM mode");
+
+# excitation port
+set("source port",1);
 
 ############################################################
 # SOURCE CHECK FIELD
@@ -767,6 +792,26 @@ set("z",z_L2);
 set("z span",5e-6);
 
 ############################################################
+# PORT 2 : BEND EXIT
+############################################################
+
+addport;
+set("name","port_bend_exit");
+
+set("injection axis","x-axis");
+set("direction","forward");
+
+set("x",R);
+
+set("y",0);
+set("y span",1.2e-6);
+
+set("z",z_L2);
+set("z span",1.2e-6);
+
+set("mode selection","fundamental TM mode");
+
+############################################################
 # OUTPUT STRAIGHT EVOLUTION MONITORS
 ############################################################
 
@@ -947,6 +992,26 @@ set("z",z_L2);
 set("z span",5e-6);
 
 # ----------------------------------------------------------
+# PORT 3 : 1 um INTO OUTPUT STRAIGHT
+# ----------------------------------------------------------
+
+addport;
+set("name","port_out_1um");
+
+set("injection axis","x-axis");
+set("direction","forward");
+
+set("x",R + 1e-6);
+
+set("y",0);
+set("y span",1.2e-6);
+
+set("z",z_L2);
+set("z span",1.2e-6);
+
+set("mode selection","fundamental TM mode");
+
+# ----------------------------------------------------------
 # 1.5 um AFTER BEND
 # ----------------------------------------------------------
 
@@ -1071,6 +1136,40 @@ set("y span",4e-6);
 
 set("z",z_L2);
 set("z span",5e-6);
+
+############################################################
+# XZ MOVIE + FIELD THROUGH BEND EXIT / OUTPUT STRAIGHT
+############################################################
+
+addmovie;
+set("name","output_xz_movie");
+set("monitor type","2D Y-normal");
+set("simulation type", "3D");
+set("field component","Ez");
+set("TM field component","Ez");
+
+# fixed y slice through center of output waveguide
+set("y",0);
+
+# start slightly before bend exit and continue into straight
+set("x",R - 0.5e-6);
+set("x span",2.0e-6);
+
+# include both layers and surrounding cladding
+set("z",z_L2);
+set("z span",2.0e-6);
+
+addprofile;
+set("name","output_xz_profile");
+set("monitor type","2D Y-normal");
+
+set("y",0);
+
+set("x",R-0.5e-6);
+set("x span",2e-6);
+
+set("z",z_L2);
+set("z span",2e-6);
 
 ############################################################
 # XY FIELD SLICE THROUGH JUST BEND REGION

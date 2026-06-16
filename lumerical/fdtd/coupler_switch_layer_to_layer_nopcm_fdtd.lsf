@@ -50,7 +50,7 @@ z_L1 = -(W + gap_12);
 ############################################################
 
 # PCM-loaded coupling section only
-Lc_coupling = 46.18e-6;
+Lc_coupling = 14.0e-6;
 
 # Plain SRN relaxation section before bend
 L_relax = 0.0e-6;

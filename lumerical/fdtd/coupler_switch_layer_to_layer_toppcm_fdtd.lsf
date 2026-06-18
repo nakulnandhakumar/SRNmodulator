@@ -355,9 +355,11 @@ set("z",z_L1);
 set("z span",1.2e-6);
 
 set("mode selection","fundamental TM mode");
+set("number of trial modes", 4);
 
-# excitation port
-set("source port",1);
+# set excitation port to port_in
+select("FDTD::ports");
+set("source port","port_in");
 
 ############################################################
 # SOURCE CHECK FIELD
@@ -810,6 +812,8 @@ set("z",z_L2);
 set("z span",1.2e-6);
 
 set("mode selection","fundamental TM mode");
+set("number of trial modes", 4);
+
 
 ############################################################
 # OUTPUT STRAIGHT EVOLUTION MONITORS
@@ -1010,6 +1014,8 @@ set("z",z_L2);
 set("z span",1.2e-6);
 
 set("mode selection","fundamental TM mode");
+set("number of trial modes", 4);
+
 
 # ----------------------------------------------------------
 # 1.5 um AFTER BEND

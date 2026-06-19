@@ -392,6 +392,111 @@ set("z",z_L1);
 set("z span",1.2e-6);
 
 ############################################################
+# L1 BUS MONITORS BELOW COUPLER
+# (reverse-launch coupled power measurement)
+############################################################
+
+y_L1_m1 = y_NS_start - 2e-6;
+y_L1_m2 = y_NS_start - 4e-6;
+y_L1_m3 = y_NS_start - 6e-6;
+
+# ----------------------------------------------------------
+# 3 um BEFORE COUPLER START
+# ----------------------------------------------------------
+
+addmodeexpansion;
+set("name","L1_minus3um_exp");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.2e-6);
+
+set("y",y_L1_m3);
+
+set("z",z_L1);
+set("z span",1.2e-6);
+
+set("mode selection","fundamental TM mode");
+
+addprofile;
+set("name","L1_minus3um_field");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",2.5e-6);
+
+set("y",y_L1_m3);
+
+set("z",z_L1);
+set("z span",2.5e-6);
+
+# ----------------------------------------------------------
+# 2 um BEFORE COUPLER START
+# ----------------------------------------------------------
+
+addmodeexpansion;
+set("name","L1_minus2um_exp");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.2e-6);
+
+set("y",y_L1_m2);
+
+set("z",z_L1);
+set("z span",1.2e-6);
+
+set("mode selection","fundamental TM mode");
+
+addprofile;
+set("name","L1_minus2um_field");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",2.5e-6);
+
+set("y",y_L1_m2);
+
+set("z",z_L1);
+set("z span",2.5e-6);
+
+# ----------------------------------------------------------
+# 1 um BEFORE COUPLER START
+# ----------------------------------------------------------
+
+addmodeexpansion;
+set("name","L1_minus1um_exp");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.2e-6);
+
+set("y",y_L1_m1);
+
+set("z",z_L1);
+set("z span",1.2e-6);
+
+set("mode selection","fundamental TM mode");
+
+addprofile;
+set("name","L1_minus1um_field");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",2.5e-6);
+
+set("y",y_L1_m1);
+
+set("z",z_L1);
+set("z span",2.5e-6);
+
+############################################################
 # COUPLING EVOLUTION MONITORS
 ############################################################
 
@@ -451,111 +556,6 @@ set("y",y_end_monitor);
 
 set("z",0.5*(z_L1+z_L2));
 set("z span",2.0e-6);
-
-############################################################
-# L1 BUS MONITORS BELOW COUPLER
-# (reverse-launch coupled power measurement)
-############################################################
-
-y_L1_m1 = y_NS_start - 2e-6;
-y_L1_m2 = y_NS_start - 4e-6;
-y_L1_m3 = y_NS_start - 6e-6;
-
-# ----------------------------------------------------------
-# 1 um BEFORE COUPLER START
-# ----------------------------------------------------------
-
-addmodeexpansion;
-set("name","L1_minus1um_exp");
-
-set("monitor type","2D Y-normal");
-
-set("x",0);
-set("x span",1.2e-6);
-
-set("y",y_L1_m1);
-
-set("z",z_L1);
-set("z span",1.2e-6);
-
-set("mode selection","fundamental TM mode");
-
-addprofile;
-set("name","L1_minus1um_field");
-
-set("monitor type","2D Y-normal");
-
-set("x",0);
-set("x span",2.5e-6);
-
-set("y",y_L1_m1);
-
-set("z",z_L1);
-set("z span",2.5e-6);
-
-# ----------------------------------------------------------
-# 2 um BEFORE COUPLER START
-# ----------------------------------------------------------
-
-addmodeexpansion;
-set("name","L1_minus2um_exp");
-
-set("monitor type","2D Y-normal");
-
-set("x",0);
-set("x span",1.2e-6);
-
-set("y",y_L1_m2);
-
-set("z",z_L1);
-set("z span",1.2e-6);
-
-set("mode selection","fundamental TM mode");
-
-addprofile;
-set("name","L1_minus2um_field");
-
-set("monitor type","2D Y-normal");
-
-set("x",0);
-set("x span",2.5e-6);
-
-set("y",y_L1_m2);
-
-set("z",z_L1);
-set("z span",2.5e-6);
-
-# ----------------------------------------------------------
-# 3 um BEFORE COUPLER START
-# ----------------------------------------------------------
-
-addmodeexpansion;
-set("name","L1_minus3um_exp");
-
-set("monitor type","2D Y-normal");
-
-set("x",0);
-set("x span",1.2e-6);
-
-set("y",y_L1_m3);
-
-set("z",z_L1);
-set("z span",1.2e-6);
-
-set("mode selection","fundamental TM mode");
-
-addprofile;
-set("name","L1_minus3um_field");
-
-set("monitor type","2D Y-normal");
-
-set("x",0);
-set("x span",2.5e-6);
-
-set("y",y_L1_m3);
-
-set("z",z_L1);
-set("z span",2.5e-6);
 
 ############################################################
 # POWER AT END OF COUPLING REGION
@@ -680,6 +680,28 @@ set("y",y_NS_stop);
 set("z",z_L2);
 set("z span",0.8e-6);
 
+# ----------------------------------------------------------
+# PORT : BEFORE BEND
+# ----------------------------------------------------------
+
+addport;
+set("name","port_pre_bend");
+
+set("injection axis","y-axis");
+set("direction","backward");
+
+set("x",0);
+
+set("y",y_NS_stop - 0.5e-6);
+
+set("x span",1.2e-6);
+
+set("z",z_L2);
+set("z span",1.2e-6);
+
+set("mode selection", "user select");
+set("selected mode numbers", [1,2,3,4]);
+
 ############################################################
 # BEND END / 90 DEG MONITOR
 # At end of bend: x = R, y = 0
@@ -722,6 +744,27 @@ set("y span",4e-6);
 
 set("z",z_L2);
 set("z span",5e-6);
+
+############################################################
+# PORT 2 : BEND EXIT
+############################################################
+
+addport;
+set("name","port_bend_exit");
+
+set("injection axis","x-axis");
+set("direction","backward");
+
+set("x",R);
+
+set("y",0);
+set("y span",1.2e-6);
+
+set("z",z_L2);
+set("z span",1.2e-6);
+
+set("mode selection", "user select");
+set("selected mode numbers", [1,2,3,4]);
 
 ############################################################
 # OUTPUT STRAIGHT EVOLUTION MONITORS
@@ -904,6 +947,27 @@ set("z",z_L2);
 set("z span",5e-6);
 
 # ----------------------------------------------------------
+# PORT 3 : 1 um INTO OUTPUT STRAIGHT
+# ----------------------------------------------------------
+
+addport;
+set("name","port_out_1um");
+
+set("injection axis","x-axis");
+set("direction","backward");
+
+set("x",R + 1e-6);
+
+set("y",0);
+set("y span",1.2e-6);
+
+set("z",z_L2);
+set("z span",1.2e-6);
+
+set("mode selection", "user select");
+set("selected mode numbers", [1,2,3,4]);
+
+# ----------------------------------------------------------
 # 1.5 um AFTER BEND
 # ----------------------------------------------------------
 
@@ -1028,6 +1092,40 @@ set("y span",4e-6);
 
 set("z",z_L2);
 set("z span",5e-6);
+
+############################################################
+# XZ MOVIE + FIELD THROUGH BEND EXIT / OUTPUT STRAIGHT
+############################################################
+
+addmovie;
+set("name","output_xz_movie");
+set("monitor type","2D Y-normal");
+set("simulation type", "3D");
+set("field component","Ez");
+set("TM field component","Ez");
+
+# fixed y slice through center of output waveguide
+set("y",0);
+
+# start slightly before bend exit and continue into straight
+set("x",R - 0.5e-6);
+set("x span",2.0e-6);
+
+# include both layers and surrounding cladding
+set("z",z_L2);
+set("z span",2.0e-6);
+
+addprofile;
+set("name","output_xz_profile");
+set("monitor type","2D Y-normal");
+
+set("y",0);
+
+set("x",R-0.5e-6);
+set("x span",2e-6);
+
+set("z",z_L2);
+set("z span",2e-6);
 
 ############################################################
 # XY FIELD SLICE THROUGH JUST BEND REGION

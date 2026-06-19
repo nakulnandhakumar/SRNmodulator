@@ -355,8 +355,8 @@ set("y",y_src);
 set("z",z_L1);
 set("z span",1.2e-6);
 
-set("mode selection","fundamental TM mode");
-# set("number of trial modes", 4);
+set("mode selection", "user select");
+set("selected mode numbers", [1,2,3,4]);
 
 # set excitation port to port_in
 select("FDTD::ports");
@@ -759,7 +759,7 @@ addport;
 set("name","port_pre_bend");
 
 set("injection axis","y-axis");
-set("direction","forward");
+set("direction","backward");
 
 set("x",0);
 
@@ -770,8 +770,8 @@ set("x span",1.2e-6);
 set("z",z_L2);
 set("z span",1.2e-6);
 
-set("mode selection","fundamental TM mode");
-# set("number of trial modes",4);
+set("mode selection", "user select");
+set("selected mode numbers", [1,2,3,4]);
 
 ############################################################
 # BEND END / 90 DEG MONITOR
@@ -824,7 +824,7 @@ addport;
 set("name","port_bend_exit");
 
 set("injection axis","x-axis");
-set("direction","forward");
+set("direction","backward");
 
 set("x",R);
 
@@ -834,8 +834,8 @@ set("y span",1.2e-6);
 set("z",z_L2);
 set("z span",1.2e-6);
 
-set("mode selection","fundamental TM mode");
-# set("number of trial modes", 4);
+set("mode selection", "user select");
+set("selected mode numbers", [1,2,3,4]);
 
 ############################################################
 # OUTPUT STRAIGHT EVOLUTION MONITORS
@@ -1025,7 +1025,7 @@ addport;
 set("name","port_out_1um");
 
 set("injection axis","x-axis");
-set("direction","forward");
+set("direction","backward");
 
 set("x",R + 1e-6);
 
@@ -1035,8 +1035,8 @@ set("y span",1.2e-6);
 set("z",z_L2);
 set("z span",1.2e-6);
 
-set("mode selection","fundamental TM mode");
-# set("number of trial modes", 4);
+set("mode selection", "user select");
+set("selected mode numbers", [1,2,3,4]);
 
 # ----------------------------------------------------------
 # 1.5 um AFTER BEND

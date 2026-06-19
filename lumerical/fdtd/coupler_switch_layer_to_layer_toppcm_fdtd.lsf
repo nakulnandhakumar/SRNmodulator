@@ -53,7 +53,7 @@ z_L1 = -(W + gap_12);
 Lc_coupling = 46.18e-6;
 
 # Plain SRN relaxation section before bend
-L_relax = 0.0e-6;
+L_relax = 1.0e-6;
 
 # Total straight L2 length before bend
 L_total_NS = Lc_coupling + L_relax;
@@ -486,7 +486,7 @@ set("x span",1.2e-6);
 set("y",y_L1_m3);
 
 set("z",z_L1);
-set("z span",1.2e-6);
+set("z span",0.7e-6);
 
 set("mode selection","fundamental TM mode");
 
@@ -513,7 +513,7 @@ set("name","L1_minus2um_exp");
 set("monitor type","2D Y-normal");
 
 set("x",0);
-set("x span",1.2e-6);
+set("x span",0.7e-6);
 
 set("y",y_L1_m2);
 
@@ -550,7 +550,7 @@ set("x span",1.2e-6);
 set("y",y_L1_m1);
 
 set("z",z_L1);
-set("z span",1.2e-6);
+set("z span",0.7e-6);
 
 set("mode selection","fundamental TM mode");
 
@@ -663,7 +663,7 @@ set("x span",1.2e-6);
 set("y",y_cpl_stop);
 
 set("z",z_L2);
-set("z span",0.8e-6);
+set("z span",0.7e-6);
 
 addmodeexpansion;
 set("name","coupling_end_coupler_exp");
@@ -675,7 +675,7 @@ set("x span",1.2e-6);
 set("y",y_cpl_stop);
 
 set("z",z_L2);
-set("z span",1.2e-6);
+set("z span",0.7e-6);
 
 set("mode selection","fundamental TM mode");
 
@@ -690,6 +690,28 @@ set("y",y_cpl_stop);
 
 set("z",z_L2);
 set("z span",1.2e-6);
+
+# ----------------------------------------------------------
+# PORT : BEFORE PCM END
+# ----------------------------------------------------------
+
+addport;
+set("name","port_pre_pcm_end");
+
+set("injection axis","y-axis");
+set("direction","backward");
+
+set("x",0);
+
+set("y",y_cpl_stop - 0.2e-6);
+
+set("x span",1.2e-6);
+
+set("z",z_L2);
+set("z span",0.7e-6);
+
+set("mode selection","user select");
+set("selected mode numbers",[1,2,3,4]);
 
 ############################################################
 # MASSIVE POWER MONITOR BEFORE BEND START
@@ -749,10 +771,10 @@ set("x span",1.2e-6);
 set("y",y_NS_stop);
 
 set("z",z_L2);
-set("z span",0.8e-6);
+set("z span",0.7e-6);
 
 # ----------------------------------------------------------
-# PORT : BEFORE BEND
+# PORT : JUST BEFORE BEND
 # ----------------------------------------------------------
 
 addport;
@@ -763,12 +785,12 @@ set("direction","backward");
 
 set("x",0);
 
-set("y",y_NS_stop - 0.5e-6);
+set("y",y_NS_stop - 0.2e-6);
 
 set("x span",1.2e-6);
 
 set("z",z_L2);
-set("z span",1.2e-6);
+set("z span",0.7e-6);
 
 set("mode selection", "user select");
 set("selected mode numbers", [1,2,3,4]);

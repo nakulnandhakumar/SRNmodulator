@@ -23,7 +23,7 @@ H = 350e-9;
 gap_12 = 280e-9;
 t_pcm = 40e-9;
 t_gap_pcm = 0e-9;
-R = 15e-6;
+R = 50e-6;
 
 mat_core = "SRN (Silicon Rich Nitride)";
 mat_clad = "SiO2 (Glass) - Palik";
@@ -31,7 +31,7 @@ mat_clad = "SiO2 (Glass) - Palik";
 pad_input  = 10e-6;
 pad_output = 6e-6;
 pad_side   = 2e-6;
-pad_z      = 2e-6;
+pad_z      = 1e-6;
 
 overlap_safe = 30e-9;
 
@@ -68,7 +68,8 @@ y_cpl_stop = y_NS_stop - L_relax;
 y_NS_start = y_cpl_stop - Lc_coupling;
 
 # Bend output
-x_out_start = R;
+# Start output straight slightly inside bend end to avoid seam/gap/interface ambiguity
+x_out_start = R - overlap_safe;
 x_out_stop  = R + 6e-6;
 
 ############################################################
@@ -742,7 +743,7 @@ set("monitor type","2D Y-normal");
 set("x",0);
 set("x span",1.2e-6);
 
-set("y",y_NS_stop);
+set("y",y_NS_stop - 0.2e-6);
 
 set("z",z_L2);
 set("z span",0.7e-6);
@@ -756,7 +757,7 @@ set("monitor type","2D Y-normal");
 set("x",0);
 set("x span",1.2e-6);
 
-set("y",y_NS_stop);
+set("y",y_NS_stop - 0.2e-6);
 
 set("z",z_L2);
 set("z span",1.2e-6);
@@ -768,7 +769,7 @@ set("monitor type","2D Y-normal");
 set("x",0);
 set("x span",1.2e-6);
 
-set("y",y_NS_stop);
+set("y",y_NS_stop - 0.2e-6);
 
 set("z",z_L2);
 set("z span",0.7e-6);
@@ -797,14 +798,16 @@ set("selected mode numbers", [1,2,3,4]);
 
 ############################################################
 # BEND END / 90 DEG MONITOR
-# At end of bend: x = R, y = 0
+# At end of bend: x = R + 0.1e-6, y = 0
 ############################################################
+
+x_bend_exit_meas = R + 0.1e-6;
 
 addmodeexpansion;
 set("name","bend_90deg_end_exp");
 set("monitor type","2D X-normal");
 
-set("x",R);
+set("x",x_bend_exit_meas);
 
 set("y",0);
 set("y span",1.2e-6);
@@ -818,7 +821,7 @@ addprofile;
 set("name","bend_90deg_end_field");
 set("monitor type","2D X-normal");
 
-set("x",R);
+set("x",x_bend_exit_meas);
 
 set("y",0);
 set("y span",1.2e-6);
@@ -830,7 +833,7 @@ addpower;
 set("name","bend_90deg_end_power");
 set("monitor type","2D X-normal");
 
-set("x",R);
+set("x",x_bend_exit_meas);
 
 set("y",0);
 set("y span",4e-6);
@@ -848,7 +851,7 @@ set("name","port_bend_exit");
 set("injection axis","x-axis");
 set("direction","backward");
 
-set("x",R);
+set("x",x_bend_exit_meas);
 
 set("y",0);
 set("y span",1.2e-6);
@@ -863,55 +866,12 @@ set("selected mode numbers", [1,2,3,4]);
 # OUTPUT STRAIGHT EVOLUTION MONITORS
 ############################################################
 
-x_0p1 = R + 0.1e-6;
 x_0p25 = R + 0.25e-6;
 x_0p5 = R + 0.5e-6;
 x_1p0 = R + 1.0e-6;
 x_1p5 = R + 1.5e-6;
 x_2p0 = R + 2.0e-6;
 x_3p0 = R + 3.0e-6;
-
-# ----------------------------------------------------------
-# 0.10 um AFTER BEND
-# ----------------------------------------------------------
-
-addprofile;
-set("name","out_0p1_field");
-set("monitor type","2D X-normal");
-
-set("x",x_0p1);
-
-set("y",0);
-set("y span",2.5e-6);
-
-set("z",z_L2);
-set("z span",2.5e-6);
-
-addmodeexpansion;
-set("name","out_0p1_exp");
-set("monitor type","2D X-normal");
-
-set("x",x_0p1);
-
-set("y",0);
-set("y span",1.6e-6);
-
-set("z",z_L2);
-set("z span",1.6e-6);
-
-set("mode selection","fundamental TM mode");
-
-addpower;
-set("name","out_0p1_power");
-set("monitor type","2D X-normal");
-
-set("x",x_0p1);
-
-set("y",0);
-set("y span",5e-6);
-
-set("z",z_L2);
-set("z span",5e-6);
 
 # ----------------------------------------------------------
 # 0.25 um AFTER BEND

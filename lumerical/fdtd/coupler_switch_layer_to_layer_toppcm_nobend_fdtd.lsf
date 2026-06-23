@@ -1,0 +1,664 @@
+############################################################
+# 2-LAYER INTERPOSER
+# Layer 1 = NS bus
+# Layer 2 = routed coupler + bend
+#
+# x = WE
+# y = NS
+# z = vertical
+############################################################
+
+switchtolayout;
+deleteall;
+
+############################################################
+# PARAMETERS
+############################################################
+
+lambda0 = 1.55e-6;
+
+W = 450e-9;
+H = 350e-9;
+
+gap_12 = 280e-9;
+t_pcm = 40e-9;
+t_gap_pcm = 0e-9;
+
+mat_core = "SRN (Silicon Rich Nitride)";
+mat_clad = "SiO2 (Glass) - Palik";
+
+pad_input  = 10e-6;
+pad_output = 6e-6;
+pad_side   = 2e-6;
+pad_z      = 1e-6;
+
+overlap_safe = 30e-9;
+
+pcm_mat_coupler = "SBS Crystalline";
+pcm_mat_bus = "SBS Crystalline";
+
+############################################################
+# LAYER POSITIONS
+############################################################
+
+z_L2 = 0;
+z_L1 = -(W + gap_12);
+
+z_top = z_L2 + W/2 + t_gap_pcm + t_pcm;
+z_bot = z_L1 - W/2 - t_gap_pcm - t_pcm;
+
+############################################################
+# ROUTING GEOMETRY
+############################################################
+
+# PCM-loaded coupling section only
+Lc_coupling = 46.18e-6;
+
+# Plain SRN relaxation section before bend
+L_relax = 0e-6;
+
+L_post = 6e-6;
+
+y_NS_start = 0;
+y_cpl_stop = y_NS_start + Lc_coupling;
+
+y_post_start = y_cpl_stop;
+y_post_stop  = y_cpl_stop + L_post;
+
+############################################################
+# DOMAIN
+############################################################
+
+x_min = -pad_side;
+x_max =  pad_side;
+
+y_min = y_NS_start - pad_input;
+y_max = y_post_stop + pad_output;
+
+z_min = z_bot - pad_z;
+z_max = z_top + pad_z;
+
+x_center = 0.5*(x_min+x_max);
+y_center = 0.5*(y_min+y_max);
+z_center = 0.5*(z_min + z_max);
+
+x_span_total = x_max - x_min;
+y_span_total = y_max - y_min;
+z_span_total = z_max - z_min;
+
+z_span_total = 2*W + gap_12 + 2*t_pcm + 2*pad_z;
+
+############################################################
+# EXTENDED GEOMETRY REGION
+# Geometry extends beyond FDTD/PML
+############################################################
+
+geo_extra = 3e-6;
+
+x_geo_min = x_min - geo_extra;
+x_geo_max = x_max + geo_extra;
+
+y_geo_min = y_min - geo_extra;
+y_geo_max = y_max + geo_extra;
+
+x_geo_center = 0.5*(x_geo_min+x_geo_max);
+y_geo_center = 0.5*(y_geo_min+y_geo_max);
+
+x_geo_span = x_geo_max - x_geo_min;
+y_geo_span = y_geo_max - y_geo_min;
+
+############################################################
+# BACKGROUND
+############################################################
+
+addrect;
+set("name","cladding");
+set("material",mat_clad);
+
+set("x",x_geo_center);
+set("x span",x_geo_span);
+
+set("y",y_geo_center);
+set("y span",y_geo_span);
+
+set("z",0);
+set("z span",z_span_total + 2*geo_extra);
+
+############################################################
+# LAYER 1 BUS
+############################################################
+
+addrect;
+set("name","L1_bus");
+set("material",mat_core);
+
+set("x",0);
+set("x span",H);
+
+set("y",0.5*(y_geo_min+y_cpl_stop));
+set("y span",y_cpl_stop-y_geo_min);
+
+set("z",z_L1);
+set("z span",W);
+
+############################################################
+# LAYER 2 STRAIGHT COUPLER + RELAXATION STRAIGHT
+############################################################
+
+addrect;
+set("name","L2_NS");
+set("material",mat_core);
+
+set("x",0);
+set("x span",H);
+
+set("y",0.5*(y_NS_start+y_geo_max));
+set("y span",y_geo_max-y_NS_start);
+
+set("z",z_L2);
+set("z span",W);
+
+############################################################
+# PCM ABOVE COUPLER + BELOW BUS
+############################################################
+
+# ----------------------------------------------------------
+# Coupler PCM (TOP of upper waveguide)
+# ----------------------------------------------------------
+
+z_pcm_coupler = z_L2 + W/2 + t_gap_pcm + t_pcm/2;
+
+addrect;
+set("name","pcm_L2");
+set("material",pcm_mat_coupler);
+
+set("x",0);
+set("x span",H);
+
+set("y",0.5*(y_NS_start+y_cpl_stop));
+set("y span",Lc_coupling);
+
+set("z",z_pcm_coupler);
+set("z span",t_pcm);
+
+# ----------------------------------------------------------
+# Bus PCM (BOTTOM of lower waveguide)
+# ----------------------------------------------------------
+
+z_pcm_bus = z_L1 - W/2 - t_gap_pcm - t_pcm/2;
+
+addrect;
+set("name","pcm_L1");
+set("material",pcm_mat_bus);
+
+set("x",0);
+set("x span",H);
+
+set("y",0.5*(y_NS_start+y_cpl_stop));
+set("y span",Lc_coupling);
+
+set("z",z_pcm_bus);
+set("z span",t_pcm);
+
+############################################################
+# FDTD
+############################################################
+
+addfdtd;
+
+set("dimension","3D");
+
+set("x",x_center);
+set("x span",x_span_total);
+
+set("y",y_center);
+set("y span",y_span_total);
+
+set("z",z_center);
+set("z span",z_span_total);
+
+set("x min bc","PML");
+set("x max bc","PML");
+
+set("y min bc","PML");
+set("y max bc","PML");
+
+set("z min bc","PML");
+set("z max bc","PML");
+
+set("mesh accuracy",2);
+
+set("set simulation bandwidth", 1);
+set("simulation wavelength min",lambda0);
+set("simulation wavelength max",lambda0);
+
+############################################################
+# COUPLING REGION MESH
+############################################################
+
+addmesh;
+set("name","mesh_coupler");
+
+set("x",0);
+set("x span",H + 2*t_pcm + 0.4e-6);
+
+set("y",0.5*(y_NS_start+y_post_stop));
+set("y span",(y_post_stop-y_NS_start)+1e-6);
+
+set("z",0.5*(z_L1+z_L2));
+set("z span",2*W + gap_12 + 2*t_pcm + 2*t_gap_pcm + 0.3e-6);
+
+set("dx",40e-9);
+set("dy",40e-9);
+set("dz",35e-9);
+
+############################################################
+# MODE SOURCE
+############################################################
+
+# y_src = y_min + 1e-6;
+
+# addmode;
+# set("name","source");
+# set("injection axis","y");
+# set("direction","forward");
+
+# set("x",0);
+# set("x span",H + 400e-9);
+
+# set("y",y_src);
+
+# set("z",z_L1);
+# set("z span",W + 400e-9);
+
+# set("center wavelength",lambda0);
+# set("wavelength span",0);
+# set("mode selection","fundamental TM mode");
+
+############################################################
+# PORT 1 (INPUT BUS)
+############################################################
+
+y_src = y_min + 1e-6;
+
+addport;
+set("name","port_in");
+
+set("injection axis","y-axis");
+set("direction","forward");
+
+set("x",0);
+set("x span",1.2e-6);
+
+set("y",y_src);
+
+set("z",z_L1);
+set("z span",1.2e-6);
+
+set("mode selection", "user select");
+set("selected mode numbers", [1,2,3,4]);
+
+# set excitation port to port_in
+select("FDTD::ports");
+set("source port","port_in");
+
+############################################################
+# SOURCE CHECK FIELD
+############################################################
+
+addprofile;
+set("name","source_check");
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.2e-6);
+
+set("y",y_src + 1e-6);
+
+set("z",z_L1);
+set("z span",1.6e-6);
+
+############################################################
+# L1 BUS MONITORS BELOW COUPLER
+# (reverse-launch coupled power measurement)
+############################################################
+
+y_L1_m1 = y_NS_start - 2e-6;
+y_L1_m2 = y_NS_start - 4e-6;
+y_L1_m3 = y_NS_start - 6e-6;
+
+# ----------------------------------------------------------
+# 3 um BEFORE COUPLER START
+# ----------------------------------------------------------
+
+addmodeexpansion;
+set("name","L1_minus3um_exp");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.2e-6);
+
+set("y",y_L1_m3);
+
+set("z",z_L1);
+set("z span",0.7e-6);
+
+set("mode selection","fundamental TM mode");
+
+addprofile;
+set("name","L1_minus3um_field");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",2.5e-6);
+
+set("y",y_L1_m3);
+
+set("z",z_L1);
+set("z span",2.5e-6);
+
+# ----------------------------------------------------------
+# 2 um BEFORE COUPLER START
+# ----------------------------------------------------------
+
+addmodeexpansion;
+set("name","L1_minus2um_exp");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",0.7e-6);
+
+set("y",y_L1_m2);
+
+set("z",z_L1);
+set("z span",1.2e-6);
+
+set("mode selection","fundamental TM mode");
+
+addprofile;
+set("name","L1_minus2um_field");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",2.5e-6);
+
+set("y",y_L1_m2);
+
+set("z",z_L1);
+set("z span",2.5e-6);
+
+# ----------------------------------------------------------
+# 1 um BEFORE COUPLER START
+# ----------------------------------------------------------
+
+addmodeexpansion;
+set("name","L1_minus1um_exp");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.2e-6);
+
+set("y",y_L1_m1);
+
+set("z",z_L1);
+set("z span",0.7e-6);
+
+set("mode selection","fundamental TM mode");
+
+addprofile;
+set("name","L1_minus1um_field");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",2.5e-6);
+
+set("y",y_L1_m1);
+
+set("z",z_L1);
+set("z span",2.5e-6);
+
+############################################################
+# COUPLING EVOLUTION MONITORS
+############################################################
+
+# ----------------------------------------------------------
+# 1) START OF COUPLING REGION (JUST AFTER COUPLER START)
+# ----------------------------------------------------------
+
+y_start_monitor = y_NS_start + 0.5e-6;
+
+addprofile;
+set("name","field_start");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.6e-6);
+
+set("y",y_start_monitor);
+
+set("z",0.5*(z_L1+z_L2));
+set("z span",2.0e-6);
+
+# ----------------------------------------------------------
+# 2) HALFWAY THROUGH COUPLER
+# ----------------------------------------------------------
+
+y_mid_monitor = 0.5*(y_NS_start + y_cpl_stop);
+
+addprofile;
+set("name","field_mid");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.6e-6);
+
+set("y",y_mid_monitor);
+
+set("z",0.5*(z_L1+z_L2));
+set("z span",2.0e-6);
+
+# ----------------------------------------------------------
+# 3) END OF STRAIGHT COUPLER (JUST BEFORE BEND)
+# ----------------------------------------------------------
+
+y_end_monitor = y_cpl_stop - 0.5e-6;
+
+addprofile;
+set("name","field_end");
+
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.6e-6);
+
+set("y",y_end_monitor);
+
+set("z",0.5*(z_L1+z_L2));
+set("z span",2.0e-6);
+
+############################################################
+# POWER AT END OF COUPLING REGION
+# BEFORE RELAXATION SECTION
+############################################################
+
+# ----------------------------------------------------------
+# TOTAL POWER AT END OF COUPLING REGION
+# ----------------------------------------------------------
+
+addpower;
+set("name","coupling_end_total_power");
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.8e-6);
+
+set("y",y_cpl_stop);
+
+set("z",0.5*(z_L1+z_L2));
+set("z span",2*W + gap_12 + 1.0e-6);
+
+# ----------------------------------------------------------
+# COUPLER FIELD AND POWER AT END OF COUPLING REGION
+# ----------------------------------------------------------
+
+addpower;
+set("name","coupling_end_coupler_power");
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.2e-6);
+
+set("y",y_cpl_stop);
+
+set("z",z_L2);
+set("z span",0.7e-6);
+
+addmodeexpansion;
+set("name","coupling_end_coupler_exp");
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.2e-6);
+
+set("y",y_cpl_stop);
+
+set("z",z_L2);
+set("z span",0.7e-6);
+
+set("mode selection","fundamental TM mode");
+
+addprofile;
+set("name","coupling_end_coupler_field");
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.2e-6);
+
+set("y",y_cpl_stop);
+
+set("z",z_L2);
+set("z span",1.2e-6);
+
+# ----------------------------------------------------------
+# PORT : BEFORE PCM END
+# ----------------------------------------------------------
+
+addport;
+set("name","port_pre_pcm_end");
+
+set("injection axis","y-axis");
+set("direction","backward");
+
+set("x",0);
+
+set("y",y_cpl_stop - 0.2e-6);
+
+set("x span",1.2e-6);
+
+set("z",z_L2);
+set("z span",0.7e-6);
+
+set("mode selection","user select");
+set("selected mode numbers",[1,2,3,4]);
+
+############################################################
+# MASSIVE POWER MONITOR BEFORE STRAIGHT START
+# Captures BOTH L1 bus + L2 coupler before output straight
+############################################################
+
+addpower;
+set("name","pre_straight_total_power");
+set("monitor type","2D Y-normal");
+
+set("x",0);
+set("x span",1.8e-6);
+
+set("y",y_cpl_stop - 0.2e-6);
+
+set("z",0.5*(z_L1+z_L2));
+set("z span",2*W + gap_12 + 1.0e-6);
+
+############################################################
+# OUTPUT STRAIGHT PORTS
+############################################################
+
+y_0p1 = y_cpl_stop + 0.1e-6;
+y_1p0 = y_cpl_stop + 1.0e-6;
+y_5p0 = y_cpl_stop + 5.0e-6;
+
+# ----------------------------------------------------------
+# 0.1 um AFTER COUPLER END
+# ----------------------------------------------------------
+
+addport;
+set("name","port_post_0p1um");
+
+set("injection axis","y-axis");
+set("direction","backward");
+
+set("x",0);
+set("y",y_0p1);
+
+set("x span",1.2e-6);
+
+set("z",z_L2);
+set("z span",0.7e-6);
+
+set("mode selection","user select");
+set("selected mode numbers",[1,2,3,4]);
+
+# ----------------------------------------------------------
+# 1 um AFTER COUPLER END
+# ----------------------------------------------------------
+
+addport;
+set("name","port_post_1um");
+
+set("injection axis","y-axis");
+set("direction","backward");
+
+set("x",0);
+set("y",y_1p0);
+
+set("x span",1.2e-6);
+
+set("z",z_L2);
+set("z span",0.7e-6);
+
+set("mode selection","user select");
+set("selected mode numbers",[1,2,3,4]);
+
+# ----------------------------------------------------------
+# 5 um AFTER COUPLER END
+# ----------------------------------------------------------
+
+addport;
+set("name","port_post_5um");
+
+set("injection axis","y-axis");
+set("direction","backward");
+
+set("x",0);
+set("y",y_5p0);
+
+set("x span",1.2e-6);
+
+set("z",z_L2);
+set("z span",0.7e-6);
+
+set("mode selection","user select");
+set("selected mode numbers",[1,2,3,4]);
+
+############################################################
+# RUN
+############################################################
+
+# run;

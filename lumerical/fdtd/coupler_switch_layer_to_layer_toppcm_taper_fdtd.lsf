@@ -207,39 +207,97 @@ set("z span",W);
 # Coupler PCM (TOP of upper waveguide)
 # ----------------------------------------------------------
 
-z_pcm_coupler = z_L2 + W/2 + t_gap_pcm + t_pcm/2;
+L_taper_pcm = 2.0e-6;
+L_pcm_flat  = Lc_coupling - L_taper_pcm;
+
+# Slices in taper section
+N = 40;
+
+# ----------------------------------------------------------
+# Coupler PCM on TOP of L2 with 1 um stepped taper at end
+# 40 nm -> 30 nm -> 20 nm -> 10 nm -> 0 nm
+# Bottom of PCM stays touching top of L2
+# ----------------------------------------------------------
+
+z_pcm_bottom_L2 = z_L2 + W/2 + t_gap_pcm;
 
 addrect;
-set("name","pcm_L2");
+set("name","pcm_L2_main");
 set("material",pcm_mat_coupler);
 
 set("x",0);
 set("x span",H);
 
-set("y",0.5*(y_NS_start+y_cpl_stop));
-set("y span",Lc_coupling);
+set("y",0.5*(y_NS_start + (y_cpl_stop-L_taper_pcm)));
+set("y span",L_pcm_flat);
 
-set("z",z_pcm_coupler);
+set("z",z_pcm_bottom_L2 + t_pcm/2);
 set("z span",t_pcm);
+
+for(i=0:N-1){
+    frac = (N-i)/N;
+    t_i = t_pcm*frac;
+    y_i = (y_cpl_stop-L_taper_pcm) + (i+0.5)*(L_taper_pcm/N);
+
+    addrect;
+    set("name","pcm_L2_taper_"+num2str(i+1));
+    set("material",pcm_mat_coupler);
+
+    set("x",0);
+    set("x span",H);
+
+    set("y",y_i);
+    set("y span",L_taper_pcm/N);
+
+    set("z",z_L2 + W/2 + t_gap_pcm + t_i/2);
+    set("z span",t_i);
+}
 
 # ----------------------------------------------------------
 # Bus PCM (BOTTOM of lower waveguide)
 # ----------------------------------------------------------
 
-z_pcm_bus = z_L1 - W/2 - t_gap_pcm - t_pcm/2;
+# ----------------------------------------------------------
+# Bus PCM (BOTTOM of lower waveguide)
+# with matching taper
+# ----------------------------------------------------------
 
+z_pcm_bottom_L1 = z_L1 - W/2 - t_gap_pcm;
+
+# Flat section
 addrect;
-set("name","pcm_L1");
+set("name","pcm_L1_main");
 set("material",pcm_mat_bus);
 
 set("x",0);
 set("x span",H);
 
-set("y",0.5*(y_NS_start+y_cpl_stop));
-set("y span",Lc_coupling);
+set("y",0.5*(y_NS_start + (y_cpl_stop-L_taper_pcm)));
+set("y span",L_pcm_flat);
 
-set("z",z_pcm_bus);
+set("z",z_pcm_bottom_L1 - t_pcm/2);
 set("z span",t_pcm);
+
+for(i=0:N-1){
+
+    frac = (N-i)/N;
+    t_i = t_pcm*frac;
+    y_i = (y_cpl_stop-L_taper_pcm) + (i+0.5)*(L_taper_pcm/N);
+
+    addrect;
+    set("name","pcm_L1_taper_"+num2str(i+1));
+    set("material",pcm_mat_bus);
+
+    set("x",0);
+    set("x span",H);
+
+    set("y",y_i);
+    set("y span",L_taper_pcm/N);
+
+    # taper upward toward waveguide bottom
+    set("z",z_L1 - W/2 - t_gap_pcm - t_i/2);
+    set("z span",t_i);
+}
 
 ############################################################
 # FDTD

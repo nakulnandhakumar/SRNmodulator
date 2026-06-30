@@ -35,7 +35,7 @@ pad_z      = 1e-6;
 
 overlap_safe = 30e-9;
 
-pcm_mat_coupler = "SBS Crystalline";
+pcm_mat_coupler = "SBS Amorphous";
 pcm_mat_bus = "SBS Crystalline";
 
 ############################################################
@@ -270,8 +270,8 @@ set("z max bc","PML");
 set("mesh accuracy",2);
 
 set("set simulation bandwidth", 1);
-set("simulation wavelength min",lambda0);
-set("simulation wavelength max",lambda0);
+set("simulation wavelength min",1550e-9);
+set("simulation wavelength max",1550e-9);
 
 set("simulation time", 2000e-15);
 
@@ -296,50 +296,7 @@ set("dy",40e-9);
 set("dz",35e-9);
 
 ############################################################
-# BEND + TRANSITION MESH
-############################################################
-
-# addmesh;
-# set("name","mesh_bend");
-
-# set("x",R/2);
-# set("x span",R + 5e-6);
-
-# set("y",-R/2);
-# set("y span",R + 5e-6);
-
-# set("z",z_L2);
-# set("z span",W + 1.0e-6);
-
-# set("dx",25e-9);
-# set("dy",25e-9);
-# set("dz",25e-9);
-
-############################################################
-# MODE SOURCE
-############################################################
-
-# y_src = y_min + 1e-6;
-
-# addmode;
-# set("name","source");
-# set("injection axis","y");
-# set("direction","forward");
-
-# set("x",0);
-# set("x span",H + 400e-9);
-
-# set("y",y_src);
-
-# set("z",z_L1);
-# set("z span",W + 400e-9);
-
-# set("center wavelength",lambda0);
-# set("wavelength span",0);
-# set("mode selection","fundamental TM mode");
-
-############################################################
-# PORT 1 (INPUT BUS)
+# SOURCE / INPUT PORT
 ############################################################
 
 y_src = y_min + 1e-6;
@@ -382,54 +339,16 @@ set("z",z_L1);
 set("z span",1.6e-6);
 
 ############################################################
-# REVERSE MODE SOURCE
-# Launch from L2 output straight, propagating in -x direction
-############################################################
-
-# x_src = x_out_stop - 1e-6;
-
-# addmode;
-# set("name","source_reverse_L2");
-# set("injection axis","x");
-# set("direction","backward");
-
-# set("x",x_src);
-
-# set("y",0);
-# set("y span",H + 400e-9);
-
-# set("z",z_L2);
-# set("z span",W + 400e-9);
-
-# set("center wavelength",lambda0);
-# set("wavelength span",0);
-# set("mode selection","fundamental TM mode");
-
-############################################################
-# REVERSE SOURCE CHECK FIELD
-############################################################
-
-# addprofile;
-# set("name","reverse_source_check");
-# set("monitor type","2D X-normal");
-
-# set("x",x_src - 1e-6);
-
-# set("y",0);
-# set("y span",1.6e-6);
-
-# set("z",z_L2);
-# set("z span",1.6e-6);
-
-############################################################
-# THROUGH MONITOR
+# THROUGH PORT
 ############################################################
 
 y_far = y_max - 2e-6;
 
-addmodeexpansion;
-set("name","through_exp");
-set("monitor type","2D Y-normal");
+addport;
+set("name","port_through");
+
+set("injection axis","y-axis");
+set("direction","backward");
 
 set("x",0);
 set("x span",1.2e-6);
@@ -439,31 +358,8 @@ set("y",y_far);
 set("z",z_L1);
 set("z span",1.2e-6);
 
-set("mode selection","fundamental TM mode");
-
-addprofile;
-set("name","through_field");
-set("monitor type","2D Y-normal");
-
-set("x",0);
-set("x span",1.2e-6);
-
-set("y",y_far);
-
-set("z",z_L1);
-set("z span",1.2e-6);
-
-addpower;
-set("name","through_power");
-set("monitor type","2D Y-normal");
-
-set("x",0);
-set("x span",1.8e-6);
-
-set("y",y_far);
-set("z",z_L1);
-
-set("z span",1.2e-6);
+set("mode selection","user select");
+set("selected mode numbers",[1,2,3,4]);
 
 ############################################################
 # L1 BUS MONITORS BELOW COUPLER
@@ -632,149 +528,8 @@ set("z",0.5*(z_L1+z_L2));
 set("z span",2.0e-6);
 
 ############################################################
-# POWER AT END OF COUPLING REGION
-# BEFORE RELAXATION SECTION
+# BEND START / INPUT PORT
 ############################################################
-
-# ----------------------------------------------------------
-# TOTAL POWER AT END OF COUPLING REGION
-# ----------------------------------------------------------
-
-addpower;
-set("name","coupling_end_total_power");
-set("monitor type","2D Y-normal");
-
-set("x",0);
-set("x span",1.8e-6);
-
-set("y",y_cpl_stop);
-
-set("z",0.5*(z_L1+z_L2));
-set("z span",2*W + gap_12 + 1.0e-6);
-
-# ----------------------------------------------------------
-# COUPLER FIELD AND POWER AT END OF COUPLING REGION
-# ----------------------------------------------------------
-
-addpower;
-set("name","coupling_end_coupler_power");
-set("monitor type","2D Y-normal");
-
-set("x",0);
-set("x span",1.2e-6);
-
-set("y",y_cpl_stop);
-
-set("z",z_L2);
-set("z span",0.7e-6);
-
-addmodeexpansion;
-set("name","coupling_end_coupler_exp");
-set("monitor type","2D Y-normal");
-
-set("x",0);
-set("x span",1.2e-6);
-
-set("y",y_cpl_stop);
-
-set("z",z_L2);
-set("z span",0.7e-6);
-
-set("mode selection","fundamental TM mode");
-
-addprofile;
-set("name","coupling_end_coupler_field");
-set("monitor type","2D Y-normal");
-
-set("x",0);
-set("x span",1.2e-6);
-
-set("y",y_cpl_stop);
-
-set("z",z_L2);
-set("z span",1.2e-6);
-
-# ----------------------------------------------------------
-# PORT : BEFORE PCM END
-# ----------------------------------------------------------
-
-addport;
-set("name","port_pre_pcm_end");
-
-set("injection axis","y-axis");
-set("direction","backward");
-
-set("x",0);
-
-set("y",y_cpl_stop - 0.2e-6);
-
-set("x span",1.2e-6);
-
-set("z",z_L2);
-set("z span",0.7e-6);
-
-set("mode selection","user select");
-set("selected mode numbers",[1,2,3,4]);
-
-############################################################
-# MASSIVE POWER MONITOR BEFORE BEND START
-# Captures BOTH L1 bus + L2 coupler before bend
-############################################################
-
-addpower;
-set("name","bend_0deg_start_total_power");
-set("monitor type","2D Y-normal");
-
-set("x",0);
-set("x span",1.8e-6);
-
-set("y",y_NS_stop - 0.2e-6);
-
-set("z",0.5*(z_L1+z_L2));
-set("z span",2*W + gap_12 + 1.0e-6);
-
-############################################################
-# BEND START / 0 DEG MONITOR
-# At start of bend: x = 0, y = -R
-############################################################
-
-addmodeexpansion;
-set("name","bend_0deg_start_exp");
-set("monitor type","2D Y-normal");
-
-set("x",0);
-set("x span",1.2e-6);
-
-set("y",y_NS_stop - 0.2e-6);
-
-set("z",z_L2);
-set("z span",0.7e-6);
-
-set("mode selection","fundamental TM mode");
-
-addprofile;
-set("name","bend_0deg_start_field");
-set("monitor type","2D Y-normal");
-
-set("x",0);
-set("x span",1.2e-6);
-
-set("y",y_NS_stop - 0.2e-6);
-
-set("z",z_L2);
-set("z span",1.2e-6);
-
-addpower;
-set("name","bend_0deg_start_power");
-set("monitor type","2D Y-normal");
-
-set("x",0);
-set("x span",1.2e-6);
-
-set("y",y_NS_stop - 0.2e-6);
-
-set("z",z_L2);
-set("z span",0.7e-6);
 
 # ----------------------------------------------------------
 # PORT : JUST BEFORE BEND
@@ -799,53 +554,12 @@ set("mode selection", "user select");
 set("selected mode numbers", [1,2,3,4]);
 
 ############################################################
-# BEND END / 90 DEG MONITOR
-# At end of bend: x = R + 0.1e-6, y = 0
+# OUTPUT PORTS
 ############################################################
 
-x_bend_exit_meas = R + 0.1e-6;
-
-addmodeexpansion;
-set("name","bend_90deg_end_exp");
-set("monitor type","2D X-normal");
-
-set("x",x_bend_exit_meas);
-
-set("y",0);
-set("y span",1.2e-6);
-
-set("z",z_L2);
-set("z span",1.2e-6);
-
-set("mode selection","fundamental TM mode");
-
-addprofile;
-set("name","bend_90deg_end_field");
-set("monitor type","2D X-normal");
-
-set("x",x_bend_exit_meas);
-
-set("y",0);
-set("y span",1.2e-6);
-
-set("z",z_L2);
-set("z span",1.2e-6);
-
-addpower;
-set("name","bend_90deg_end_power");
-set("monitor type","2D X-normal");
-
-set("x",x_bend_exit_meas);
-
-set("y",0);
-set("y span",4e-6);
-
-set("z",z_L2);
-set("z span",5e-6);
-
-############################################################
-# PORT 2 : BEND EXIT
-############################################################
+# ----------------------------------------------------------
+# PORT : BEND EXIT
+# ----------------------------------------------------------
 
 addport;
 set("name","port_bend_exit");
@@ -864,145 +578,8 @@ set("z span",1.2e-6);
 set("mode selection", "user select");
 set("selected mode numbers", [1,2,3,4]);
 
-############################################################
-# OUTPUT STRAIGHT EVOLUTION MONITORS
-############################################################
-
-x_0p25 = R + 0.25e-6;
-x_0p5 = R + 0.5e-6;
-x_1p0 = R + 1.0e-6;
-x_1p5 = R + 1.5e-6;
-x_2p0 = R + 2.0e-6;
-x_3p0 = R + 3.0e-6;
-
 # ----------------------------------------------------------
-# 0.25 um AFTER BEND
-# ----------------------------------------------------------
-
-addprofile;
-set("name","out_0p25_field");
-set("monitor type","2D X-normal");
-
-set("x",x_0p25);
-
-set("y",0);
-set("y span",2.5e-6);
-
-set("z",z_L2);
-set("z span",2.5e-6);
-
-addmodeexpansion;
-set("name","out_0p25_exp");
-set("monitor type","2D X-normal");
-
-set("x",x_0p25);
-
-set("y",0);
-set("y span",1.6e-6);
-
-set("z",z_L2);
-set("z span",1.6e-6);
-
-set("mode selection","fundamental TM mode");
-
-addpower;
-set("name","out_0p25_power");
-set("monitor type","2D X-normal");
-
-set("x",x_0p25);
-
-set("y",0);
-set("y span",5e-6);
-
-set("z",z_L2);
-set("z span",5e-6);
-
-# ----------------------------------------------------------
-# 0.5 um AFTER BEND
-# ----------------------------------------------------------
-
-addmodeexpansion;
-set("name","out_0p5_exp");
-set("monitor type","2D X-normal");
-
-set("x",x_0p5);
-
-set("y",0);
-set("y span",1.2e-6);
-
-set("z",z_L2);
-set("z span",1.2e-6);
-
-set("mode selection","fundamental TM mode");
-
-addprofile;
-set("name","out_0p5_field");
-set("monitor type","2D X-normal");
-
-set("x",x_0p5);
-
-set("y",0);
-set("y span",1.2e-6);
-
-set("z",z_L2);
-set("z span",1.2e-6);
-
-addpower;
-set("name","out_0p5_power");
-set("monitor type","2D X-normal");
-
-set("x",x_0p5);
-
-set("y",0);
-set("y span",4e-6);
-
-set("z",z_L2);
-set("z span",5e-6);
-
-# ----------------------------------------------------------
-# 1.0 um AFTER BEND
-# ----------------------------------------------------------
-
-addmodeexpansion;
-set("name","out_1p0_exp");
-set("monitor type","2D X-normal");
-
-set("x",x_1p0);
-
-set("y",0);
-set("y span",1.2e-6);
-
-set("z",z_L2);
-set("z span",1.2e-6);
-
-set("mode selection","fundamental TM mode");
-
-addprofile;
-set("name","out_1p0_field");
-set("monitor type","2D X-normal");
-
-set("x",x_1p0);
-
-set("y",0);
-set("y span",1.2e-6);
-
-set("z",z_L2);
-set("z span",1.2e-6);
-
-addpower;
-set("name","out_1p0_power");
-set("monitor type","2D X-normal");
-
-set("x",x_1p0);
-
-set("y",0);
-set("y span",4e-6);
-
-set("z",z_L2);
-set("z span",5e-6);
-
-# ----------------------------------------------------------
-# PORT 3 : 1 um INTO OUTPUT STRAIGHT
+# PORT : 1 um INTO OUTPUT STRAIGHT
 # ----------------------------------------------------------
 
 addport;
@@ -1022,153 +599,9 @@ set("z span",1.2e-6);
 set("mode selection", "user select");
 set("selected mode numbers", [1,2,3,4]);
 
-# ----------------------------------------------------------
-# 1.5 um AFTER BEND
-# ----------------------------------------------------------
-
-addmodeexpansion;
-set("name","out_1p5_exp");
-set("monitor type","2D X-normal");
-
-set("x",x_1p5);
-
-set("y",0);
-set("y span",1.2e-6);
-
-set("z",z_L2);
-set("z span",1.2e-6);
-
-set("mode selection","fundamental TM mode");
-
-addprofile;
-set("name","out_1p5_field");
-set("monitor type","2D X-normal");
-
-set("x",x_1p5);
-
-set("y",0);
-set("y span",1.2e-6);
-
-set("z",z_L2);
-set("z span",1.2e-6);
-
-addpower;
-set("name","out_1p5_power");
-set("monitor type","2D X-normal");
-
-set("x",x_1p5);
-
-set("y",0);
-set("y span",4e-6);
-
-set("z",z_L2);
-set("z span",5e-6);
-
-# ----------------------------------------------------------
-# 2.0 um AFTER BEND
-# ----------------------------------------------------------
-
-addmodeexpansion;
-set("name","out_2p0_exp");
-set("monitor type","2D X-normal");
-
-set("x",x_2p0);
-
-set("y",0);
-set("y span",1.2e-6);
-
-set("z",z_L2);
-set("z span",1.2e-6);
-
-set("mode selection","fundamental TM mode");
-
-addprofile;
-set("name","out_2p0_field");
-set("monitor type","2D X-normal");
-
-set("x",x_2p0);
-
-set("y",0);
-set("y span",1.2e-6);
-
-set("z",z_L2);
-set("z span",1.2e-6);
-
-addpower;
-set("name","out_2p0_power");
-set("monitor type","2D X-normal");
-
-set("x",x_2p0);
-
-set("y",0);
-set("y span",4e-6);
-
-set("z",z_L2);
-set("z span",5e-6);
-
-# ----------------------------------------------------------
-# 3.0 um AFTER BEND
-# ----------------------------------------------------------
-
-addmodeexpansion;
-set("name","out_3p0_exp");
-set("monitor type","2D X-normal");
-
-set("x",x_3p0);
-
-set("y",0);
-set("y span",1.2e-6);
-
-set("z",z_L2);
-set("z span",1.2e-6);
-
-set("mode selection","fundamental TM mode");
-
-addprofile;
-set("name","out_3p0_field");
-set("monitor type","2D X-normal");
-
-set("x",x_3p0);
-
-set("y",0);
-set("y span",1.2e-6);
-
-set("z",z_L2);
-set("z span",1.2e-6);
-
-addpower;
-set("name","out_3p0_power");
-set("monitor type","2D X-normal");
-
-set("x",x_3p0);
-
-set("y",0);
-set("y span",4e-6);
-
-set("z",z_L2);
-set("z span",5e-6);
-
 ############################################################
-# XZ MOVIE + FIELD THROUGH BEND EXIT / OUTPUT STRAIGHT
+# XZ FIELD THROUGH BEND EXIT / OUTPUT STRAIGHT
 ############################################################
-
-addmovie;
-set("name","output_xz_movie");
-set("monitor type","2D Y-normal");
-set("simulation type", "3D");
-set("field component","Ez");
-set("TM field component","Ez");
-
-# fixed y slice through center of output waveguide
-set("y",0);
-
-# start slightly before bend exit and continue into straight
-set("x",R - 0.5e-6);
-set("x span",2.0e-6);
-
-# include both layers and surrounding cladding
-set("z",z_L2);
-set("z span",2.0e-6);
 
 addprofile;
 set("name","output_xz_profile");

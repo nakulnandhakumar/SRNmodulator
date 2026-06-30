@@ -5,8 +5,8 @@ WG_COUPLING_CONFIG = {
     "H_coupler": 450e-9, # coupler waveguide height
     
     "t_gap_pcm": 0e-9,  # gap between PCM and waveguide
-    "t_pcm": 50e-9,      # PCM thickness
-    "g": 250e-9,         # coupling gap between waveguides
+    "t_pcm": 40e-9,      # PCM thickness
+    "g": 280e-9,         # coupling gap between waveguides
     "bend_radius": 15e-6, # bend radius for directional coupler tails (for phase correction)
     
     "x_coupler_center": 0, # x-center of coupler waveguide (to be set based on coupling direction)
